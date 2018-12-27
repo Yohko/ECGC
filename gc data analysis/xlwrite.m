@@ -98,8 +98,6 @@ end
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
-import org.apache.poi.ss.usermodel.*;
-
 import org.apache.poi.ss.util.*;
 
 status=0;
@@ -135,23 +133,24 @@ if xlsFile.isFile()
     % create XSSF or HSSF workbook from existing workbook
     fileIn = java.io.FileInputStream(xlsFile);
     xlsWorkbook = WorkbookFactory.create(fileIn);
+    %xlsWorkbook = XSSFWorkbookFactory.create(fileIn);
 else
     % Create a new workbook based on the extension. 
     [~,~,fileExt] = fileparts(filename);
     
     % Check based on extension which type to create. If no (valid)
     % extension is given, create XLSX file
-    switch lower(fileExt)
-        case '.xls'
-            xlsWorkbook = HSSFWorkbook();
-        case '.xlsx'
+%    switch lower(fileExt)
+%        case '.xls'
+%            xlsWorkbook = HSSFWorkbook();
+%        case '.xlsx'
             xlsWorkbook = XSSFWorkbook();
-        otherwise
-            xlsWorkbook = XSSFWorkbook();
+%        otherwise
+%            xlsWorkbook = XSSFWorkbook();
             
             % Also update filename with added extension
-            filename = [filename '.xlsx'];
-    end
+%            filename = [filename '.xlsx'];
+%    end
 end
 
 % If sheetname given, enter data in this sheet
@@ -172,7 +171,7 @@ if ~isempty(sheet)
     
     % Create a new sheet if it is empty
     if isempty(xlsSheet)
-        warning('xlwrite:AddSheet', 'Added specified worksheet.');
+        %warning('xlwrite:AddSheet', 'Added specified worksheet.');
         
         % Add the sheet
         if isnumeric(sheet)
@@ -283,6 +282,8 @@ for iRow = iRowStart:iRowEnd
 end
 
 % Write & close the workbook
+xlsWorkbook.setForceFormulaRecalculation(true);
+XSSFFormulaEvaluator.evaluateAllFormulaCells(xlsWorkbook);
 fileOut = java.io.FileOutputStream(filename);
 xlsWorkbook.write(fileOut);
 fileOut.close();
