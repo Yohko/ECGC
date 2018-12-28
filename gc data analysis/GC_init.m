@@ -9,7 +9,7 @@ function GC_init()
     result = struct;
     cal = struct;
 
-    input.printplot = 1;
+    input.printplot = 0;
 	input.h_plotfigure = [];
     ff = what;
     input.cwd = [ff.path '/'];
