@@ -1,0 +1,15 @@
+
+EC&amp;GC spectra analysis tool
+=======================
+
+<img src="GC_GUI.png" width="400">
+<img src="peakintegration.png" width="400">
+
+
+The GC is triggered through EC-Lab:
+
+<img src="ECLab_startGC.png" width="400">
+
+Gas flow rates are controlled by ALICAT flow controllers and recorded in EC-Lab through the analog inputs of the potentiostat.
+The flow controller for the inlet gas flow is expected to be connected to channel 1 and the flow meter for the outlet flow rate (and inlet for the GC) is expected to be connected to channel 2.
+<img src="ECLab_recordflow.png" width="400">
