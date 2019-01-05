@@ -35,7 +35,7 @@ function [spectraEC, area] = GC_dloadEC()
             if i > 1
                 spectraEC = [spectraEC, struct('name',name,'header',data(1),'spectrum',data(2),'timecode',data(3))];
             else
-                spectraEC = struct('name',name,'header',data(1),'spectrum',data(2),'timecode',data(3));    
+                spectraEC = struct('name',name,'header',data(1),'spectrum',data(2),'timecode',data(3));
             end
         end
     end    
