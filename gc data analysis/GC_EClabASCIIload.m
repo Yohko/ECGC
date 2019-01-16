@@ -25,9 +25,9 @@ function ECdata = GC_EClabASCIIload(fid)
 	end
 	h = fgetl(fid);
     columnnames = strsplit(h,'\t')';
-    cols = size(columnnames,2);
-    if(isempty(char(columnnames(1,end))) == 1)
-       cols = cols - 1; 
+    cols = length(columnnames);
+    if(isempty(char(columnnames(end))) == 1)
+       cols = cols - 1;
     end
     % read the data
     y = textscan(fid,'%f','delimiter','\t','emptyvalue', NaN);
