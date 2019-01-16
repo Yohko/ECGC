@@ -35,10 +35,11 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
     end
 	if(param(7)<0)
         curvature = abs(param(7));
-    else
+	else
         curvature = abs(YB(end)-YB(1))*param(7);
 	end
 
+    samplepoints = zeros(param(6)+1,1);
     switch param(8)
         %case 0 %random
         case 1
@@ -48,7 +49,7 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
         otherwise % random
             samplepoints(1) = 1;
             samplepoints(2) = length(XB);
-            for i=3:param(6)+2
+            for i=3:param(6)+1
                 samplepoints(i) = randi(length(XB));
             end    
     end
@@ -83,17 +84,17 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
     YBsub = YB-BGline;
     maxval = max(YBsub);
     factor = 3;
-    if(round(maxval/std(YBsub,1,'all'))<=3)
+    if(round(maxval/std(YBsub,1))<=3)
         factor = 1;
     end
     for j=1:20
-        S = std(YBsub(index_onlynoise),1,'all'); % standard deviation
+        S = std(YBsub(index_onlynoise),1); % standard deviation
         M = mean(YBsub(index_onlynoise)); % mean value
         Snew = S;
         for i=1:param(4)
             %index_onlynoise = find(YBsub <= M+3*S); % reject all points above M+3*S
             index_onlynoise = find(YBsub <= factor*Snew); % reject all points above M+3*S
-            Snew = std(YBsub(index_onlynoise),1,'all'); % standard deviation
+            Snew = std(YBsub(index_onlynoise),1); % standard deviation
             if(Snew/S<0.01) % TBD what is the optimal parameter for the change
                 break;
             end
@@ -102,17 +103,22 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
            break; 
         end
     end
-    % calculate the final error
-    S = std(YBsub(index_onlynoise)); % standard deviation
-    M = mean(YBsub(index_onlynoise)); % mean value
 
     % points which are not noise belong to peaks
     index_onlysignal = 1:length(BGline);
     for i= 1:length(index_onlynoise)
         index_onlysignal = index_onlysignal(find(index_onlynoise(i)~=index_onlysignal));
     end
-    index_onlysignaltmp = index_onlysignal;
 
+	% remove BGline below peak and make it a straight line
+	% interpolate new background to original grid so we can substract it
+    BGline = interp1(XB(index_onlynoise),BGline(index_onlynoise),XB,'linear','extrap');
+    YBsub = YB-BGline;
+    
+	% calculate the final error
+    S = std(YBsub(index_onlynoise)); % standard deviation
+    M = mean(YBsub(index_onlynoise)); % mean value
+    
     % detect individual peaks
     starti(1) = 0;
 	stopi(1) = 0;
@@ -121,8 +127,6 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
         peak_count = 1;
     	starti(peak_count) = index_onlysignal(1);
         stopi(peak_count) = index_onlysignal(end);
-        
-        
         for ii = 1:(length(index_onlysignal)-1)
            if((index_onlysignal(ii+1)-1)~=index_onlysignal(ii))               
                if(index_onlysignal(ii)-starti(peak_count) > 2) % min three point for a peak
@@ -134,8 +138,6 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
                    starti(peak_count) = index_onlysignal(ii);
                    stopi(peak_count) = index_onlysignal(end);
                end
-               % exclude point
-               index_onlysignaltmp = index_onlysignal(i+1:end);
            end
         end
     end
@@ -149,7 +151,7 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
             range_start = start+(stop-start)*factor;
             range_stop = stop-(stop-start)*factor;
             centerfound = XB(starti(i))+(XB(stopi(i))-XB(starti(i)))/2;
-            if(centerfound < range_stop & centerfound > range_start)
+            if(centerfound < range_stop && centerfound > range_start)
                 display = sprintf('%s center %s range %s %s\n',display,num2str(centerfound),num2str(range_start),num2str(range_stop));
                 index_onlysignal = starti(i):stopi(i);
                 break;
@@ -202,7 +204,10 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
         % no saturation, just integrate over YB-BGline
         % area = trapz(XB, YBsub);
         if(length(index_onlysignal) > 1)
+            % integrate only 'detected peak'
             area = trapz(XB(index_onlysignal), YBsub(index_onlysignal));
+            % integrate everything
+            %area = trapz(XB, YBsub);
             if(S*(XB(end)-XB(1))> area) % check if area is above noise level
                area = 0;
             end
@@ -219,7 +224,7 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
         subplot(2,1,1);
         plot(XB,YB, 'linewidth', f_line);
         hold on;
-        plot(XBsample,YBsample,'o-', 'linewidth', f_line);
+        plot(XB,BGline,'-', 'linewidth', f_line);
         hold off;
         xlabel('elution time / min', 'fontsize',f_caption);
         ylabel('intensity / mV', 'fontsize',f_caption);
@@ -257,7 +262,11 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
         ylabel('intensity / mV', 'fontsize',f_caption);
         set(gca, 'linewidth', f_line);
         set(gca, 'fontsize', f_caption);
-        sgtitle(display)
+        if(verLessThan('matlab','9.5'))
+            title(display);
+        else
+            sgtitle(display);
+        end
 	end
         
     if(area <= 0) % just in case
