@@ -31,7 +31,7 @@ function GC_integrate(display,BGtype)
     result.TCD_CH4 = zeros(size(input.FID,2),1);
     result.run = zeros(size(input.FID,2),1);
 
-    BGiter = 1000;
+    BGiter = 100;
     for i=1:size(input.FID,2)
         shift = input.CO2offset-input.CO2pos(i); % correct for drifts in spectra
         % #### CO #########################################################
@@ -48,7 +48,7 @@ function GC_integrate(display,BGtype)
                 area = GC_peakInteg_linefit(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0.87+shift],sprintf('%d %s',i,graph_title));
             %case 3 % multi line
             otherwise % default
-                area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0.87+shift;20;0.02;1],sprintf('%d %s',i,graph_title));
+                area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0.87+shift;20;CO_curvature;1],sprintf('%d %s',i,graph_title));
         end
         
         result.FID_CO(i) = area(1);
@@ -76,7 +76,7 @@ function GC_integrate(display,BGtype)
                 area = GC_peakInteg_linefit(input.tR,input.FID(:,i),start, stop, [0;0;display(1) & displot;BGiter],sprintf('%d %s %d',i,graph_title,input.CO2edge(i)));
             %case 3 % multi line
             otherwise % linear
-                area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;40;-0.02;1],sprintf('%d %s',i,graph_title));
+                area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;40;CH4_curvature;1],sprintf('%d %s',i,graph_title));
         end
         result.FID_CH4(i) = area(1);
         CH4tmp(i) = area(4);
@@ -96,7 +96,7 @@ function GC_integrate(display,BGtype)
                 area = GC_peakInteg_linefit(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter],sprintf('%d %s',i,graph_title));
             %case 3 % multi line
             otherwise
-                area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;0.005;1],sprintf('%d %s',i,graph_title));
+                area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;C2H4_curvature;1],sprintf('%d %s',i,graph_title));
         end
         result.FID_C2H4(i) = area(1);
         if(display(1) && displot)
@@ -115,7 +115,7 @@ function GC_integrate(display,BGtype)
                 area = GC_peakInteg_linefit(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter],sprintf('%d %s',i,graph_title));
             %case 3 % multi line
             otherwise
-                area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;0.04;1],sprintf('%d %s',i,graph_title));
+                area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;C2H6_curvature;1],sprintf('%d %s',i,graph_title));
         end
         result.FID_C2H6(i) = area(1);
         if(display(1) && displot)
@@ -134,7 +134,7 @@ function GC_integrate(display,BGtype)
                 area = GC_peakInteg_linefit(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter],sprintf('%d %s',i,graph_title));
             %case 3 % multi line
             otherwise
-                area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;0.02;1],sprintf('%d %s',i,graph_title));
+                area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;CH4_2nd_curvature;1],sprintf('%d %s',i,graph_title));
         end
         result.FID_CH4_2nd(i) = area(1);
         if(display(1) && displot)
@@ -153,7 +153,7 @@ function GC_integrate(display,BGtype)
                 area = GC_peakInteg_linefit(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter],sprintf('%d %s',i,graph_title));
             %case 3 % multi line
             otherwise
-                area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;0.02;1],sprintf('%d %s',i,graph_title));
+                area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;CO_2nd_curvature;1],sprintf('%d %s',i,graph_title));
         end
         result.FID_CO_2nd(i) = area(1);
         if(display(1) && displot)
@@ -172,7 +172,7 @@ function GC_integrate(display,BGtype)
                 area = GC_peakInteg_linefit(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter],sprintf('%d %s',i,graph_title));        
             %case 3 % multi line
             otherwise
-                area = GC_peakInteg_multiline(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;0.02;1],sprintf('%d %s',i,graph_title));
+                area = GC_peakInteg_multiline(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;H2O2_curvature;1],sprintf('%d %s',i,graph_title));
         end
         result.TCD_H2O2(i) = area(1);
         if(display(1) && displot)
@@ -191,7 +191,7 @@ function GC_integrate(display,BGtype)
                 area = GC_peakInteg_linefit(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter],sprintf('%d %s',i,graph_title));
             %case 3 % multi line
             otherwise
-                area = GC_peakInteg_multiline(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;0.02;1],sprintf('%d %s',i,graph_title));
+                area = GC_peakInteg_multiline(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;PG_curvature;1],sprintf('%d %s',i,graph_title));
         end
         result.TCD_PG(i) = area(1);
         if(display(1) && displot)
@@ -210,7 +210,7 @@ function GC_integrate(display,BGtype)
                 area = GC_peakInteg_linefit(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter],sprintf('%d %s',i,graph_title));
             %case 3 % multi line
             otherwise
-                area = GC_peakInteg_multiline(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;0.02;1],sprintf('%d %s',i,graph_title));
+                area = GC_peakInteg_multiline(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;H2_curvature;1],sprintf('%d %s',i,graph_title));
         end
         result.TCD_H2(i) = area(1);
         if(display(1) && displot)
@@ -231,7 +231,7 @@ function GC_integrate(display,BGtype)
                 area = GC_peakInteg_linefit(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter],sprintf('%d %s',i,graph_title));
             %case 3 % multi line
             otherwise
-                area = GC_peakInteg_multiline(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;0.005;1],sprintf('%d %s',i,graph_title));
+                area = GC_peakInteg_multiline(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;O2_curvature;1],sprintf('%d %s',i,graph_title));
         end
         result.TCD_O2(i) = area(1);
         if(display(1) && displot)

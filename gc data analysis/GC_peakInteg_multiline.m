@@ -18,26 +18,27 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
     %index = find((datax > start & datax < stop) & datay>CO2_cutoff);
     XB = datax(index);
     YB = datay(index);
-    idx = find(YB>CO2_cutoff, 1);
+    idx = find(YB>=CO2_cutoff, 1);
     indexold = index;
     if(isempty(idx) == 0)
-        index = find(YB<CO2_cutoff);
+        % delete all point between first and last index
+        indexover = find(YB>=CO2_cutoff);
+        index = [1:(indexover(1)-1),(indexover(end)+1):length(XB)];
+        if(length(index) < 3)
+            disp('Error with calculating peak area in ');
+            disp(display);
+            disp('Signal saturated.');
+            area = [0;0;0;0;0];
+            return;
+        end
         XB = XB(index);
         YB = YB(index);
     end
-	%curvature = 0;
-    if(length(YB) < 3)
-        disp('Error with calculating peak area in ');
-        disp(display);
-        disp('Signal saturated.');
-        area = [0;0;0;0;0];
-        return;
-    end
-	if(param(7)<0)
+    if(param(7)<0)
         curvature = abs(param(7));
-	else
+    else
         curvature = abs(YB(end)-YB(1))*param(7);
-	end
+    end
 
     samplepoints = zeros(param(6)+1,1);
     switch param(8)
@@ -54,11 +55,11 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
             end    
     end
 
-	samplepoints=unique(samplepoints,'sorted');
+    samplepoints=unique(samplepoints,'sorted');
     XBsample = XB(samplepoints);
     YBsample = YB(samplepoints);
 
-	for i=1:param(4)
+    for i=1:param(4)
         %forward
         for j=2:length(XBsample)-1
             middle = (YBsample(j+1)+YBsample(j-1))/2;
@@ -74,7 +75,7 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
                 YBsample(k) = middle;
             end
         end
-	end
+    end
     
     % interpolate new background to original grid so we can substract it
     BGline = interp1(XBsample,YBsample,XB,'linear','extrap');
@@ -87,7 +88,7 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
     if(round(maxval/std(YBsub,1))<=3)
         factor = 1;
     end
-    for j=1:20
+    for j=1:(param(4)/10)
         S = std(YBsub(index_onlynoise),1); % standard deviation
         M = mean(YBsub(index_onlynoise)); % mean value
         Snew = S;
@@ -110,22 +111,22 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
         index_onlysignal = index_onlysignal(find(index_onlynoise(i)~=index_onlysignal));
     end
 
-	% remove BGline below peak and make it a straight line
-	% interpolate new background to original grid so we can substract it
+    % remove BGline below peak and make it a straight line
+    % interpolate new background to original grid so we can substract it
     BGline = interp1(XB(index_onlynoise),BGline(index_onlynoise),XB,'linear','extrap');
     YBsub = YB-BGline;
     
-	% calculate the final error
+    % calculate the final error
     S = std(YBsub(index_onlynoise)); % standard deviation
     M = mean(YBsub(index_onlynoise)); % mean value
     
     % detect individual peaks
     starti(1) = 0;
-	stopi(1) = 0;
-	peak_count = 0;
+    stopi(1) = 0;
+    peak_count = 0;
     if(length(index_onlysignal)>2) % min three point for a peak
         peak_count = 1;
-    	starti(peak_count) = index_onlysignal(1);
+        starti(peak_count) = index_onlysignal(1);
         stopi(peak_count) = index_onlysignal(end);
         for ii = 1:(length(index_onlysignal)-1)
            if((index_onlysignal(ii+1)-1)~=index_onlysignal(ii))               
@@ -218,7 +219,7 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
     
     display = sprintf('%s STDev_{noise}=%s; mean_{noise}=%s\narea=%s',display,num2str(S),num2str(M), num2str(area));
 
-	if(param(3) == 1) % plot
+    if(param(3) == 1) % plot
         close(input.h_plotfigure);
         input.h_plotfigure = figure();
         subplot(2,1,1);
@@ -267,7 +268,7 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
         else
             sgtitle(display);
         end
-	end
+    end
         
     if(area <= 0) % just in case
        area = 0;
