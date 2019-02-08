@@ -220,6 +220,7 @@ input.samplelist(id,7) = {str2double(get(handles.edit_GCinttime, 'String'))};
 input.samplelist(id,8) = {get(handles.checkbox_GCbinning, 'Value')};
 input.samplelist(id,9) = {str2double(get(handles.edit_Ru, 'String'))};
 input.samplelist(id,10) = {str2double(get(handles.edit_compensation, 'String'))};
+input.samplelist(id,11) = {get(handles.checkbox_GCandEC, 'Value')};
 
 
 function save_list_to_disk()

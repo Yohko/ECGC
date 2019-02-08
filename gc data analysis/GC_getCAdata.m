@@ -3,7 +3,7 @@ function GC_getCAdata()
     global input result
     CApotcount = 1;
     % for CA ECLab data:
-    potcol = strmatch('control/V', input.spectraEC(1).header,'exact');
+    potcol = strmatch('Ewe/V', input.spectraEC(1).header,'exact');
     chargecol = strmatch('(Q-Qo)/C', input.spectraEC(1).header,'exact');
     timecol = strmatch('time/s', input.spectraEC(1).header,'exact');
     flowincol = strmatch('Analog IN 1/V', input.spectraEC(1).header,'exact');

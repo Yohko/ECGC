@@ -48,6 +48,6 @@ function GC_main(sample, plot, BGtype)
     %GC_exportCSV();
     %% (10-2) ######## export data to XLS #################################
     disp('STEP (10) export to EXCEL and open results (if enabled)');
-%    disp(sprintf('Exporting to: %s',input.cwd));
-%    GC_exportXLS(); % requires JAVA scripts
+    disp(sprintf('Exporting to: %s',input.cwd));
+    GC_exportXLS(); % requires JAVA scripts
 end
