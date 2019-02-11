@@ -29,7 +29,7 @@ function GC_getCAdata()
 	% need to check that all CA contain the information needed
     % todo: add support for mixed data files
     for i = 1:size(input.spectraEC,1)
-        if(potcol ~= strmatch('control/V', input.spectraEC(1).header,'exact'))
+        if(potcol ~= strmatch('Ewe/V', input.spectraEC(1).header,'exact'))
             potcol = -1; 
         end
         if(chargecol ~= strmatch('(Q-Qo)/C', input.spectraEC(1).header,'exact'))
