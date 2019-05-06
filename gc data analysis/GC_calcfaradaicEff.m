@@ -77,7 +77,7 @@ function GC_calcfaradaicEff()
         result.GCpotential(i) = potential; 
         result.GCcharge(i) = charge;
         result.GCtime(i) = time;
-        result.GCtimes(i) = GCtimes(i);
+        result.GCtimes(i) = GCtimes(i)*60+8*60*60; % timezone correction
         result.GCcurrent(i) = CAcurrent;
         result.GCflowrate(i) = CAflowrate;
     end
