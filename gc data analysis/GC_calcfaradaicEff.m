@@ -23,6 +23,7 @@ function GC_calcfaradaicEff()
     result.C2H6Faraday = zeros(length(result.H2umolhr),1);
     result.GCpotential = zeros(length(result.H2umolhr),1);
     result.GCcurrent = zeros(length(result.H2umolhr),1);
+    result.GCcurrenterr = zeros(length(result.H2umolhr),1);
     result.GCflowrate = zeros(length(result.H2umolhr),1);
     result.GCcharge = zeros(length(result.H2umolhr),1);
     result.GCtime = zeros(length(result.H2umolhr),1);
@@ -46,6 +47,7 @@ function GC_calcfaradaicEff()
             time = CA_times(1,binidx(1));
             binidxavg = find((GCtimes(i)-input.GCoffsettime)>CA_timeline & (GCtimes(i)-input.GCinttime-input.GCoffsettime)<CA_timeline);
             CAcurrent = mean(CA_current(binidxavg));
+            CAcurrenterr = std(CA_current(binidxavg));
             CAflowrate = mean(CA_flowout(binidxavg));
             potential = mean(CA_potentialline(binidxavg));
         elseif(input.GC_binning == 1) % for flowcell experiment
@@ -54,11 +56,13 @@ function GC_calcfaradaicEff()
                 charge = 0;
                 time = 0;
                 CAcurrent = 0;
+                CAcurrenterr = 0;
                 CAflowrate = 0;
                 potential = 0;
             else
                 charge = CA_chargelinesum(binidxavg(end))-CA_chargelinesum(binidxavg(1));
                 CAcurrent = mean(CA_current(binidxavg));
+                CAcurrenterr = std(CA_current(binidxavg));
                 CAflowrate = mean(CA_flowout(binidxavg));
                 potential = mean(CA_potentialline(binidxavg));
                 time = CA_timeline(binidxavg(end))-CA_timeline(binidxavg(1));
@@ -80,5 +84,6 @@ function GC_calcfaradaicEff()
         result.GCtimes(i) = GCtimes(i)*60+8*60*60; % timezone correction
         result.GCcurrent(i) = CAcurrent;
         result.GCflowrate(i) = CAflowrate;
+        result.GCcurrenterr(i) = CAcurrenterr;
     end
 end

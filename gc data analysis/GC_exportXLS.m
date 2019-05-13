@@ -196,6 +196,62 @@ function GC_exportXLS()
         for i=2:length(input.runnum)+1
             xlwrite(fileName, 'x', sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset), i));
         end
+
+        xlsData = {'Error Current [mA]'};
+        xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+1)));
+        for i=2:length(input.runnum)+1
+            xlwrite(fileName, num2cell(result.GCcurrenterr), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+1)));
+        end
+
+        xlsData = {'Error CO'};
+        xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+2)));
+        for i=2:length(input.runnum)+1
+            xlwrite(fileName, num2cell(result.FID_COerr), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+2)));
+        end
+
+        xlsData = {'Error CH4'};
+        xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+3)));
+        for i=2:length(input.runnum)+1
+            xlwrite(fileName, num2cell(result.FID_CH4err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+3)));
+        end
+
+        xlsData = {'Error CO 2nd'};
+        xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+4)));
+        for i=2:length(input.runnum)+1
+            xlwrite(fileName, num2cell(result.FID_CO_2nderr), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+4)));
+        end
+
+        xlsData = {'Error CH4 2nd'};
+        xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+5)));
+        for i=2:length(input.runnum)+1
+            xlwrite(fileName, num2cell(result.FID_CH4_2nderr), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+5)));
+        end
+
+        xlsData = {'Error C2H4'};
+        xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+6)));
+        for i=2:length(input.runnum)+1
+            xlwrite(fileName, num2cell(result.FID_C2H4err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+6)));
+        end
+
+        xlsData = {'Error C2H6'};
+        xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+7)));
+        for i=2:length(input.runnum)+1
+            xlwrite(fileName, num2cell(result.FID_C2H6err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+7)));
+        end
+
+        xlsData = {'Error O2'};
+        xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+8)));
+        for i=2:length(input.runnum)+1
+            xlwrite(fileName, num2cell(result.TCD_O2err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+8)));
+        end
+
+        xlsData = {'Error H2'};
+        xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+9)));
+        for i=2:length(input.runnum)+1
+            xlwrite(fileName, num2cell(result.TCD_H2err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+9)));
+        end
+        
+        
         
 %         % for Sophia and her plots
 %         xlsData = {'U vs. RHE [V]' 'CO [%]' 'CH4 [%]' 'C2H4 [%]' 'H2 [%]' 'Total [%]' 'Selector'};

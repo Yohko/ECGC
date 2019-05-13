@@ -1,5 +1,5 @@
 %Licence: GNU General Public License version 2 (GPLv2)
-function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display)
+function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, display)
     % http://journals.iucr.org/j/issues/1975/01/00/a12580/a12580.pdf
     % param(1) integration start % not used anymore
     % param(2) integration end % not used anymore
@@ -9,7 +9,7 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
     % param(6) #points in between
     % param(7) curvature parameter
     % param(8) 0.. random spaced, 1 even spaced
-
+    retvals = [0;0;0;0;0;0];
     global GC_usersetting
     eval(GC_usersetting); % load settings
 
@@ -28,7 +28,6 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
             disp('Error with calculating peak area in ');
             disp(display);
             disp('Signal saturated.');
-            area = [0;0;0;0;0];
             return;
         end
         XB = XB(index);
@@ -155,6 +154,8 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
             if(centerfound < range_stop && centerfound > range_start)
                 display = sprintf('%s center %s range %s %s\n',display,num2str(centerfound),num2str(range_start),num2str(range_stop));
                 index_onlysignal = starti(i):stopi(i);
+                retvals(2) = XB(starti(i));
+                retvals(3) = XB(stopi(i));
                 break;
             end
        end
@@ -177,7 +178,6 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
             disp('Error with prelim Gauss fit in ');
             disp(display);
             disp('Probably everything saturated.');
-            area = [0; 0; 0;0;0];
             return;
         end
 
@@ -196,7 +196,6 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
             disp('Error with Skewed Gauss fit in ');
             disp(display);
             disp('Probably everything saturated.');
-            area = [0; 0; 0;0;0];
             return;
         end
         area = f2.a0; % Todo: include error of fit
@@ -218,7 +217,7 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
     end
     
     display = sprintf('%s STDev_{noise}=%s; mean_{noise}=%s\narea=%s',display,num2str(S),num2str(M), num2str(area));
-
+    areaerr = S*(XB(end)-XB(1));
     if(param(3) == 1) % plot
         close(input.h_plotfigure);
         input.h_plotfigure = figure();
@@ -273,7 +272,15 @@ function area = GC_peakInteg_multiline(datax, datay, start, stop, param, display
     if(area <= 0) % just in case
        area = 0;
     end
-    area1 = area;
-    area2 = area;
-    area = [area; 0; 0;area1;area2];
+    
+    % 1: peak area
+    % 2: XB(intl)
+    % 3: XB(intr)
+    % 4: integrate raw area
+    % 5: area from peak fit
+    % 6: peak area error
+    retvals(1) = area;
+    retvals(4) = area;
+    retvals(5) = area; 
+    retvals(6) = areaerr;
 end

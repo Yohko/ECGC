@@ -20,15 +20,28 @@ function GC_integrate(display,BGtype)
     global result
     global input
     result.FID_CH4 = zeros(size(input.FID,2),1);
+    result.FID_CH4err = zeros(size(input.FID,2),1);
     result.FID_CO = zeros(size(input.FID,2),1);
+    result.FID_COerr = zeros(size(input.FID,2),1);
     result.CO_flag = zeros(size(input.FID,2),1);
     result.FID_CH4_2nd = zeros(size(input.FID,2),1);
+    result.FID_CH4_2nderr = zeros(size(input.FID,2),1);
     result.FID_CO_2nd = zeros(size(input.FID,2),1);
+    result.FID_CO_2nderr = zeros(size(input.FID,2),1);
     result.FID_C2H4 = zeros(size(input.FID,2),1);
+    result.FID_C2H4err = zeros(size(input.FID,2),1);
     result.FID_C2H6 = zeros(size(input.FID,2),1);
+    result.FID_C2H6err = zeros(size(input.FID,2),1);
     result.TCD_H2 = zeros(size(input.FID,2),1);
+    result.TCD_H2err = zeros(size(input.FID,2),1);
     result.TCD_O2 = zeros(size(input.FID,2),1);
+    result.TCD_O2err = zeros(size(input.FID,2),1);
     result.TCD_CH4 = zeros(size(input.FID,2),1);
+    result.TCD_CH4err = zeros(size(input.FID,2),1);
+    result.TCD_H2O2 = zeros(size(input.FID,2),1);
+    result.TCD_H2O2err = zeros(size(input.FID,2),1);
+    result.TCD_PG = zeros(size(input.FID,2),1);
+    result.TCD_PGerr = zeros(size(input.FID,2),1);
     result.run = zeros(size(input.FID,2),1);
 
     BGiter = 100;
@@ -49,8 +62,8 @@ function GC_integrate(display,BGtype)
             %case 3 % multi line
             otherwise % default
                 area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0.87+shift;20;CO_curvature;1],sprintf('%d %s',i,graph_title));
+                result.FID_COerr(i) = area(6);
         end
-        
         result.FID_CO(i) = area(1);
         if(display(1) && displot)
             pause(2*display(1));
@@ -68,7 +81,7 @@ function GC_integrate(display,BGtype)
         if(stop<start)
            stop = CH4_end+shift;
         end
-        
+
         switch BGtype(2)
             case 1 % linear
                 area = GC_peakInteg_line(input.tR,input.FID(:,i),start, stop, [0;0;display(1) & displot;BGiter],sprintf('%d %s %d',i,graph_title,input.CO2edge(i)));
@@ -77,9 +90,9 @@ function GC_integrate(display,BGtype)
             %case 3 % multi line
             otherwise % linear
                 area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;40;CH4_curvature;1],sprintf('%d %s',i,graph_title));
+                result.FID_CH4err(i) = area(6);
         end
         result.FID_CH4(i) = area(1);
-        CH4tmp(i) = area(4);
         if(display(1) && displot)
             pause(2*display(1));
         end
@@ -97,6 +110,7 @@ function GC_integrate(display,BGtype)
             %case 3 % multi line
             otherwise
                 area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;C2H4_curvature;1],sprintf('%d %s',i,graph_title));
+                result.FID_C2H4err(i) = area(6);
         end
         result.FID_C2H4(i) = area(1);
         if(display(1) && displot)
@@ -116,6 +130,7 @@ function GC_integrate(display,BGtype)
             %case 3 % multi line
             otherwise
                 area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;C2H6_curvature;1],sprintf('%d %s',i,graph_title));
+                result.FID_C2H6err(i) = area(6);
         end
         result.FID_C2H6(i) = area(1);
         if(display(1) && displot)
@@ -135,6 +150,7 @@ function GC_integrate(display,BGtype)
             %case 3 % multi line
             otherwise
                 area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;CH4_2nd_curvature;1],sprintf('%d %s',i,graph_title));
+                result.FID_CH4_2nderr(i) = area(6);
         end
         result.FID_CH4_2nd(i) = area(1);
         if(display(1) && displot)
@@ -154,6 +170,7 @@ function GC_integrate(display,BGtype)
             %case 3 % multi line
             otherwise
                 area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;CO_2nd_curvature;1],sprintf('%d %s',i,graph_title));
+                result.FID_CO_2nderr(i) = area(6);
         end
         result.FID_CO_2nd(i) = area(1);
         if(display(1) && displot)
@@ -173,6 +190,7 @@ function GC_integrate(display,BGtype)
             %case 3 % multi line
             otherwise
                 area = GC_peakInteg_multiline(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;H2O2_curvature;1],sprintf('%d %s',i,graph_title));
+                result.TCD_H2O2err(i) = area(6);
         end
         result.TCD_H2O2(i) = area(1);
         if(display(1) && displot)
@@ -192,6 +210,7 @@ function GC_integrate(display,BGtype)
             %case 3 % multi line
             otherwise
                 area = GC_peakInteg_multiline(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;PG_curvature;1],sprintf('%d %s',i,graph_title));
+                result.TCD_PGerr(i) = area(6);
         end
         result.TCD_PG(i) = area(1);
         if(display(1) && displot)
@@ -211,6 +230,7 @@ function GC_integrate(display,BGtype)
             %case 3 % multi line
             otherwise
                 area = GC_peakInteg_multiline(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;H2_curvature;1],sprintf('%d %s',i,graph_title));
+                result.TCD_H2err(i) = area(6);
         end
         result.TCD_H2(i) = area(1);
         if(display(1) && displot)
@@ -232,6 +252,7 @@ function GC_integrate(display,BGtype)
             %case 3 % multi line
             otherwise
                 area = GC_peakInteg_multiline(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter;0;20;O2_curvature;1],sprintf('%d %s',i,graph_title));
+                result.TCD_O2err(i) = area(6);
         end
         result.TCD_O2(i) = area(1);
         if(display(1) && displot)
@@ -253,13 +274,25 @@ function GC_integrate(display,BGtype)
     result.TCD_H2O2 = result.TCD_H2O2*60;
     result.TCD_PG = result.TCD_PG*60;
 
+	result.FID_CH4err = result.FID_CH4err*60;
+    result.FID_COerr = result.FID_COerr*60;
+    result.FID_CH4_2nderr = result.FID_CH4_2nderr*60;
+    result.FID_CO_2nderr = result.FID_CO_2nderr*60;
+    result.FID_C2H4err = result.FID_C2H4err*60;
+    result.FID_C2H6err = result.FID_C2H6err*60;
+    result.TCD_H2err = result.TCD_H2err*60;
+    result.TCD_O2err = result.TCD_O2err*60;
+    result.TCD_CH4err = result.TCD_CH4err*60;
+    result.TCD_H2O2err = result.TCD_H2O2err*60;
+    result.TCD_PGerr = result.TCD_PGerr*60;
+
     % check if CH4 is a shoulder peak
 	for i=1:length(result.FID_CH4)
         if result.CO_flag(i) == 1
             disp('No CH4 shoulder.');
         else
             disp('CH4 shoulder, substracting CH4 from CO.');
-            result.FID_CO(i) = result.FID_CO(i)-CH4tmp(i);
+            result.FID_CO(i) = result.FID_CO(i)-result.FID_CH4(i);
         end        
 	end
 end
