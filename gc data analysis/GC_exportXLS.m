@@ -307,8 +307,11 @@ function GC_exportXLS()
 %         end
         
         coloffset = coloffset+12+5;
-        xlsData = {'INDEX' 'Sorted INDEX' 'U vs. RHE' 'CO' 'CH4' 'C2H4' 'C2H6' 'H2' 'Total' 'current' 'charge' 'Err current' 'Err CO' 'Err CH4' 'Err C2H4' 'Err C2H6' 'Err H2'};
+        xlsData = {'INDEX' 'Sorted INDEX' 'U vs. RHE' 'CO' 'CH4' 'C2H4' 'C2H6' 'H2' 'Total' 'current' 'charge' 'Err current' 'Err CO' 'Err CH4' 'Err C2H4' 'Err C2H6' 'Err H2' 'Err Total'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset)));
+        
+        
+        
         maxrows = length(input.runnum)+1;
         for i=2:maxrows
             xlsData = {
@@ -361,6 +364,9 @@ function GC_exportXLS()
                 GC_getXLScolumn(coloffset+1),i,GC_getXLScolumn(coloffset),2,GC_getXLScolumn(coloffset),maxrows) ...
             };
             xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset), i));
+            
+            xlsData = {sprintf('=sum(%s%d:%s%d)', GC_getXLScolumn(coloffset+12),i, GC_getXLScolumn(coloffset+16), i)};
+            xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset+17), i));
         end
     end
     % open new datafile in Excel

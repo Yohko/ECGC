@@ -84,6 +84,6 @@ function GC_calcfaradaicEff()
         result.GCtimes(i) = GCtimes(i)*60+8*60*60; % timezone correction
         result.GCcurrent(i) = CAcurrent;
         result.GCflowrate(i) = CAflowrate;
-        result.GCcurrenterr(i) = CAcurrenterr;
+        result.GCcurrenterr(i) = 3*CAcurrenterr;
     end
 end

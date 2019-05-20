@@ -217,7 +217,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     end
     
     display = sprintf('%s STDev_{noise}=%s; mean_{noise}=%s\narea=%s',display,num2str(S),num2str(M), num2str(area));
-    areaerr = S*(XB(end)-XB(1));
+    areaerr = (3*S+M)*(XB(end)-XB(1));
     if(param(3) == 1) % plot
         close(input.h_plotfigure);
         input.h_plotfigure = figure();
