@@ -15,7 +15,7 @@ function data = GC_new(expname)
         definput = {'C',datestr(now(),'yyyymmdd')};
         answer = inputdlg(prompt,title,dims,definput);
         if(isempty(answer))
-            return
+            return;
         end
         s_id = answer{1};
         s_date = str2double(answer{2});
@@ -40,7 +40,6 @@ function data = GC_new(expname)
             Rcmp = datatmp(1).spectrum(1,Rcmpcol);
             Rcmp = Rcmp/0.85;
         end
-        area = cell2mat(area);
     end    
     clear('datatmp');
 

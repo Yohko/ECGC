@@ -63,6 +63,8 @@ function GC_getCAdata()
     CA_chargeline = NaN;
     CA_potentialline = NaN;
     CA_current = NaN;
+    CA_Rcmp = NaN;
+    
     pcount = 1;
     timesingleCA = 0;
     chargesingleCA = 0;
@@ -116,6 +118,13 @@ function GC_getCAdata()
             else
                 CA_current(pcount) = input.spectraEC(i).spectrum(j,Icol);
             end
+            if(Rcmpcol == -1)
+                CA_Rcmp(pcount) = input.Ru;
+            else
+                CA_Rcmp(pcount) = input.spectraEC(i).spectrum(j,Rcmpcol);
+            end
+            
+            
             CA_timeline(pcount) = input.spectraEC(i).spectrum(j,timecol)+timecodeoffset;
             CA_potentialline(pcount) = potential;            
             CA_chargeline(pcount) = input.spectraEC(i).spectrum(j,chargecol)+chargesingleCA;
@@ -135,5 +144,5 @@ function GC_getCAdata()
     end
     CA_times = CA_times/60; % convert to minutes
     CA_timeline = CA_timeline/60; % convert to minutes
-    result.CAdata = {CA_potentials; CA_charge; CA_times; CA_flowin; CA_flowout;CA_timeline;CA_chargeline; CA_current; CA_potentialline};
+    result.CAdata = {CA_potentials; CA_charge; CA_times; CA_flowin; CA_flowout;CA_timeline;CA_chargeline; CA_current; CA_potentialline; CA_Rcmp};
 end

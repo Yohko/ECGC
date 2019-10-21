@@ -15,29 +15,33 @@ function [spectraEC, area] = GC_dloadEC()
         data = GC_EClabASCIIload(fid);
         fclose(fid);
         if(isempty(data{2})==0)
-            area = data(4);
+            area = cell2mat(data(4));
             areaunit = data(5);
-%            areaunit = char(areaunit);
-%            switch areaunit % convert to cm^2
-%                case 'cm²'
-%                    area = area * 1;
-%                case 'mm²'
-%                    area = area * 0.01;
-%                case 'm²'
-%                    area = area * 10000;
-%                case 'dm²'
-%                    area = area * 100;
-%                case 'nm²'
-%                    area = area * 1e-14;
-%                case 'µm²'
-%                    area = area * 1e-8;
-%            end
+            try
+                areaunit = char(areaunit{1});
+            catch
+                areaunit = 'cm²';
+            end
+            
+            switch areaunit % convert to cm^2
+                case 'cm²'
+                    area = area * 1;
+                case 'mm²'
+                    area = area * 0.01;
+                case 'm²'
+                    area = area * 10000;
+                case 'dm²'
+                    area = area * 100;
+                case 'nm²'
+                    area = area * 1e-14;
+                case 'µm²'
+                    area = area * 1e-8;
+            end
             if i > 1
                 spectraEC = [spectraEC, struct('name',name,'header',data(1),'spectrum',data(2),'timecode',data(3))];
             else
                 spectraEC = struct('name',name,'header',data(1),'spectrum',data(2),'timecode',data(3));
             end
         end
-    end    
-
+    end
 end

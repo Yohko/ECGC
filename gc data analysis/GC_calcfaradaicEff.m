@@ -13,6 +13,7 @@ function GC_calcfaradaicEff()
     CA_chargeline = abs(cell2mat(result.CAdata(7)));
     CA_current = abs(cell2mat(result.CAdata(8)));
     CA_potentialline = cell2mat(result.CAdata(9));
+    CA_Rcmp = cell2mat(result.CAdata(10))/input.compensation;
     %CA_chargeline = cell2mat(result.CAdata(7));
 
     GCtimes = input.timecodes/60;
@@ -50,6 +51,7 @@ function GC_calcfaradaicEff()
             CAcurrenterr = std(CA_current(binidxavg));
             CAflowrate = mean(CA_flowout(binidxavg));
             potential = mean(CA_potentialline(binidxavg));
+            Rucmp = mean(CA_Rcmp(binidxavg));
         elseif(input.GC_binning == 1) % for flowcell experiment
             binidxavg = find((GCtimes(i)-input.GCoffsettime)>CA_timeline & (GCtimes(i)-input.GCinttime-input.GCoffsettime)<CA_timeline);
             if(isempty(binidxavg))
@@ -59,12 +61,14 @@ function GC_calcfaradaicEff()
                 CAcurrenterr = 0;
                 CAflowrate = 0;
                 potential = 0;
+                Rucmp = 0;
             else
                 charge = CA_chargelinesum(binidxavg(end))-CA_chargelinesum(binidxavg(1));
                 CAcurrent = mean(CA_current(binidxavg));
                 CAcurrenterr = std(CA_current(binidxavg));
                 CAflowrate = mean(CA_flowout(binidxavg));
                 potential = mean(CA_potentialline(binidxavg));
+                Rucmp = mean(CA_Rcmp(binidxavg));
                 time = CA_timeline(binidxavg(end))-CA_timeline(binidxavg(1));
             end
         end
@@ -83,6 +87,7 @@ function GC_calcfaradaicEff()
         result.GCtime(i) = time;
         result.GCtimes(i) = GCtimes(i)*60+8*60*60; % timezone correction
         result.GCcurrent(i) = CAcurrent;
+        result.GCRu(i) = Rucmp;
         result.GCflowrate(i) = CAflowrate;
         result.GCcurrenterr(i) = 3*CAcurrenterr;
     end

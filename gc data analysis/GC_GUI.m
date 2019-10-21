@@ -86,6 +86,8 @@ set(handles.popupmenu_BGO2,'String',BGtypes);
 set(handles.popupmenu_BGO2,'Value',3);
 set(handles.popupmenu_BGH2,'String',BGtypes);
 set(handles.popupmenu_BGH2,'Value',3);
+set(handles.text_about,'String',sprintf('© 2017-2019 Matthias H. Richter v191021a\nMatthias.H.Richter@gmail.com'));
+
 
 
 % --- Outputs from this function are returned to the command line.
@@ -233,26 +235,12 @@ function pushbutton5_Callback(~, ~, ~)
 save_list_to_disk();
 
 
-function uipushtool_open_ClickedCallback(~, ~, handles)
-loadsamplelist(handles);
-
-function uipushtool_new_ClickedCallback(~, ~, handles)
-newEntry(handles);
-
-function uipushtool_save_ClickedCallback(~, ~, ~)
-save_list_to_disk();
-
-
-function uipushtool_pickfolder_ClickedCallback(~, ~, handles)
-changeCWD(handles);
-
-
 function changeCWD(handles)
 global input
 newFolder = uigetdir();
 if(newFolder == 0)   
 else
-    oldFolder = cd(newFolder);
+    cd(newFolder);
     input.cwd = newFolder;
     set(handles.text_CWD,'String',input.cwd);
     loadsamplelist(handles);
@@ -301,9 +289,7 @@ else
 	input.samplelist([itemtodelete],:) = [];
     if(size(input.samplelist,1)>0)
         data = table2cell(input.samplelist(:,1))';
-        if(itemtodelete<=size(input.samplelist,1) && itemtodelete>1)
-            itemtodelete = itemtodelete;
-        else
+        if ~(itemtodelete<=size(input.samplelist,1) && itemtodelete>1)
             itemtodelete = 1;
         end
         set(handles.listbox_samplelist,'Value',itemtodelete);

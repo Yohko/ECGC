@@ -153,7 +153,8 @@ function GC_exportXLS()
         end
         % correct potential for RHE and do IR compensation to 100%
         for i=2:length(input.runnum)+1
-            xlwrite(fileName, {sprintf('=%d+%d+%d*%d*%d',result.GCpotential(i-1),input.UtoRHE,(result.GCcurrent(i-1)*1E-3),input.Ru,(1-input.compensation))}, sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset),i));    
+            %xlwrite(fileName, {sprintf('=%d+%d+%d*%d*%d',result.GCpotential(i-1),input.UtoRHE,(result.GCcurrent(i-1)*1E-3),input.Ru,(1-input.compensation))}, sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset),i));    
+            xlwrite(fileName, {sprintf('=%d+%d+%d*%d*%d',result.GCpotential(i-1),input.UtoRHE,(result.GCcurrent(i-1)*1E-3),result.GCRu(i-1),(1-input.compensation))}, sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset),i));    
         end
 
         xlwrite(fileName, num2cell(result.GCcharge), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+1)));
