@@ -15,6 +15,9 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
 
     global input
     index = find(datax > start & datax < stop);
+    if(isempty(index))
+        return;
+    end
     %index = find((datax > start & datax < stop) & datay>CO2_cutoff);
     XB = datax(index);
     YB = datay(index);
@@ -78,7 +81,6 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     
     % interpolate new background to original grid so we can substract it
     BGline = interp1(XBsample,YBsample,XB,'linear','extrap');
-       
     % calculate noise level and reject points based on this
     index_onlynoise = 1:length(BGline);
     YBsub = YB-BGline;
@@ -114,6 +116,9 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     % interpolate new background to original grid so we can substract it
     BGline = interp1(XB(index_onlynoise),BGline(index_onlynoise),XB,'linear','extrap');
     YBsub = YB-BGline;
+    idx = find(YBsub<0);
+    YBsub(idx) = 0;
+    rawarea = trapz(XB, YBsub);
     
     % calculate the final error
     S = std(YBsub(index_onlynoise)); % standard deviation
@@ -279,8 +284,12 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     % 4: integrate raw area
     % 5: area from peak fit
     % 6: peak area error
-    retvals(1) = area;
-    retvals(4) = area;
+%    retvals(1) = area;
+    if rawarea<0
+        rawarea = 0;
+    end
+    retvals(1) = rawarea;
+    retvals(4) = rawarea;
     retvals(5) = area; 
     retvals(6) = areaerr;
 end

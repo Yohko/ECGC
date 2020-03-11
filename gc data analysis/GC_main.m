@@ -45,7 +45,7 @@ function GC_main(sample, plot, BGtype)
 %     GC_plot_umolhr(); % plot results umolhr
 %     GC_plot_FID2D(); % 2D plot of FID and TCD
     %% (10-1) ######## export data to CSV #################################
-    %GC_exportCSV();
+    GC_exportCSV();
     %% (10-2) ######## export data to XLS #################################
     disp('STEP (10) export to EXCEL and open results (if enabled)');
     disp(sprintf('Exporting to: %s',input.cwd));

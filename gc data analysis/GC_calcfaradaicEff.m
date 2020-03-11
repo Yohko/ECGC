@@ -1,7 +1,6 @@
 %Licence: GNU General Public License version 2 (GPLv2)
 function GC_calcfaradaicEff()
     global result input
-
     %CA_potentials = cell2mat(result.CAdata(1));
     %CA_charge = cell2mat(result.CAdata(2));
     CA_times = cell2mat(result.CAdata(3));
@@ -15,21 +14,15 @@ function GC_calcfaradaicEff()
     CA_potentialline = cell2mat(result.CAdata(9));
     CA_Rcmp = cell2mat(result.CAdata(10))/input.compensation;
     %CA_chargeline = cell2mat(result.CAdata(7));
-
     GCtimes = input.timecodes/60;
-    result.H2Faraday = zeros(length(result.H2umolhr),1);
-    result.COFaraday = zeros(length(result.H2umolhr),1);
-    result.CH4Faraday = zeros(length(result.H2umolhr),1);
-    result.C2H4Faraday = zeros(length(result.H2umolhr),1);
-    result.C2H6Faraday = zeros(length(result.H2umolhr),1);
-    result.GCpotential = zeros(length(result.H2umolhr),1);
-    result.GCcurrent = zeros(length(result.H2umolhr),1);
-    result.GCcurrenterr = zeros(length(result.H2umolhr),1);
-    result.GCflowrate = zeros(length(result.H2umolhr),1);
-    result.GCcharge = zeros(length(result.H2umolhr),1);
-    result.GCtime = zeros(length(result.H2umolhr),1);
-    %result.GCtimecode = zeros(length(result.H2umolhr),1);
-    %CAcurrent = 0;
+    result.GCpotential = zeros(length(result.peakFID(1).area),1);
+    result.GCcurrent = zeros(length(result.peakFID(1).area),1);
+    result.GCcurrenterr = zeros(length(result.peakFID(1).area),1);
+    result.GCflowrate = zeros(length(result.peakFID(1).area),1);
+    result.GCcharge = zeros(length(result.peakFID(1).area),1);
+    result.GCtime = zeros(length(result.peakFID(1).area),1);
+    %result.GCtimecode = zeros(length(result.peakFID(1).area),1);
+    CAcurrent = 0;
 
     offset = 0;
     CA_chargelinesum = zeros(length(CA_chargeline),1);
@@ -41,7 +34,7 @@ function GC_calcfaradaicEff()
     end
 
     % loop through all GC spectra
-    for i=1:length(result.H2umolhr)
+    for i=1:length(result.peakFID(1).area)
         binidx = find((GCtimes(i)-input.GCinttime-input.GCoffsettime)<CA_timeline);
         if(input.GC_binning == 0) % for accumulation experiment
             charge =CA_chargelinesum(binidx(1));
@@ -77,11 +70,13 @@ function GC_calcfaradaicEff()
         end
 
         factor = (1/(charge/96500*1E6)*time/60*100);
-        result.H2Faraday(i) = result.H2umolhr(i)*2*factor;
-        result.COFaraday(i) = result.COumolhr(i)*2*factor;
-        result.CH4Faraday(i) = result.CH4umolhr(i)*8*factor;
-        result.C2H4Faraday(i) = result.C2H4umolhr(i)*12*factor;
-        result.C2H6Faraday(i) = result.C2H6umolhr(i)*14*factor;
+        for ii = 1:length(result.peakFID)
+            result.peakFID(ii).Faraday = result.peakFID(ii).umolhr(i)*result.peakFID(ii).n*factor;
+        end
+        
+        for ii = 1:length(result.peakTCD)
+            result.peakTCD(ii).Faraday = result.peakTCD(ii).umolhr(i)*result.peakTCD(ii).n*factor;
+        end
         result.GCpotential(i) = potential; 
         result.GCcharge(i) = charge;
         result.GCtime(i) = time;

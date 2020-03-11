@@ -20,8 +20,11 @@ function GC_getCAdata()
     end
     Icol = strmatch('I/mA', input.spectraEC(1).header,'exact');
 	if(isempty(Icol))
-       Icol = -1;
-    end    
+        Icol = strmatch('<I>/mA', input.spectraEC(1).header,'exact');
+        if(isempty(Icol))
+            Icol = -1;
+        end
+    end
     cyclecol = strmatch('cycle number', input.spectraEC(1).header,'exact');
 	if(isempty(cyclecol))
         cyclecol = -1;
@@ -51,7 +54,9 @@ function GC_getCAdata()
             cyclecol = -1;
         end
         if(Icol ~= strmatch('I/mA', input.spectraEC(1).header,'exact'))
-            Icol = -1;
+            if(Icol ~= strmatch('<I/mA>', input.spectraEC(1).header,'exact'))
+                Icol = -1;
+            end
         end
     end
     CA_potentials = NaN;

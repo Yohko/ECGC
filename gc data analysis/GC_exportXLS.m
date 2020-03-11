@@ -2,7 +2,7 @@
 function GC_exportXLS()
     global GC_usersetting
     eval(GC_usersetting); % load settings
-    global input result cal
+    global input result
     warning('off','MATLAB:xlswrite:AddSheet');
 
     % Add Java POI Libs to matlab javapath
@@ -44,14 +44,14 @@ function GC_exportXLS()
     xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset)));
     xlwrite(fileName, cellstr(input.runname), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset)));
     xlwrite(fileName, num2cell(input.runnum), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+1)));
-    xlwrite(fileName, num2cell(result.FID_CO), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+2)));
-    xlwrite(fileName, num2cell(result.FID_CH4), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+3)));
-    xlwrite(fileName, num2cell(result.FID_CO_2nd), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+4)));
-    xlwrite(fileName, num2cell(result.FID_CH4_2nd), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+5)));
-    xlwrite(fileName, num2cell(result.FID_C2H4), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+6)));
-    xlwrite(fileName, num2cell(result.FID_C2H6), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+7)));
-    xlwrite(fileName, num2cell(result.TCD_O2), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+8)));
-    xlwrite(fileName, num2cell(result.TCD_H2), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+9)));
+    xlwrite(fileName, num2cell(result.peakFID(idCO).area), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+2)));
+    xlwrite(fileName, num2cell(result.peakFID(idCH4).area), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+3)));
+    xlwrite(fileName, num2cell(result.peakFID(idCO2nd).area), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+4)));
+    xlwrite(fileName, num2cell(result.peakFID(idCH42nd).area), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+5)));
+    xlwrite(fileName, num2cell(result.peakFID(idC2H4).area), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+6)));
+    xlwrite(fileName, num2cell(result.peakFID(idC2H6).area), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+7)));
+    xlwrite(fileName, num2cell(result.peakTCD(idO2).area), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+8)));
+    xlwrite(fileName, num2cell(result.peakTCD(idH2).area), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+9)));
     coloffset = coloffset+11;
     
     % area converted to ppm
@@ -60,14 +60,14 @@ function GC_exportXLS()
     xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset)));
     for i=2:length(input.runnum)+1
         xlsData = {
-            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset),i,cal.CO_offset,GC_getXLScolumn(rawoffset),i,cal.CO_offset,cal.CO_factor) ...
-            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset+1),i,cal.CH4_offset,GC_getXLScolumn(rawoffset+1),i,cal.CH4_offset,cal.CH4_factor) ...
-            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset+2),i,cal.CO_M_offset,GC_getXLScolumn(rawoffset+2),i,cal.CO_M_offset,cal.CO_M_factor) ...
-            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset+3),i,cal.CH4_M_offset,GC_getXLScolumn(rawoffset+3),i,cal.CH4_M_offset,cal.CH4_M_factor) ...
-            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset+4),i,cal.C2H4_offset,GC_getXLScolumn(rawoffset+4),i,cal.C2H4_offset,cal.C2H4_factor) ...
-            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset+5),i,cal.C2H6_offset,GC_getXLScolumn(rawoffset+5),i,cal.C2H6_offset,cal.C2H6_factor) ...
-            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset+6),i,cal.O2_offset,GC_getXLScolumn(rawoffset+6),i,cal.O2_offset,cal.O2_factor) ...
-            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset+7),i,cal.H2_offset,GC_getXLScolumn(rawoffset+7),i,cal.H2_offset,cal.H2_factor) ...
+            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset),i,result.peakFID(idCO).offset,GC_getXLScolumn(rawoffset),i,result.peakFID(idCO).offset,result.peakFID(idCO).factor) ...
+            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset+1),i,result.peakFID(idCH4).offset,GC_getXLScolumn(rawoffset+1),i,result.peakFID(idCH4).offset,result.peakFID(idCH4).factor) ...
+            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset+2),i,result.peakFID(idCO2nd).offset,GC_getXLScolumn(rawoffset+2),i,result.peakFID(idCO2nd).offset,result.peakFID(idCO2nd).factor) ...
+            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset+3),i,result.peakFID(idCH42nd).offset,GC_getXLScolumn(rawoffset+3),i,result.peakFID(idCH42nd).offset,result.peakFID(idCH42nd).factor) ...
+            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset+4),i,result.peakFID(idC2H4).offset,GC_getXLScolumn(rawoffset+4),i,result.peakFID(idC2H4).offset,result.peakFID(idC2H4).factor) ...
+            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset+5),i,result.peakFID(idC2H6).offset,GC_getXLScolumn(rawoffset+5),i,result.peakFID(idC2H6).offset,result.peakFID(idC2H6).factor) ...
+            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset+6),i,result.peakTCD(idO2).offset,GC_getXLScolumn(rawoffset+6),i,result.peakTCD(idO2).offset,result.peakTCD(idO2).factor) ...
+            sprintf('=IF(%s%d+%d<0,0,(%s%d+%d)/%d)',GC_getXLScolumn(rawoffset+7),i,result.peakTCD(idH2).offset,GC_getXLScolumn(rawoffset+7),i,result.peakTCD(idH2).offset,result.peakTCD(idH2).factor) ...
             };
         xlwrite(fileName, xlsData, sheetName, sprintf('%s%d',GC_getXLScolumn(coloffset),i));
     end
@@ -205,108 +205,80 @@ function GC_exportXLS()
 
         xlsData = {'Error CO [raw]'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+2)));
-        xlwrite(fileName, num2cell(result.FID_COerr), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+2)));
+        xlwrite(fileName, num2cell(result.peakFID(idCO).err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+2)));
 
         xlsData = {'Error CH4 [raw]'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+3)));
-        xlwrite(fileName, num2cell(result.FID_CH4err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+3)));
+        xlwrite(fileName, num2cell(result.peakFID(idCH4).err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+3)));
 
         xlsData = {'Error CO 2nd [raw]'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+4)));
-        xlwrite(fileName, num2cell(result.FID_CO_2nderr), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+4)));
+        xlwrite(fileName, num2cell(result.peakFID(idCO2nd).err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+4)));
 
         xlsData = {'Error CH4 2nd [raw]'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+5)));
-        xlwrite(fileName, num2cell(result.FID_CH4_2nderr), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+5)));
+        xlwrite(fileName, num2cell(result.peakFID(idCH42nd).err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+5)));
 
         xlsData = {'Error C2H4 [raw]'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+6)));
-        xlwrite(fileName, num2cell(result.FID_C2H4err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+6)));
+        xlwrite(fileName, num2cell(result.peakFID(idC2H4).err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+6)));
 
         xlsData = {'Error C2H6 [raw]'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+7)));
-        xlwrite(fileName, num2cell(result.FID_C2H6err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+7)));
+        xlwrite(fileName, num2cell(result.peakFID(idC2H6).err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+7)));
 
         xlsData = {'Error O2 [raw]'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+8)));
-        xlwrite(fileName, num2cell(result.TCD_O2err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+8)));
+        xlwrite(fileName, num2cell(result.peakTCD(idO2).err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+8)));
 
         xlsData = {'Error H2 [raw]'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+9)));
-        xlwrite(fileName, num2cell(result.TCD_H2err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+9)));
+        xlwrite(fileName, num2cell(result.peakTCD(idH2).err), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+9)));
 
         
         Erroroffset = coloffset+10;
         xlsData = {'Error CO'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(Erroroffset)));
         for i=2:length(input.runnum)+1
-            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(result.GCcurrenterr(i-1)),abs(result.GCcurrent(i-1)), abs(result.FID_COerr(i-1)), abs(result.FID_CO(i-1)), GC_getXLScolumn(effoffset),i)};
+            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(result.GCcurrenterr(i-1)),abs(result.GCcurrent(i-1)), abs(result.peakFID(idCO).err(i-1)), abs(result.peakFID(idCO).area(i-1)), GC_getXLScolumn(effoffset),i)};
             xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(Erroroffset), i));
         end
 
         xlsData = {'Error CH4'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(Erroroffset+1)));
         for i=2:length(input.runnum)+1
-            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(result.GCcurrenterr(i-1)),abs(result.GCcurrent(i-1)), abs(result.FID_CH4err(i-1)), abs(result.FID_CH4(i-1)), GC_getXLScolumn(effoffset+1),i)};
+            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(result.GCcurrenterr(i-1)),abs(result.GCcurrent(i-1)), abs(result.peakFID(idCH4).err(i-1)), abs(result.peakFID(idCH4).area(i-1)), GC_getXLScolumn(effoffset+1),i)};
             xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(Erroroffset+1), i));
         end
 
         xlsData = {'Error C2H4'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(Erroroffset+2)));
         for i=2:length(input.runnum)+1
-            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(result.GCcurrenterr(i-1)),abs(result.GCcurrent(i-1)), abs(result.FID_C2H4err(i-1)), abs(result.FID_C2H4(i-1)), GC_getXLScolumn(effoffset+2),i)};
+            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(result.GCcurrenterr(i-1)),abs(result.GCcurrent(i-1)), abs(result.peakFID(idC2H4).err(i-1)), abs(result.peakFID(idC2H4).area(i-1)), GC_getXLScolumn(effoffset+2),i)};
             xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(Erroroffset+2), i));
         end
 
         xlsData = {'Error C2H6'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(Erroroffset+3)));
         for i=2:length(input.runnum)+1
-            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(result.GCcurrenterr(i-1)),abs(result.GCcurrent(i-1)), abs(result.FID_C2H6err(i-1)), abs(result.FID_C2H6(i-1)), GC_getXLScolumn(effoffset+3),i)};
+            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(result.GCcurrenterr(i-1)),abs(result.GCcurrent(i-1)), abs(result.peakFID(idC2H6).err(i-1)), abs(result.peakFID(idC2H6).area(i-1)), GC_getXLScolumn(effoffset+3),i)};
             xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(Erroroffset+3), i));
         end
 
         xlsData = {'Error O2'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(Erroroffset+4)));
         for i=2:length(input.runnum)+1
-            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(result.GCcurrenterr(i-1)),abs(result.GCcurrent(i-1)), abs(result.TCD_O2err(i-1)), abs(result.TCD_O2(i-1)), GC_getXLScolumn(effoffset+4),i)};
+            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(result.GCcurrenterr(i-1)),abs(result.GCcurrent(i-1)), abs(result.peakTCD(idO2).err(i-1)), abs(result.peakTCD(idO2).area(i-1)), GC_getXLScolumn(effoffset+4),i)};
             xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(Erroroffset+4), i));
         end
 
         xlsData = {'Error H2'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(Erroroffset+5)));
         for i=2:length(input.runnum)+1
-            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(result.GCcurrenterr(i-1)),abs(result.GCcurrent(i-1)), abs(result.TCD_H2err(i-1)), abs(result.TCD_H2(i-1)), GC_getXLScolumn(effoffset+5),i)};
+            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(result.GCcurrenterr(i-1)),abs(result.GCcurrent(i-1)), abs(result.peakTCD(idH2).err(i-1)), abs(result.peakTCD(idH2).area(i-1)), GC_getXLScolumn(effoffset+5),i)};
             xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(Erroroffset+5), i));
         end
-
-%         % for Sophia and her plots
-%         xlsData = {'U vs. RHE [V]' 'CO [%]' 'CH4 [%]' 'C2H4 [%]' 'H2 [%]' 'Total [%]' 'Selector'};
-%         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset)));
-%         for i=2:length(input.runnum)+1
-%             xlsData = {
-%                 sprintf('=%s%d', GC_getXLScolumn(potentialoffset), i) ...
-%                 sprintf('=%s%d', GC_getXLScolumn(effoffset), i) ...
-%                 sprintf('=%s%d', GC_getXLScolumn(effoffset+1), i) ...
-%                 sprintf('=%s%d', GC_getXLScolumn(effoffset+2), i) ...
-%                 sprintf('=%s%d', GC_getXLScolumn(effoffset+5), i) ...
-%                 sprintf('=sum(%s%d:%s%d)', GC_getXLScolumn(coloffset+1), i, GC_getXLScolumn(coloffset+4), i) ...
-%                 sprintf('x') ...
-%                 };
-%             xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset), i));
-%         end
-%         coloffset = coloffset+7;
-% 
-% 
-%         xlsData = {'CO_M f' 'CH4_M f' };
-%         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset)));
-%         for i=2:length(input.runnum)+1
-%             xlsData = { % ppm = raw/f --> f = raw/ppm
-%                 sprintf('=%s%d/%s%d', GC_getXLScolumn(rawoffset+2), i, GC_getXLScolumn(ppmoffset), i) ...
-%                 sprintf('=%s%d/%s%d', GC_getXLScolumn(rawoffset+3), i, GC_getXLScolumn(ppmoffset+1), i) ...
-%                 };
-%             xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset), i));
-%         end
-        
+    
         coloffset = coloffset+12+5;
         xlsData = {'INDEX' 'Sorted INDEX' 'U vs. RHE' 'CO' 'CH4' 'C2H4' 'C2H6' 'H2' 'Total' 'current' 'charge' 'Err current' 'Err CO' 'Err CH4' 'Err C2H4' 'Err C2H6' 'Err H2' 'Err Total'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset)));

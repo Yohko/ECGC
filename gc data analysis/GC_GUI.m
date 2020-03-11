@@ -86,7 +86,7 @@ set(handles.popupmenu_BGO2,'String',BGtypes);
 set(handles.popupmenu_BGO2,'Value',3);
 set(handles.popupmenu_BGH2,'String',BGtypes);
 set(handles.popupmenu_BGH2,'Value',3);
-set(handles.text_about,'String',sprintf('© 2017-2019 Matthias H. Richter v191021a\nMatthias.H.Richter@gmail.com'));
+set(handles.text_about,'String',sprintf('© 2017-2020 Matthias H. Richter v200311a\nMatthias.H.Richter@gmail.com'));
 
 
 
