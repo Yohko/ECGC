@@ -1,31 +1,29 @@
 %Licence: GNU General Public License version 2 (GPLv2)
-function GC_split_TCD_FID()
-    global input
-    specsize = size(input.spectra(1).spectrum,1);
+function hfigure = GC_split_TCD_FID(hfigure)
+    specsize = size(hfigure.input.spectra(1).spectrum,1);
+    hfigure.input.CH1 = zeros(specsize,size(hfigure.input.spectra,2)/2);
+    hfigure.input.CH2 = zeros(specsize,size(hfigure.input.spectra,2)/2);
+    hfigure.input.tR = hfigure.input.spectra(1).spectrum(:,1);
+    hfigure.input.runnum = zeros(size(hfigure.input.spectra,2)/2,1);
+    hfigure.input.runname = string(zeros(size(hfigure.input.spectra,2)/2,1));
+    hfigure.input.timecodes = zeros(size(hfigure.input.spectra,2)/2,1);
 
-    input.FID = zeros(specsize,size(input.spectra,2)/2);
-    input.TCD = zeros(specsize,size(input.spectra,2)/2);
-    input.tR = input.spectra(1).spectrum(:,1);
-    input.runnum = zeros(size(input.spectra,2)/2,1);
-    input.runname = string(zeros(size(input.spectra,2)/2,1));
-    input.timecodes = zeros(size(input.spectra,2)/2,1);
-
-    TCDi = 1;
-    FIDi = 1;
-    for i = 1:size(input.spectra,2)
-        index = strfind(input.spectra(i).name,'_');
-        strtmp = input.spectra(i).name(index(end)+1:end);
+    CH2i = 1;
+    CH1i = 1;
+    for i = 1:size(hfigure.input.spectra,2)
+        index = strfind(hfigure.input.spectra(i).name,'_');
+        strtmp = hfigure.input.spectra(i).name(index(end)+1:end);
         type = strtmp(1:3);
         num = strtmp(4:end);
-        if(strcmpi(type,'TCD') == 1)
-            input.TCD(:,TCDi) = input.spectra(i).spectrum(1:specsize,2);
-            TCDi = TCDi+1;
-        elseif(strcmpi(type,'FID') == 1)
-            input.FID(:,FIDi) = input.spectra(i).spectrum(1:specsize,2);
-            input.runnum(FIDi) = str2num(num);
-            input.runname(FIDi) = input.spectra(i).name(1:index(end)-1);
-            input.timecodes(FIDi) = input.spectra(i).timecode;
-            FIDi = FIDi+1;
+        if(strcmpi(type,hfigure.input.ch2name) == 1)
+            hfigure.input.CH2(:,CH2i) = hfigure.input.spectra(i).spectrum(1:specsize,2);
+            CH2i = CH2i+1;
+        elseif(strcmpi(type,hfigure.input.ch1name) == 1)
+            hfigure.input.CH1(:,CH1i) = hfigure.input.spectra(i).spectrum(1:specsize,2);
+            hfigure.input.runnum(CH1i) = str2double(num);
+            hfigure.input.runname(CH1i) = hfigure.input.spectra(i).name(1:index(end)-1);
+            hfigure.input.timecodes(CH1i) = hfigure.input.spectra(i).timecode;
+            CH1i = CH1i+1;
         end
     end
 end

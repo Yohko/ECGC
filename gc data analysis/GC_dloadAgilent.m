@@ -22,26 +22,35 @@ function spectra = GC_dloadAgilent()
 
         fid=fopen(TICfile);
         dataTIC = GC_AgilentloadTICASCII(fid);
-        fclose(fid);
-        fclose all;
+        if(fid ~= -1)
+            fclose(fid);
+            fclose all;
+        end
 
         fid=fopen(TCDfile);
         dataTCD = GC_AgilentloadTCDbin(fid);
-        fclose(fid);
-        fclose all;
+        if(fid ~= -1)
+            fclose(fid);
+            fclose all;
+        end
 
         fid=fopen(MSDfile);
         dataMSD = GC_AgilentloadDATAMS(fid);
-        fclose(fid);
-        fclose all;
+        if(fid ~= -1)
+            fclose(fid);
+            fclose all;
+        end
 
-         if i > 1
-             spectra = [spectra, struct('name',sprintf('%s_TIC',name),'spectrum',dataTIC(2), 'timecode', dataTIC(1))];
-         else
-             spectra = struct('name',sprintf('%s_TIC',name),'spectrum',dataTIC(2), 'timecode', dataTIC(1));
-         end
-         spectra = [spectra, struct('name',sprintf('%s_TCD',name),'spectrum',dataTCD(2), 'timecode', dataTCD(1))];
-         spectra = [spectra, struct('name',sprintf('%s_MSD',name),'spectrum',dataMSD(2), 'timecode', dataMSD(1))];
-         spectra = [spectra, struct('name',sprintf('%s_MSDTIC',name),'spectrum',dataMSD(3), 'timecode', dataMSD(1))];
+        if i > 1
+            spectra = [spectra, struct('name',sprintf('%s_TIC',name),'spectrum',dataTIC(2), 'timecode', dataTIC(1))];
+        else
+            spectra = struct('name',sprintf('%s_TIC',name),'spectrum',dataTIC(2), 'timecode', dataTIC(1));
+        end
+        spectra = [spectra, struct('name',sprintf('%s_TCD',name),'spectrum',dataTCD(2), 'timecode', dataTCD(1))];
+        spectra = [spectra, struct('name',sprintf('%s_MSD',name),'spectrum',dataMSD(2), 'timecode', dataMSD(1))];
+        spectra = [spectra, struct('name',sprintf('%s_MSDTIC',name),'spectrum',dataMSD(3), 'timecode', dataMSD(1))];
+        spectra = [spectra, struct('name',sprintf('%s_MSDBPC',name),'spectrum',dataMSD(4), 'timecode', dataMSD(1))];
+        spectra = [spectra, struct('name',sprintf('%s_MSDBPCMz',name),'spectrum',dataMSD(5), 'timecode', dataMSD(1))];
+        %spectra = [spectra, struct('name',sprintf('%s_unknown',name),'spectrum',dataMSD(6), 'timecode', dataMSD(1))];
     end
 end

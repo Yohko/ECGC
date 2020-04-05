@@ -1,10 +1,9 @@
 %Licence: GNU General Public License version 2 (GPLv2)
-function GC_load_samplelist()
-    global input
+function samplelist = GC_load_samplelist()
     try
-        load('sample_database.mat'); % load old list
-        input.samplelist = sample_database;
+        load('sample_database.mat','sample_database'); % load old list
+        samplelist = sample_database;
     catch
-         input.samplelist = table(); % create a new one
+         samplelist = table(); % create a new one
     end
 end

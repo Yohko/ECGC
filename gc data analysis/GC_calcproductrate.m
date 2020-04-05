@@ -1,22 +1,20 @@
 %Licence: GNU General Public License version 2 (GPLv2)
-function GC_calcproductrate()
-    global result input
+function hfigure = GC_calcproductrate(hfigure)
+    CA_flowout = cell2mat(hfigure.result.CAdata(5));
+    hfigure.input.flowrate = mean(CA_flowout);
+    hfigure.input.hr = hfigure.input.headspacevol/hfigure.input.flowrate/60*1000;
 
-    CA_flowout = cell2mat(result.CAdata(5));
-    input.flowrate = mean(CA_flowout);
-    input.hr = input.headspacevol/input.flowrate/60*1000;
-
-	for ii = 1:length(result.peakFID)
-        result.peakFID(ii).ppm = (result.peakFID(ii).area+result.peakFID(ii).offset)./result.peakFID(ii).factor;
-        result.peakFID(ii).uM = result.peakFID(ii).ppm./24.5;
-        result.peakFID(ii).umol = result.peakFID(ii).uM.*input.headspacevol;
-        result.peakFID(ii).umolhr = result.peakFID(ii).umol./input.hr;
+	for ii = 1:length(hfigure.result.peakCH1)
+        hfigure.result.peakCH1(ii).ppm = (hfigure.result.peakCH1(ii).area+hfigure.result.peakCH1(ii).offset)./hfigure.result.peakCH1(ii).factor;
+        hfigure.result.peakCH1(ii).uM = hfigure.result.peakCH1(ii).ppm./24.5;
+        hfigure.result.peakCH1(ii).umol = hfigure.result.peakCH1(ii).uM.*hfigure.input.headspacevol;
+        hfigure.result.peakCH1(ii).umolhr = hfigure.result.peakCH1(ii).umol./hfigure.input.hr;
 	end
 
-	for ii = 1:length(result.peakTCD)
-        result.peakTCD(ii).ppm = (result.peakTCD(ii).area+result.peakTCD(ii).offset)./result.peakTCD(ii).factor;
-        result.peakTCD(ii).uM = result.peakTCD(ii).ppm./24.5;
-        result.peakTCD(ii).umol = result.peakTCD(ii).uM.*input.headspacevol;
-        result.peakTCD(ii).umolhr = result.peakTCD(ii).umol./input.hr;
+	for ii = 1:length(hfigure.result.peakCH2)
+        hfigure.result.peakCH2(ii).ppm = (hfigure.result.peakCH2(ii).area+hfigure.result.peakCH2(ii).offset)./hfigure.result.peakCH2(ii).factor;
+        hfigure.result.peakCH2(ii).uM = hfigure.result.peakCH2(ii).ppm./24.5;
+        hfigure.result.peakCH2(ii).umol = hfigure.result.peakCH2(ii).uM.*hfigure.input.headspacevol;
+        hfigure.result.peakCH2(ii).umolhr = hfigure.result.peakCH2(ii).umol./hfigure.input.hr;
 	end
 end

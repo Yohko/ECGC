@@ -1,112 +1,109 @@
 %Licence: GNU General Public License version 2 (GPLv2)
-function GC_integrate(display,BGtype)
-    % display(1)  ..  1 plot, 0 don't plot
-	global GC_usersetting
-    eval(GC_usersetting); % load settings
-    
-    global result
-    global input
-    
-    for ii = 1:length(peakFID)
-        result.peakFID(ii).area = zeros(size(input.FID,2),1);
-        result.peakFID(ii).err = zeros(size(input.FID,2),1);
-        result.peakFID(ii).name = peakFID(ii).name;
-        result.peakFID(ii).n = peakFID(ii).n;
-        result.peakFID(ii).offset = peakFID(ii).offset;
-        result.peakFID(ii).factor = peakFID(ii).factor;        
+function hfigure = GC_integrate(hfigure)
+    for ii = 1:length(hfigure.input.peakCH1)
+        hfigure.result.peakCH1(ii).area = zeros(size(hfigure.input.CH1,2),1);
+        hfigure.result.peakCH1(ii).err = zeros(size(hfigure.input.CH1,2),1);
+        hfigure.result.peakCH1(ii).name = hfigure.input.peakCH1(ii).name;
+        hfigure.result.peakCH1(ii).n = hfigure.input.peakCH1(ii).n;
+        hfigure.result.peakCH1(ii).offset = hfigure.input.peakCH1(ii).offset;
+        hfigure.result.peakCH1(ii).factor = hfigure.input.peakCH1(ii).factor;        
     end
     
-    for ii = 1:length(peakTCD)
-        result.peakTCD(ii).area = zeros(size(input.FID,2),1);
-        result.peakTCD(ii).err = zeros(size(input.FID,2),1);
-        result.peakTCD(ii).name = peakTCD(ii).name;
-        result.peakTCD(ii).n = peakTCD(ii).n;
-        result.peakTCD(ii).offset = peakTCD(ii).offset;
-        result.peakTCD(ii).factor = peakTCD(ii).factor;
+    for ii = 1:length(hfigure.input.peakCH2)
+        hfigure.result.peakCH2(ii).area = zeros(size(hfigure.input.CH1,2),1);
+        hfigure.result.peakCH2(ii).err = zeros(size(hfigure.input.CH1,2),1);
+        hfigure.result.peakCH2(ii).name = hfigure.input.peakCH2(ii).name;
+        hfigure.result.peakCH2(ii).n = hfigure.input.peakCH2(ii).n;
+        hfigure.result.peakCH2(ii).offset = hfigure.input.peakCH2(ii).offset;
+        hfigure.result.peakCH2(ii).factor = hfigure.input.peakCH2(ii).factor;
     end
     
-    result.run = zeros(size(input.FID,2),1);
+    hfigure.result.run = zeros(size(hfigure.input.CH1,2),1);
 
     BGiter = 100;
     disppauseval = 0.5;
     
-    for i=1:size(input.FID,2)
-        %shift = input.CO2offset-input.CO2pos(i); % correct for drifts in spectra
+    for i=1:size(hfigure.input.CH1,2)
+        %shift = hfigure.input.CO2offset-hfigure.input.CO2pos(i); % correct for drifts in spectra
         shift = 0;
-        % ##### FID #######################################################
-        for ii = 1:length(result.peakFID)
-            start = peakFID(ii).start+shift;
-            stop = peakFID(ii).end+shift;
-            graph_title = result.peakFID(ii).name;
-            displot = display(peakFID(ii).displotnum); % if its plotted, need to check with peakTCD.name
-            if(peakFID(ii).start ~= -1)
-                switch BGtype(1)
+        % ##### CH1 #######################################################
+        for ii = 1:length(hfigure.result.peakCH1)
+            hfigure.UIprog.Message = sprintf('STEP (5) integrate %d/%d: %s %s', i,size(hfigure.input.CH1,2),hfigure.input.ch1name,hfigure.result.peakCH1(ii).name);
+            hfigure.UIprog.Value = 0.1+i/size(hfigure.input.CH1,2)*0.4;
+            start = hfigure.input.peakCH1(ii).start+shift;
+            stop = hfigure.input.peakCH1(ii).end+shift;
+            graph_title = hfigure.result.peakCH1(ii).name;
+            displot = hfigure.input.checkplot(ii);
+            if(hfigure.input.peakCH1(ii).start ~= -1)
+                switch hfigure.input.intselBGtype(ii)
                     case 1 % linear
-                        area = GC_peakInteg_line(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0.87+shift],sprintf('%d %s',i,graph_title));
+                        area = GC_peakInteg_line(hfigure.input.tR,hfigure.input.CH1(:,i), start, stop, [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift],sprintf('%d %s',i,graph_title));
                     case 2 % linearfit
-                        area = GC_peakInteg_linefit(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0.87+shift],sprintf('%d %s',i,graph_title));
+                        area = GC_peakInteg_linefit(hfigure.input.tR,hfigure.input.CH1(:,i), start, stop, [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift],sprintf('%d %s',i,graph_title));
                     %case 3 % multi line
                     otherwise % default
-                        area = GC_peakInteg_multiline(input.tR,input.FID(:,i), start, stop, [0;0;display(1) & displot;BGiter;0.87+shift;20;peakFID(ii).curvature;1],sprintf('%d %s',i,graph_title));
-                        result.peakFID(ii).err(i) = area(6);
+                        area = GC_peakInteg_multiline(hfigure.input.tR,hfigure.input.CH1(:,i), start, stop, [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift;20;hfigure.input.peakCH1(ii).curvature;1],sprintf('%d %s',i,graph_title),hfigure);
+                        hfigure.result.peakCH1(ii).err(i) = area(6);
                 end
-                result.peakFID(ii).area(i) = area(1);
-                if(display(1) && displot)
+                hfigure.result.peakCH1(ii).area(i) = area(1);
+                if(hfigure.input.plotpeaks && displot)
                     pause(disppauseval);
                 end
             else
-                result.peakFID(ii).area(i) = 0;
+                hfigure.result.peakCH1(ii).area(i) = 0;
             end
         end
 
-        % ##### TCD #######################################################
-        for ii = 1:length(result.peakTCD)
-            start = peakTCD(ii).start+shift;
-            stop = peakTCD(ii).end+shift;
-            graph_title = result.peakTCD(ii).name;
-            displot = display(peakTCD(ii).displotnum); % if its plotted, need to check with peakTCD.name
-            if(peakTCD(ii).start ~= -1)
-                switch BGtype(1)
+        % ##### CH2 #######################################################
+        for ii = 1:length(hfigure.result.peakCH2)
+            hfigure.UIprog.Message = sprintf('STEP (5) integrate %d/%d: %s %s', i,size(hfigure.input.CH1,2),hfigure.input.ch2name,hfigure.result.peakCH2(ii).name);
+            hfigure.UIprog.Value = 0.1+i/size(hfigure.input.CH1,2)*0.4;
+            start = hfigure.input.peakCH2(ii).start+shift;
+            stop = hfigure.input.peakCH2(ii).end+shift;
+            graph_title = hfigure.result.peakCH2(ii).name;
+            displot = hfigure.input.checkplot(length(hfigure.input.peakCH1)+ii);
+            if(hfigure.input.peakCH2(ii).start ~= -1)
+                switch hfigure.input.intselBGtype(length(hfigure.input.peakCH1)+ii)
                     case 1 % linear
-                        area = GC_peakInteg_line(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter;0.87+shift],sprintf('%d %s',i,graph_title));
+                        area = GC_peakInteg_line(hfigure.input.tR,hfigure.input.CH2(:,i), start, stop, [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift],sprintf('%d %s',i,graph_title));
                     case 2 % linearfit
-                        area = GC_peakInteg_linefit(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter;0.87+shift],sprintf('%d %s',i,graph_title));
+                        area = GC_peakInteg_linefit(hfigure.input.tR,hfigure.input.CH2(:,i), start, stop, [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift],sprintf('%d %s',i,graph_title));
                     %case 3 % multi line
                     otherwise % default
-                        area = GC_peakInteg_multiline(input.tR,input.TCD(:,i), start, stop, [0;0;display(1) & displot;BGiter;0.87+shift;20;peakTCD(ii).curvature;1],sprintf('%d %s',i,graph_title));
-                        result.peakTCD(ii).err(i) = area(6);
+                        area = GC_peakInteg_multiline(hfigure.input.tR,hfigure.input.CH2(:,i), start, stop, [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift;20;hfigure.input.peakCH2(ii).curvature;1],sprintf('%d %s',i,graph_title),hfigure);
+                        hfigure.result.peakCH2(ii).err(i) = area(6);
                 end
-                result.peakTCD(ii).area(i) = area(1);
-                if(display(1) && displot)
+                hfigure.result.peakCH2(ii).area(i) = area(1);
+                if(hfigure.input.plotpeaks && displot)
                     pause(disppauseval);
                 end
             else
-                result.peakTCD(ii).area(i) = 0;
+                hfigure.result.peakCH2(ii).area(i) = 0;
             end
         end        
-        result.run(i) = i;
+        hfigure.result.run(i) = i;
     end
     
     % convert to seconds to get the same peak area as in the SRI Software
-    for ii = 1:length(result.peakFID)
-        result.peakFID(ii).area = result.peakFID(ii).area*60;
-        result.peakFID(ii).err = result.peakFID(ii).err*60;
+    for ii = 1:length(hfigure.result.peakCH1)
+        hfigure.result.peakCH1(ii).area = hfigure.result.peakCH1(ii).area*60;
+        hfigure.result.peakCH1(ii).err = hfigure.result.peakCH1(ii).err*60;
     end
-	for ii = 1:length(result.peakTCD)
-        result.peakTCD(ii).area = result.peakTCD(ii).area*60;
-        result.peakTCD(ii).err = result.peakTCD(ii).err*60;
+	for ii = 1:length(hfigure.result.peakCH2)
+        hfigure.result.peakCH2(ii).area = hfigure.result.peakCH2(ii).area*60;
+        hfigure.result.peakCH2(ii).err = hfigure.result.peakCH2(ii).err*60;
 	end
     
     % substract shoulder peaks (defined by subpeak in
     % 'GC_settings_integrate'
-	for ii = 1:length(result.peakFID)
-        if(peakFID(ii).subpeak ~=0)
-            result.peakFID(ii).area = result.peakFID(ii).area-result.peakFID(peakFID(ii).subpeak).area;
+	for ii = 1:length(hfigure.result.peakCH1)
+        if(hfigure.input.peakCH1(ii).subpeak ~=0)
+            hfigure.result.peakCH1(ii).area = hfigure.result.peakCH1(ii).area-hfigure.result.peakCH1(hfigure.input.peakCH1(ii).subpeak).area;
         end
 	end
-	for ii = 1:length(result.peakTCD)
-        if(peakTCD(ii).subpeak ~=0)
-            result.peakTCD(ii).area = result.peakTCD(ii).area-result.peakTCD(peakFID(ii).subpeak).area;
+	for ii = 1:length(hfigure.result.peakCH2)
+        if(hfigure.input.peakCH2(ii).subpeak ~=0)
+            hfigure.result.peakCH2(ii).area = hfigure.result.peakCH2(ii).area-hfigure.result.peakCH2(hfigure.input.peakCH1(ii).subpeak).area;
         end
 	end
 end

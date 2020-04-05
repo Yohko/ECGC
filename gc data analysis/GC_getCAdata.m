@@ -1,60 +1,59 @@
 %Licence: GNU General Public License version 2 (GPLv2)
-function GC_getCAdata()
-    global input result
+function hfigure = GC_getCAdata(hfigure)
     CApotcount = 1;
     % for CA ECLab data:
-    potcol = strmatch('Ewe/V', input.spectraEC(1).header,'exact');
-    chargecol = strmatch('(Q-Qo)/C', input.spectraEC(1).header,'exact');
-    timecol = strmatch('time/s', input.spectraEC(1).header,'exact');
-    flowincol = strmatch('Analog IN 1/V', input.spectraEC(1).header,'exact');
+    potcol = strmatch('Ewe/V', hfigure.input.spectraEC(1).header,'exact');
+    chargecol = strmatch('(Q-Qo)/C', hfigure.input.spectraEC(1).header,'exact');
+    timecol = strmatch('time/s', hfigure.input.spectraEC(1).header,'exact');
+    flowincol = strmatch('Analog IN 1/V', hfigure.input.spectraEC(1).header,'exact');
     if(isempty(flowincol))
         flowincol = -1;
     end
-    flowoutcol = strmatch('Analog IN 2/V', input.spectraEC(1).header,'exact');
+    flowoutcol = strmatch('Analog IN 2/V', hfigure.input.spectraEC(1).header,'exact');
     if(isempty(flowoutcol))
         flowoutcol = -1;
     end
-    Rcmpcol = strmatch('Rcmp/Ohm', input.spectraEC(1).header,'exact');
+    Rcmpcol = strmatch('Rcmp/Ohm', hfigure.input.spectraEC(1).header,'exact');
 	if(isempty(Rcmpcol))
         Rcmpcol = -1;
     end
-    Icol = strmatch('I/mA', input.spectraEC(1).header,'exact');
+    Icol = strmatch('I/mA', hfigure.input.spectraEC(1).header,'exact');
 	if(isempty(Icol))
-        Icol = strmatch('<I>/mA', input.spectraEC(1).header,'exact');
+        Icol = strmatch('<I>/mA', hfigure.input.spectraEC(1).header,'exact');
         if(isempty(Icol))
             Icol = -1;
         end
     end
-    cyclecol = strmatch('cycle number', input.spectraEC(1).header,'exact');
+    cyclecol = strmatch('cycle number', hfigure.input.spectraEC(1).header,'exact');
 	if(isempty(cyclecol))
         cyclecol = -1;
     end
 	% need to check that all CA contain the information needed
     % todo: add support for mixed data files
-    for i = 1:size(input.spectraEC,1)
-        if(potcol ~= strmatch('Ewe/V', input.spectraEC(1).header,'exact'))
+    for i = 1:size(hfigure.input.spectraEC,1)
+        if(potcol ~= strmatch('Ewe/V', hfigure.input.spectraEC(1).header,'exact'))
             potcol = -1; 
         end
-        if(chargecol ~= strmatch('(Q-Qo)/C', input.spectraEC(1).header,'exact'))
+        if(chargecol ~= strmatch('(Q-Qo)/C', hfigure.input.spectraEC(1).header,'exact'))
             chargecol = -1;
         end
-        if(timecol ~= strmatch('time/s', input.spectraEC(1).header,'exact'))
+        if(timecol ~= strmatch('time/s', hfigure.input.spectraEC(1).header,'exact'))
             timecol = -1;
         end
-        if(flowincol ~= strmatch('Analog IN 1/V', input.spectraEC(1).header,'exact'))
+        if(flowincol ~= strmatch('Analog IN 1/V', hfigure.input.spectraEC(1).header,'exact'))
             flowincol = -1;
         end
-        if(flowoutcol ~= strmatch('Analog IN 2/V', input.spectraEC(1).header,'exact'))
+        if(flowoutcol ~= strmatch('Analog IN 2/V', hfigure.input.spectraEC(1).header,'exact'))
             flowoutcol = -1;
         end
-        if(Rcmpcol ~= strmatch('Rcmp/Ohm', input.spectraEC(1).header,'exact'))
+        if(Rcmpcol ~= strmatch('Rcmp/Ohm', hfigure.input.spectraEC(1).header,'exact'))
             Rcmpcol = -1;
         end
-        if(cyclecol ~= strmatch('cycle number', input.spectraEC(1).header,'exact'))
+        if(cyclecol ~= strmatch('cycle number', hfigure.input.spectraEC(1).header,'exact'))
             cyclecol = -1;
         end
-        if(Icol ~= strmatch('I/mA', input.spectraEC(1).header,'exact'))
-            if(Icol ~= strmatch('<I/mA>', input.spectraEC(1).header,'exact'))
+        if(Icol ~= strmatch('I/mA', hfigure.input.spectraEC(1).header,'exact'))
+            if(Icol ~= strmatch('<I/mA>', hfigure.input.spectraEC(1).header,'exact'))
                 Icol = -1;
             end
         end
@@ -74,31 +73,31 @@ function GC_getCAdata()
     timesingleCA = 0;
     chargesingleCA = 0;
     % loop through all the CA data files
-    for i = 1:size(input.spectraEC,2)
+    for i = 1:size(hfigure.input.spectraEC,2)
         % get the absolute timecode offset of the file
         try
-            timecodeoffset = input.spectraEC(i).timecode;
+            timecodeoffset = hfigure.input.spectraEC(i).timecode;
         catch
             timecodeoffset = 0;
         end
         % loop through all datapoints of a single CA data file
-        timeoffset = input.spectraEC(i).spectrum(1,timecol);
+        timeoffset = hfigure.input.spectraEC(i).spectrum(1,timecol);
         if(cyclecol == -1)
             cycle = 1;
         else
-            cycle = input.spectraEC(i).spectrum(1,cyclecol);
+            cycle = hfigure.input.spectraEC(i).spectrum(1,cyclecol);
         end
         % loop through the i CA data file content
-        for j=1:size(input.spectraEC(i).spectrum,1)
+        for j=1:size(hfigure.input.spectraEC(i).spectrum,1)
             if(cyclecol == -1)
                 chargesingleCA = 0;
             else
-                if(cycle ~= input.spectraEC(i).spectrum(j,cyclecol))
-                    cycle = input.spectraEC(i).spectrum(j,cyclecol);
+                if(cycle ~= hfigure.input.spectraEC(i).spectrum(j,cyclecol))
+                    cycle = hfigure.input.spectraEC(i).spectrum(j,cyclecol);
                     chargesingleCA = CA_charge(CApotcount);
                 end
             end
-            potential = input.spectraEC(i).spectrum(j,potcol);
+            potential = hfigure.input.spectraEC(i).spectrum(j,potcol);
             % if Rcmp is on, the potentials can vary slightly
             % I will only compare the first digit after the dot, so
             % potential steps below 100mV are not possible at this moment
@@ -106,33 +105,33 @@ function GC_getCAdata()
                 CApotcount = CApotcount+1;
                 CA_potentials(CApotcount) = potential;
             end
-            CA_charge(CApotcount) = input.spectraEC(i).spectrum(j,chargecol)+chargesingleCA;
-            CA_times(CApotcount) = input.spectraEC(i).spectrum(j,timecol)-timeoffset+timesingleCA;
+            CA_charge(CApotcount) = hfigure.input.spectraEC(i).spectrum(j,chargecol)+chargesingleCA;
+            CA_times(CApotcount) = hfigure.input.spectraEC(i).spectrum(j,timecol)-timeoffset+timesingleCA;
             if(flowincol == -1)
-                CA_flowin(pcount) = input.flowrate;  % fallback to manual value
+                CA_flowin(pcount) = hfigure.input.flowrate;  % fallback to manual value
             else
-                CA_flowin(pcount) = input.spectraEC(i).spectrum(j,flowincol);
+                CA_flowin(pcount) = hfigure.input.spectraEC(i).spectrum(j,flowincol);
             end
             if(flowoutcol == -1)
-                CA_flowout(pcount) = input.flowrate; % fallback to manual value
+                CA_flowout(pcount) = hfigure.input.flowrate; % fallback to manual value
             else
-                CA_flowout(pcount) = input.spectraEC(i).spectrum(j,flowoutcol);
+                CA_flowout(pcount) = hfigure.input.spectraEC(i).spectrum(j,flowoutcol);
             end
             if(Icol == -1)
                 CA_current(pcount) = 0;
             else
-                CA_current(pcount) = input.spectraEC(i).spectrum(j,Icol);
+                CA_current(pcount) = hfigure.input.spectraEC(i).spectrum(j,Icol);
             end
             if(Rcmpcol == -1)
-                CA_Rcmp(pcount) = input.Ru;
+                CA_Rcmp(pcount) = hfigure.input.Ru;
             else
-                CA_Rcmp(pcount) = input.spectraEC(i).spectrum(j,Rcmpcol);
+                CA_Rcmp(pcount) = hfigure.input.spectraEC(i).spectrum(j,Rcmpcol);
             end
             
             
-            CA_timeline(pcount) = input.spectraEC(i).spectrum(j,timecol)+timecodeoffset;
+            CA_timeline(pcount) = hfigure.input.spectraEC(i).spectrum(j,timecol)+timecodeoffset;
             CA_potentialline(pcount) = potential;            
-            CA_chargeline(pcount) = input.spectraEC(i).spectrum(j,chargecol)+chargesingleCA;
+            CA_chargeline(pcount) = hfigure.input.spectraEC(i).spectrum(j,chargecol)+chargesingleCA;
             pcount = pcount + 1;
         end
         timesingleCA = CA_times(CApotcount);
@@ -149,5 +148,5 @@ function GC_getCAdata()
     end
     CA_times = CA_times/60; % convert to minutes
     CA_timeline = CA_timeline/60; % convert to minutes
-    result.CAdata = {CA_potentials; CA_charge; CA_times; CA_flowin; CA_flowout;CA_timeline;CA_chargeline; CA_current; CA_potentialline; CA_Rcmp};
+    hfigure.result.CAdata = {CA_potentials; CA_charge; CA_times; CA_flowin; CA_flowout;CA_timeline;CA_chargeline; CA_current; CA_potentialline; CA_Rcmp};
 end

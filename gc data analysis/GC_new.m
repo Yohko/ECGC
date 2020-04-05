@@ -1,20 +1,29 @@
 %Licence: GNU General Public License version 2 (GPLv2)
-function data = GC_new(expname)
+function data = GC_new(hfigure, expname)
+	eval(hfigure.GC_usersetting); % load settings
     disp('Loading new data!');
     GCandEC = 1;
-    if nargin == 0
+    data = '';
+    if nargin == 1
     	expname = '';
     end
 	data = '';
     s_id = '';
     s_date = 0;
+    UIprog = uiprogressdlg(hfigure.figure,'Title','Please Wait');
+    UIprog.Value = 0.0; 
     if(isempty(expname))
+        UIprog.Value = 0.0; 
+        UIprog.Message = 'Getting Name for Entry.';
         prompt = {'Sample ID','Date'};
         title = 'Name for Data';
         dims = [1 35];
         definput = {'C',datestr(now(),'yyyymmdd')};
         answer = inputdlg(prompt,title,dims,definput);
         if(isempty(answer))
+            figure(hfigure.figure);
+            UIprog.Value = 1;
+            close(UIprog);
             return;
         end
         s_id = answer{1};
@@ -23,6 +32,9 @@ function data = GC_new(expname)
     end
     
     disp('Step (1/3): Loading EC data.');
+    figure(hfigure.figure);
+    UIprog.Value = 0.1; 
+    UIprog.Message = 'Loading EC data.';
     [datatmp, area] = GC_dloadEC();
     if(isempty(datatmp))
         data = '';
@@ -44,42 +56,62 @@ function data = GC_new(expname)
     clear('datatmp');
 
     disp('Step (2/3): Loading GC data.');
-    datatmp = GC_dloadgc();
+    figure(hfigure.figure);
+    UIprog.Value = 0.5; 
+    UIprog.Message = 'Loading GC data.';
+    switch GCtype
+        case 'Agilent'
+            datatmp = GC_dloadAgilent;
+        case 'SRI'
+            datatmp = GC_dloadgc();  
+        otherwise
+            datatmp = GC_dloadgc();
+    end
+    
     if(isempty(datatmp))
         data = '';
+        figure(hfigure.figure);
+        UIprog.Value = 1;
+        close(UIprog);
         return;
     else
-        % checking for TCD and FID ...
-        TCDi = 1;
-        FIDi = 1;
-        TCDnums = [];
-        FIDnums = [];        
+        % checking for CH2 and CH1 ...
+        CH2i = 1;
+        CH1i = 1;
+        CH2nums = [];
+        CH1nums = [];        
         for i = 1:size(datatmp,2)
             index = strfind(datatmp(i).name,'_');
             strtmp = datatmp(i).name(index(end)+1:end);
             type = strtmp(1:3);
             num = strtmp(4:end);
-            if(strcmpi(type,'TCD') == 1)
-                TCDnums(TCDi) = str2double(num);
-                TCDi = TCDi+1;
-            elseif(strcmpi(type,'FID') == 1)
-                FIDnums(FIDi) = str2double(num);
-                FIDi = FIDi+1;
+            if(strcmpi(type,ch2name) == 1)
+                CH2nums(CH2i) = str2double(num);
+                CH2i = CH2i+1;
+            elseif(strcmpi(type,ch1name) == 1)
+                CH1nums(CH1i) = str2double(num);
+                CH1i = CH1i+1;
             end
         end
-        if(TCDi ~= FIDi)
-            disp('#FID != #TCD');
+        if(CH2i ~= CH1i)
+            disp('#CH1 != #CH2');
             data = '';
+            figure(hfigure.figure);
+            UIprog.Value = 1;
+            close(UIprog);
             return;
         else
             % check if spectra numbers are correct 
-            % (each TCD file should have a corresponding FID file)
-            for i=1:TCDi-1
-                if(find(TCDnums(i) == FIDnums))
+            % (each CH2 file should have a corresponding CH1 file)
+            for i=1:CH2i-1
+                if(find(CH2nums(i) == CH1nums))
                 else
-                    TCDnums(i)
-                    disp('FID# != TCD#');
+                    CH2nums(i)
+                    disp('CH1# != CH2#');
                     data = '';
+                    figure(hfigure.figure);
+                    UIprog.Value = 1;
+                    close(UIprog);
                     return;
                 end
             end
@@ -90,6 +122,9 @@ function data = GC_new(expname)
     clear('datatmp');
     
     disp('Step (3/3): Getting additional parameters.');
+    figure(hfigure.figure);
+    UIprog.Value = 0.9; 
+    UIprog.Message = 'Getting additional parameters.';
     prompt = {'Area [cm2]','UtoRHE [V]','Ru [ohm]','Comp. [-]',...
         'Offset time [min]','Int time [min]','Continous Flow (1, 0)'};
     title = 'Parameters for Data';
@@ -103,4 +138,7 @@ function data = GC_new(expname)
             str2double(answer(5)),str2double(answer(6)),str2double(answer(7)),...
             str2double(answer(3)),str2double(answer(4)),GCandEC};
     end
+    figure(hfigure.figure);
+    UIprog.Value = 1;
+    close(UIprog);
 end

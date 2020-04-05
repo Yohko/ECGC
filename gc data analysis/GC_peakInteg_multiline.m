@@ -1,5 +1,5 @@
 %Licence: GNU General Public License version 2 (GPLv2)
-function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, display)
+function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, display, hfigure)
     % http://journals.iucr.org/j/issues/1975/01/00/a12580/a12580.pdf
     % param(1) integration start % not used anymore
     % param(2) integration end % not used anymore
@@ -10,22 +10,18 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     % param(7) curvature parameter
     % param(8) 0.. random spaced, 1 even spaced
     retvals = [0;0;0;0;0;0];
-    global GC_usersetting
-    eval(GC_usersetting); % load settings
-
-    global input
     index = find(datax > start & datax < stop);
     if(isempty(index))
         return;
     end
-    %index = find((datax > start & datax < stop) & datay>CO2_cutoff);
+    %index = find((datax > start & datax < stop) & datay>hfigure.input.CO2_cutoff);
     XB = datax(index);
     YB = datay(index);
-    idx = find(YB>=CO2_cutoff, 1);
+    idx = find(YB>=hfigure.input.CO2_cutoff, 1);
     indexold = index;
     if(isempty(idx) == 0)
         % delete all point between first and last index
-        indexover = find(YB>=CO2_cutoff);
+        indexover = find(YB>=hfigure.input.CO2_cutoff);
         index = [1:(indexover(1)-1),(indexover(end)+1):length(XB)];
         if(length(index) < 3)
             disp('Error with calculating peak area in ');
@@ -176,8 +172,8 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         try
             %f = fit(x2(idx),y2(idx),'gauss1',...
             f = fit(XB, YBsub,'gauss1',...
-            'Lower',[0.5*CO2_cutoff, start, 0.01],...
-            'Upper',[20*CO2_cutoff, stop, abs(stop-start)]);%,...
+            'Lower',[0.5*hfigure.input.CO2_cutoff, start, 0.01],...
+            'Upper',[20*hfigure.input.CO2_cutoff, stop, abs(stop-start)]);%,...
             %'StartPoint',[a0 a1 a2]);
         catch
             disp('Error with prelim Gauss fit in ');
@@ -224,54 +220,55 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     display = sprintf('%s STDev_{noise}=%s; mean_{noise}=%s\narea=%s',display,num2str(S),num2str(M), num2str(area));
     areaerr = (3*S+M)*(XB(end)-XB(1));
     if(param(3) == 1) % plot
-        close(input.h_plotfigure);
-        input.h_plotfigure = figure();
-        subplot(2,1,1);
-        plot(XB,YB, 'linewidth', f_line);
-        hold on;
-        plot(XB,BGline,'-', 'linewidth', f_line);
-        hold off;
-        xlabel('elution time / min', 'fontsize',f_caption);
-        ylabel('intensity / mV', 'fontsize',f_caption);
-        set(gca, 'linewidth', f_line);
-        set(gca, 'fontsize', f_caption);
-        legend('Data', 'BG');
-        legend boxoff;
+        GC_settings_graph;
+        f_caption = 10;
+        plot(hfigure.ax1,XB,YB, 'linewidth', f_line);
+        hold(hfigure.ax1,'on');
+        plot(hfigure.ax1,XB,BGline,'-', 'linewidth', f_line);
+        hold(hfigure.ax1,'off');
+        box(hfigure.ax1,'on');
+        xlabel(hfigure.ax1,'elution time / min', 'fontsize',f_caption);
+        ylabel(hfigure.ax1,'intensity / mV', 'fontsize',f_caption);
+        set(hfigure.ax1, 'linewidth', f_line);
+        set(hfigure.ax1, 'fontsize', f_caption);
+        legend(hfigure.ax1,'Data', 'BG');
+        legend(hfigure.ax1,'boxoff');
         if(isempty(idx) == 0)
-            subplot(2,1,2);
-            plot(XB,YBsub,'-', 'linewidth', f_line);
-            hold on;
-            plot(datax(indexold),f2(datax(indexold)), 'linewidth', f_line); % Skewed Gaussian
+            plot(hfigure.ax2,XB,YBsub,'-', 'linewidth', f_line);
+            hold(hfigure.ax2,'on');
+            plot(hfigure.ax2,datax(indexold),f2(datax(indexold)), 'linewidth', f_line); % Skewed Gaussian
             if(length(index_onlysignal)>2)
-                plot(XB(index_onlysignal),YBsub(index_onlysignal),'o', 'color', 'black');
-                legend('Data-BG', 'Skewed Gaussian','above noise');
+                plot(hfigure.ax2,XB(index_onlysignal),YBsub(index_onlysignal),'o', 'color', 'black');
+                legend(hfigure.ax2,'Data-BG', 'Skewed Gaussian','above noise');
             else
-                legend('Data-BG', 'Skewed Gaussian');
+                legend(hfigure.ax2,'Data-BG', 'Skewed Gaussian');
             end
-            legend boxoff;
-            hold off;
+            legend(hfigure.ax2,'boxoff');
+            hold(hfigure.ax2,'off');
+            box(hfigure.ax2,'on');
         else
-            subplot(2,1,2);
-            plot(XB,YBsub,'-', 'linewidth', f_line);
-            hold on;
+            plot(hfigure.ax2,XB,YBsub,'-', 'linewidth', f_line);
+            hold(hfigure.ax2,'on');
             if(length(index_onlysignal)>2)
-                plot(XB(index_onlysignal),YBsub(index_onlysignal),'o', 'color', 'black', 'linewidth', f_line);
-                legend('Data-BG','above noise');
+                plot(hfigure.ax2,XB(index_onlysignal),YBsub(index_onlysignal),'o', 'color', 'black', 'linewidth', f_line);
+                legend(hfigure.ax2,'Data-BG','above noise');
             else
-                legend('Data-BG');            
+                legend(hfigure.ax2,'Data-BG');            
             end
-            legend boxoff;
-            hold off;
+            legend(hfigure.ax2,'boxoff');
+            hold(hfigure.ax2,'off');
+            box(hfigure.ax2,'on');
         end
-        xlabel('elution time / min', 'fontsize',f_caption);
-        ylabel('intensity / mV', 'fontsize',f_caption);
-        set(gca, 'linewidth', f_line);
-        set(gca, 'fontsize', f_caption);
-        if(verLessThan('matlab','9.5'))
-            title(display);
-        else
-            sgtitle(display);
-        end
+        xlabel(hfigure.ax2,'elution time / min', 'fontsize',f_caption);
+        ylabel(hfigure.ax2,'intensity / mV', 'fontsize',f_caption);
+        set(hfigure.ax2, 'linewidth', f_line);
+        set(hfigure.ax2, 'fontsize', f_caption);
+        set(hfigure.figtitle,'Text',display);
+%         if(verLessThan('matlab','9.5'))
+%             title(display);
+%         else
+%             sgtitle(display);
+%         end
     end
         
     if(area <= 0) % just in case
