@@ -1,24 +1,30 @@
 %Licence: GNU General Public License version 2 (GPLv2)
+%load Agilent GC D files (MSD, TCD, FID)
 function spectra = GC_dloadAgilent()
-    [FileNamecell,PathName,Fileindex] = uigetfile({'*.d;*.D', 'Agilent GC'},'Select Agilent GC D files','MultiSelect', 'on');
-    FileName = char(FileNamecell); % convert from cell to string list
+    [FileNamecell,PathName,Fileindex] = GC_uigetdir('','Select Agilent GC D files',{'*.d;*.D', 'Agilent GC'});
     spectra = struct([]);
     if(Fileindex == 0)
         return;
     end
-    for i=1:size(FileName,1)
-        [~,name,~] = fileparts(FileName(i,:));
-        if ispc
-            % windows
-            TICfile = stripstrfirstlastspaces(sprintf('%s%s\\tic_front.csv',PathName,FileName(i,:)));
-            TCDfile = stripstrfirstlastspaces(sprintf('%s%s\\TCD1A.ch',PathName,FileName(i,:)));
-            MSDfile = stripstrfirstlastspaces(sprintf('%s%s\\data.ms',PathName,FileName(i,:)));
+    spectra = [];
+    for i=1:length(FileNamecell)
+        [~,name,~] = fileparts(FileNamecell{i});
+        Files=dir(fullfile(sprintf('%s%s%s',PathName,FileNamecell{i},filesep),'*1A.ch'));
+        if(~isempty(Files))
+            CH1name = Files(1).name(1:end-3);
         else
-            % macos
-            TICfile = stripstrfirstlastspaces(sprintf('%s%s/tic_front.csv',PathName,FileName(i,:)));
-            TCDfile = stripstrfirstlastspaces(sprintf('%s%s/TCD1A.ch',PathName,FileName(i,:)));
-            MSDfile = stripstrfirstlastspaces(sprintf('%s%s/data.ms',PathName,FileName(i,:)));
+            CH1name = 'notfound';
         end
+        Files=dir(fullfile(sprintf('%s%s%s',PathName,FileNamecell{i},filesep),'*2B.ch'));
+        if(~isempty(Files))
+            CH2name = Files(1).name(1:end-3);
+        else
+            CH2name = 'notfound';
+        end
+        TICfile = sprintf('%s%s%stic_front.csv',PathName,FileNamecell{i},filesep);
+        CH1file = sprintf('%s%s%s%s.ch',PathName,FileNamecell{i},filesep,CH1name);
+        CH2file = sprintf('%s%s%s%s.ch',PathName,FileNamecell{i},filesep,CH2name);
+        MSDfile = sprintf('%s%s%sdata.ms',PathName,FileNamecell{i},filesep);
 
         fid=fopen(TICfile);
         dataTIC = GC_AgilentloadTICASCII(fid);
@@ -27,13 +33,20 @@ function spectra = GC_dloadAgilent()
             fclose all;
         end
 
-        fid=fopen(TCDfile);
-        dataTCD = GC_AgilentloadTCDbin(fid);
+        fid=fopen(CH1file);
+        dataCH1 = GC_AgilentloadTCDbin(fid);
         if(fid ~= -1)
             fclose(fid);
             fclose all;
         end
-
+        
+        fid=fopen(CH2file);
+        dataCH2 = GC_AgilentloadTCDbin(fid);
+        if(fid ~= -1)
+            fclose(fid);
+            fclose all;
+        end
+        
         fid=fopen(MSDfile);
         dataMSD = GC_AgilentloadDATAMS(fid);
         if(fid ~= -1)
@@ -41,16 +54,21 @@ function spectra = GC_dloadAgilent()
             fclose all;
         end
 
-        if i > 1
-            spectra = [spectra, struct('name',sprintf('%s_TIC',name),'spectrum',dataTIC(2), 'timecode', dataTIC(1))];
-        else
-            spectra = struct('name',sprintf('%s_TIC',name),'spectrum',dataTIC(2), 'timecode', dataTIC(1));
+        if ~isempty(dataTIC)
+            spectra = [spectra, struct('name',sprintf('%s_TIC%d',name,i),'spectrum',dataTIC(2), 'timecode', dataTIC(1))];
+        end       
+        if ~isempty(dataCH1)
+            spectra = [spectra, struct('name',sprintf('%s_%s%d',name,CH1name(isletter(CH1name)),i),'spectrum',dataCH1(2), 'timecode', dataCH1(1))];
         end
-        spectra = [spectra, struct('name',sprintf('%s_TCD',name),'spectrum',dataTCD(2), 'timecode', dataTCD(1))];
-        spectra = [spectra, struct('name',sprintf('%s_MSD',name),'spectrum',dataMSD(2), 'timecode', dataMSD(1))];
-        spectra = [spectra, struct('name',sprintf('%s_MSDTIC',name),'spectrum',dataMSD(3), 'timecode', dataMSD(1))];
-        spectra = [spectra, struct('name',sprintf('%s_MSDBPC',name),'spectrum',dataMSD(4), 'timecode', dataMSD(1))];
-        spectra = [spectra, struct('name',sprintf('%s_MSDBPCMz',name),'spectrum',dataMSD(5), 'timecode', dataMSD(1))];
-        %spectra = [spectra, struct('name',sprintf('%s_unknown',name),'spectrum',dataMSD(6), 'timecode', dataMSD(1))];
+        if ~isempty(dataCH2)
+            spectra = [spectra, struct('name',sprintf('%s_%s%d',name,CH2name(isletter(CH2name)),i),'spectrum',dataCH2(2), 'timecode', dataCH2(1))];
+        end
+        if ~isempty(dataMSD)
+            spectra = [spectra, struct('name',sprintf('%s_MSD%d',name,i),'spectrum',dataMSD(2), 'timecode', dataMSD(1))];
+            spectra = [spectra, struct('name',sprintf('%s_MSDTIC%d',name,i),'spectrum',dataMSD(3), 'timecode', dataMSD(1))];
+            spectra = [spectra, struct('name',sprintf('%s_MSDBPC%d',name,i),'spectrum',dataMSD(4), 'timecode', dataMSD(1))];
+            spectra = [spectra, struct('name',sprintf('%s_MSDBPCMz%d',name,i),'spectrum',dataMSD(5), 'timecode', dataMSD(1))];
+            %spectra = [spectra, struct('name',sprintf('%s_unknown',name),'spectrum',dataMSD(6), 'timecode', dataMSD(1))];
+        end
     end
 end

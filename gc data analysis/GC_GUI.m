@@ -170,7 +170,7 @@ uipanel(hfigure.figure,'Title','Peaks','FontSize',12,'units','pixel','Position',
 tmpwidth = 150;
 tmpheight = 190;
 hfigure.listbox_peaklist = uilistbox(hfigure.figure,...
-                     'position',[xoffset+10 yoffset+10 tmpwidth tmpheight],...
+                     'position',[xoffset+10 yoffset+10 tmpwidth tmpheight-50],...
                      'fontsize',12,...
                      'Items',{},...
                      'ValueChangedFcn',{@listbox_peaklist_Callback},'Multiselect','on');
@@ -191,7 +191,21 @@ hfigure.popupmenu_BG = uidropdown(hfigure.figure,...
           'position',[xoffset+10 yoffset+10+tmpheight+70-15-ii*25 150 20],...
           'Enable','off',...
           'ValueChangedFcn',{@popupmenu_BG_Callback});
- 
+ii=3;
+uilabel(hfigure.figure,...
+          'position',[xoffset+10 yoffset+10+tmpheight+70-15-ii*25 150 20],...
+          'fontsize',12,...
+          'Text','GC Type:',...
+          'HorizontalAlignment', 'left','Fontcolor','red');
+hfigure.text_GCtype = uilabel(hfigure.figure,...
+          'position',[xoffset+10 yoffset+10+tmpheight+70-15-ii*25 150 20],...
+          'fontsize',12,...
+          'Text','Type',...
+          'HorizontalAlignment', 'right');
+ii=4;
+hfigure.popupmenu_GCcal = uidropdown(hfigure.figure,...
+          'position',[xoffset+10 yoffset+10+tmpheight+70-15-ii*25 150 20],...
+          'Enable','off');
       
 % Buttons #################################################################
 ii=0;
@@ -249,10 +263,26 @@ uibutton(hfigure.figure,...
           'ButtonPushedFcn',{@pushbutton_help_Callback},...
           'Text','Help');
 
+      
+ii=9;
+hfigure.checkbox_exportCSV = uicheckbox(hfigure.figure,...
+          'position',[xoffset+10+tmpwidth+15 yoffset+10+tmpheight+70-5-2-ii*25 110 20],...
+          'fontsize',12,...
+          'Text','Export CSV');
+set(hfigure.checkbox_exportCSV, 'Value',true);
+      
+ii=10;
+hfigure.checkbox_exportXLS = uicheckbox(hfigure.figure,...
+          'position',[xoffset+10+tmpwidth+15 yoffset+10+tmpheight+70-5-2-ii*25 110 20],...
+          'fontsize',12,...
+          'Text','Export XLS');
+set(hfigure.checkbox_exportXLS, 'Value',false);
+      
+      
 uilabel(hfigure.figure,...
           'position',[xoffset yoffset-20-5-40 300 60],...
           'fontsize',12,...
-          'Text',sprintf('© 2017-2020 Matthias H. Richter v200402a\nMatthias.H.Richter@gmail.com'),...
+          'Text',sprintf('© 2017-2020 Matthias H. Richter v200924a\nMatthias.H.Richter@gmail.com'),...
           'HorizontalAlignment', 'center','Fontcolor','black');      
 
 hfigure.ax1 =  uiaxes(hfigure.figure);
@@ -264,7 +294,7 @@ hfigure.figtitle = uilabel(hfigure.figure,...
           'fontsize',10,...
           'Text','',...
           'HorizontalAlignment', 'center','Fontcolor','black','BackgroundColor','white');
-
+hfigure.settingsID = 1;
 guidata(hfigure.figure,hfigure);
 GC_GUI_init(hfigure);
 
@@ -302,28 +332,25 @@ guidata(hfigure.figure,hfigure);
 
 function hfigure = update_GCcalib(hfigure)
 eval(hfigure.GC_usersetting);
-hfigure.input.ch1name = ch1name;
-hfigure.input.ch2name = ch2name;
-hfigure.input.peakCH1 = peakCH1;
-hfigure.input.peakCH2 = peakCH2;
-hfigure.input.CO2_edge_start  = CO2_edge_start;
-hfigure.input.CO2_edge_center = CO2_edge_center;
-hfigure.input.CO2offset = CO2offset;
-hfigure.input.CO2_cutoff = CO2_cutoff;
+hfigure.input.CH = GCset(hfigure.settingsID).CH;
 guidata(hfigure.figure,hfigure);
 
 
 function hfigure = loadpeaklist(hfigure)
-hfigure.input.checkplot = zeros(length(hfigure.input.peakCH1)+length(hfigure.input.peakCH2),1);
-hfigure.input.intselBGtype = 3*ones(length(hfigure.input.peakCH1)+length(hfigure.input.peakCH2),1);
-for ii = 1:length(hfigure.input.peakCH1)
-   hfigure.input.peaklist(ii) = {sprintf('%s_%s',hfigure.input.ch1name,hfigure.input.peakCH1(ii).name)};
+hfigure.input.checkplot = zeros(length(hfigure.input.CH(1).peak)+length(hfigure.input.CH(2).peak),1);
+hfigure.input.intselBGtype = 3*ones(length(hfigure.input.CH(1).peak)+length(hfigure.input.CH(2).peak),1);
+hfigure.input.peaklist = {};
+peakcount = 0;
+for jj = 1:length(hfigure.input.CH)
+    for ii = 1:length(hfigure.input.CH(jj).peak)
+        peakcount = peakcount + 1;
+        hfigure.input.peaklist(peakcount) = {sprintf('%s_%s',hfigure.input.CH(jj).name,hfigure.input.CH(jj).peak(ii).name)};
+    end
 end
-for ii = 1:length(hfigure.input.peakCH2)
-   hfigure.input.peaklist(length(hfigure.input.peakCH1)+ii) = {sprintf('%s_%s',hfigure.input.ch2name,hfigure.input.peakCH2(ii).name)};
-end
+hfigure.input.checkplot = zeros(peakcount,1);
+hfigure.input.intselBGtype = 3*ones(peakcount,1);
 if(isempty(hfigure.input.peaklist))
-    data = '';
+    data = {};
 else
     data = hfigure.input.peaklist';
 end
@@ -369,6 +396,11 @@ else
     else
         set(hfigure.checkbox_GCandEC, 'Value',false);
     end
+    set(hfigure.text_GCtype,'Text',sprintf("%s (ID:%d)", char(table2cell(hfigure.input.samplelist(id,12))), table2array(hfigure.input.samplelist(id,13))));
+    hfigure.settingsID = table2array(hfigure.input.samplelist(id,13));
+    hfigure = update_GCcalib(hfigure);
+    hfigure = loadpeaklist(hfigure);
+    guidata(hfigure.figure,hfigure);
 end
 
 
@@ -411,7 +443,7 @@ else
     set(hfigure.listbox_samplelist,'Items',data);
     set(hfigure.listbox_samplelist,'ItemsData',1:length(data));
     update_boxes(get(hfigure.listbox_samplelist,'Value'), hfigure);
-	guidata(hfigure.figure,hfigure); 
+	guidata(hfigure.figure,hfigure);
 end
 
 
@@ -451,7 +483,6 @@ if(~newFolder == 0)
     hfigure.input.cwd = newFolder;
     set(hfigure.text_CWD,'Text',hfigure.input.cwd);
     loadsamplelist(hfigure); % data saved here already
-    %guidata(hfigure.figure,hfigure);
 end
 
 
@@ -485,9 +516,6 @@ update_boxes(get(hfigure.listbox_samplelist,'Value'), hfigure);
 function listbox_peaklist_Callback(varargin)
 hfigure = guidata(varargin{1});
 ids = get(hfigure.listbox_peaklist,'Value');
-%for ii = 1:length(ids)
-%   ids(ii) 
-%end
 update_peakboxes(ids(1), hfigure);
 
 
@@ -560,6 +588,16 @@ if(~isempty(hfigure.input.samplelist))
             hfigure.input.plotpeaks = 1;
         else
             hfigure.input.plotpeaks = 0;
+        end
+        if get(hfigure.checkbox_exportCSV, 'Value')
+            hfigure.input.exportCSV = 1;
+        else
+            hfigure.input.exportCSV = 0;
+        end
+        if get(hfigure.checkbox_exportXLS, 'Value')
+            hfigure.input.exportXLS = 1;
+        else
+            hfigure.input.exportXLS = 0;
         end
         try 
             GC_main(hfigure);

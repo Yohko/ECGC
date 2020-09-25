@@ -1,109 +1,111 @@
 %Licence: GNU General Public License version 2 (GPLv2)
 function hfigure = GC_integrate(hfigure)
-    for ii = 1:length(hfigure.input.peakCH1)
-        hfigure.result.peakCH1(ii).area = zeros(size(hfigure.input.CH1,2),1);
-        hfigure.result.peakCH1(ii).err = zeros(size(hfigure.input.CH1,2),1);
-        hfigure.result.peakCH1(ii).name = hfigure.input.peakCH1(ii).name;
-        hfigure.result.peakCH1(ii).n = hfigure.input.peakCH1(ii).n;
-        hfigure.result.peakCH1(ii).offset = hfigure.input.peakCH1(ii).offset;
-        hfigure.result.peakCH1(ii).factor = hfigure.input.peakCH1(ii).factor;        
+    for jj = 1:length(hfigure.input.CH)
+        hfigure.result.CH(jj).name = hfigure.input.CH(jj).name;
+        for ii = 1:length(hfigure.input.CH(jj).peak)
+            hfigure.result.CH(jj).peak(ii).area = zeros(1,length(hfigure.input.CH(jj).spectra));
+            hfigure.result.CH(jj).peak(ii).err = zeros(1,length(hfigure.input.CH(jj).spectra));
+            hfigure.result.CH(jj).peak(ii).name = hfigure.input.CH(jj).peak(ii).name;
+            hfigure.result.CH(jj).peak(ii).n = hfigure.input.CH(jj).peak(ii).n;
+            hfigure.result.CH(jj).peak(ii).offset = hfigure.input.CH(jj).peak(ii).offset;
+            hfigure.result.CH(jj).peak(ii).factor = hfigure.input.CH(jj).peak(ii).factor;        
+        end
     end
     
-    for ii = 1:length(hfigure.input.peakCH2)
-        hfigure.result.peakCH2(ii).area = zeros(size(hfigure.input.CH1,2),1);
-        hfigure.result.peakCH2(ii).err = zeros(size(hfigure.input.CH1,2),1);
-        hfigure.result.peakCH2(ii).name = hfigure.input.peakCH2(ii).name;
-        hfigure.result.peakCH2(ii).n = hfigure.input.peakCH2(ii).n;
-        hfigure.result.peakCH2(ii).offset = hfigure.input.peakCH2(ii).offset;
-        hfigure.result.peakCH2(ii).factor = hfigure.input.peakCH2(ii).factor;
-    end
-    
-    hfigure.result.run = zeros(size(hfigure.input.CH1,2),1);
-
     BGiter = 100;
     disppauseval = 0.5;
-    
-    for i=1:size(hfigure.input.CH1,2)
-        %shift = hfigure.input.CO2offset-hfigure.input.CO2pos(i); % correct for drifts in spectra
-        shift = 0;
-        % ##### CH1 #######################################################
-        for ii = 1:length(hfigure.result.peakCH1)
-            hfigure.UIprog.Message = sprintf('STEP (5) integrate %d/%d: %s %s', i,size(hfigure.input.CH1,2),hfigure.input.ch1name,hfigure.result.peakCH1(ii).name);
-            hfigure.UIprog.Value = 0.1+i/size(hfigure.input.CH1,2)*0.4;
-            start = hfigure.input.peakCH1(ii).start+shift;
-            stop = hfigure.input.peakCH1(ii).end+shift;
-            graph_title = hfigure.result.peakCH1(ii).name;
-            displot = hfigure.input.checkplot(ii);
-            if(hfigure.input.peakCH1(ii).start ~= -1)
-                switch hfigure.input.intselBGtype(ii)
-                    case 1 % linear
-                        area = GC_peakInteg_line(hfigure.input.tR,hfigure.input.CH1(:,i), start, stop, [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift],sprintf('%d %s',i,graph_title));
-                    case 2 % linearfit
-                        area = GC_peakInteg_linefit(hfigure.input.tR,hfigure.input.CH1(:,i), start, stop, [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift],sprintf('%d %s',i,graph_title));
-                    %case 3 % multi line
-                    otherwise % default
-                        area = GC_peakInteg_multiline(hfigure.input.tR,hfigure.input.CH1(:,i), start, stop, [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift;20;hfigure.input.peakCH1(ii).curvature;1],sprintf('%d %s',i,graph_title),hfigure);
-                        hfigure.result.peakCH1(ii).err(i) = area(6);
-                end
-                hfigure.result.peakCH1(ii).area(i) = area(1);
-                if(hfigure.input.plotpeaks && displot)
-                    pause(disppauseval);
-                end
-            else
-                hfigure.result.peakCH1(ii).area(i) = 0;
+    peakcounter1 = 0;
+    peakcounter2 = 0;
+    progresscounter = 0;
+    totalpeakcount = 0;
+	for jj = 1:length(hfigure.result.CH)
+        for i=1:length(hfigure.input.CH(jj).spectra)
+            for ii = 1:length(hfigure.result.CH(jj).peak)
+                totalpeakcount = totalpeakcount + 1;
             end
         end
-
-        % ##### CH2 #######################################################
-        for ii = 1:length(hfigure.result.peakCH2)
-            hfigure.UIprog.Message = sprintf('STEP (5) integrate %d/%d: %s %s', i,size(hfigure.input.CH1,2),hfigure.input.ch2name,hfigure.result.peakCH2(ii).name);
-            hfigure.UIprog.Value = 0.1+i/size(hfigure.input.CH1,2)*0.4;
-            start = hfigure.input.peakCH2(ii).start+shift;
-            stop = hfigure.input.peakCH2(ii).end+shift;
-            graph_title = hfigure.result.peakCH2(ii).name;
-            displot = hfigure.input.checkplot(length(hfigure.input.peakCH1)+ii);
-            if(hfigure.input.peakCH2(ii).start ~= -1)
-                switch hfigure.input.intselBGtype(length(hfigure.input.peakCH1)+ii)
-                    case 1 % linear
-                        area = GC_peakInteg_line(hfigure.input.tR,hfigure.input.CH2(:,i), start, stop, [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift],sprintf('%d %s',i,graph_title));
-                    case 2 % linearfit
-                        area = GC_peakInteg_linefit(hfigure.input.tR,hfigure.input.CH2(:,i), start, stop, [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift],sprintf('%d %s',i,graph_title));
-                    %case 3 % multi line
-                    otherwise % default
-                        area = GC_peakInteg_multiline(hfigure.input.tR,hfigure.input.CH2(:,i), start, stop, [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift;20;hfigure.input.peakCH2(ii).curvature;1],sprintf('%d %s',i,graph_title),hfigure);
-                        hfigure.result.peakCH2(ii).err(i) = area(6);
-                end
-                hfigure.result.peakCH2(ii).area(i) = area(1);
-                if(hfigure.input.plotpeaks && displot)
-                    pause(disppauseval);
-                end
+	end
+    
+	for jj = 1:length(hfigure.result.CH)
+        peakcounter1 = peakcounter1 + peakcounter2;
+        for i=1:length(hfigure.input.CH(jj).spectra)
+            peakcounter2 = 0;
+            if (hfigure.input.CH(jj).RT_shift == 1)
+                shift = 0;
             else
-                hfigure.result.peakCH2(ii).area(i) = 0;
+                shift = 0;
             end
-        end        
-        hfigure.result.run(i) = i;
-    end
+            for ii = 1:length(hfigure.result.CH(jj).peak)
+                progresscounter = progresscounter + 1;
+                peakcounter2 = peakcounter2 + 1;
+                hfigure.UIprog.Message = sprintf('STEP (5) integrate %d/%d: %s %s', progresscounter,totalpeakcount,hfigure.input.CH(jj).name,hfigure.result.CH(jj).peak(ii).name);
+                hfigure.UIprog.Value = 0.1+(progresscounter)/totalpeakcount*0.4;
+                start = hfigure.input.CH(jj).peak(ii).start+shift;
+                if (length(hfigure.input.CH(jj).peak(ii).end)>1)
+                    stop = hfigure.input.CH(jj).peak(ii).end(2)+hfigure.result.CH(jj).RT_edgepos(i);
+                else
+                    stop = hfigure.input.CH(jj).peak(ii).end+shift;
+                end
+                graph_title = hfigure.result.CH(jj).peak(ii).name;
+                displot = hfigure.input.checkplot(peakcounter1+peakcounter2);
+                switch hfigure.input.CH(jj).name
+                    case 'MSD'
+                        subM = 1;
+                    otherwise
+                        subM = 0;
+                end
+                
+                if(hfigure.input.CH(jj).peak(ii).start ~= -1)
+                    switch hfigure.input.intselBGtype(ii)
+                        case 1 % linear
+                            area = GC_peakInteg_line(hfigure.input.CH(jj).spectra(i).spectrum(:,1),...
+                                                     hfigure.input.CH(jj).spectra(i).spectrum(:,2),...
+                                                     start, stop, ...
+                                                     [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift],...
+                                                     sprintf('%d %s',i,graph_title));
+                        case 2 % linearfit
+                            area = GC_peakInteg_linefit(hfigure.input.CH(jj).spectra(i).spectrum(:,1),...
+                                                     hfigure.input.CH(jj).spectra(i).spectrum(:,2),...
+                                                     start, stop, ...
+                                                     [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift],...
+                                                     sprintf('%d %s',i,graph_title));
+                        %case 3 % multi line
+                        otherwise % default
+                            area = GC_peakInteg_multiline(hfigure.input.CH(jj).spectra(i).spectrum(:,1),...
+                                                     hfigure.input.CH(jj).spectra(i).spectrum(:,2),...
+                                                     start, stop, ...
+                                                     [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift;10;hfigure.input.CH(jj).peak(ii).curvature;1;subM;hfigure.input.CH(jj).RT_cutoff],...
+                                                     sprintf('%d %s',i,graph_title),hfigure);
+                            hfigure.result.CH(jj).peak(ii).err(i) = area(6);
+                    end
+                    hfigure.result.CH(jj).peak(ii).area(i) = area(1);
+                    if(hfigure.input.plotpeaks && displot)
+                        pause(disppauseval);
+                    end
+                else
+                    hfigure.result.CH(jj).peak(ii).area(i) = 0;
+                end
+            end
+        end
+	end
     
     % convert to seconds to get the same peak area as in the SRI Software
-    for ii = 1:length(hfigure.result.peakCH1)
-        hfigure.result.peakCH1(ii).area = hfigure.result.peakCH1(ii).area*60;
-        hfigure.result.peakCH1(ii).err = hfigure.result.peakCH1(ii).err*60;
+    for jj = 1:length(hfigure.result.CH)
+        for ii = 1:length(hfigure.result.CH(jj).peak)
+            hfigure.result.CH(jj).peak(ii).area = hfigure.result.CH(jj).peak(ii).area*60;
+            hfigure.result.CH(jj).peak(ii).err = hfigure.result.CH(jj).peak(ii).err*60;
+        end
     end
-	for ii = 1:length(hfigure.result.peakCH2)
-        hfigure.result.peakCH2(ii).area = hfigure.result.peakCH2(ii).area*60;
-        hfigure.result.peakCH2(ii).err = hfigure.result.peakCH2(ii).err*60;
-	end
     
     % substract shoulder peaks (defined by subpeak in
-    % 'GC_settings_integrate'
-	for ii = 1:length(hfigure.result.peakCH1)
-        if(hfigure.input.peakCH1(ii).subpeak ~=0)
-            hfigure.result.peakCH1(ii).area = hfigure.result.peakCH1(ii).area-hfigure.result.peakCH1(hfigure.input.peakCH1(ii).subpeak).area;
-        end
-	end
-	for ii = 1:length(hfigure.result.peakCH2)
-        if(hfigure.input.peakCH2(ii).subpeak ~=0)
-            hfigure.result.peakCH2(ii).area = hfigure.result.peakCH2(ii).area-hfigure.result.peakCH2(hfigure.input.peakCH1(ii).subpeak).area;
+    % 'GC_settings_integrate')
+	for jj = 1:length(hfigure.result.CH)
+        for ii = 1:length(hfigure.result.CH(jj).peak)
+            if(hfigure.input.CH(jj).peak(ii).subpeak ~=0)
+                hfigure.result.CH(jj).peak(ii).area = hfigure.result.CH(jj).peak(ii).area ...
+                -hfigure.result.CH(hfigure.input.CH(jj).peak(ii).subpeakCH).peak(hfigure.input.CH(jj).peak(ii).subpeak).area ...
+                .*hfigure.input.CH(jj).peak(ii).subpeakf;
+            end
         end
 	end
 end

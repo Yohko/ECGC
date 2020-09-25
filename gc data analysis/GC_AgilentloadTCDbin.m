@@ -59,14 +59,7 @@ function data = GC_AgilentloadTCDbin(fid)
         xaxis = linspace(starttime,endtime,length(yaxis));
         y(:,1) = xaxis;
         y(:,2) = yaxis;
-        % data
-    %     fseek(fid,6152,'bof'); % jump to beginning of data
-    %     yaxis = fread(fid,'double');
-    %     ftell(fid);
-    %     xaxis = linspace(0,1/datarate/60*(length(yaxis)-1),length(yaxis));
-    %     y(:,1) = xaxis;
-    %     y(:,2) = yaxis;
-        %
+
         timecodes = textscan(timecodes,'%s');
         day = str2double(timecodes{1}{1});
         year = 2000+str2double(timecodes{1}{3});
@@ -77,7 +70,11 @@ function data = GC_AgilentloadTCDbin(fid)
         month = 0;
         switch timecodes{1}{5}
             case 'pm'
-                hr = hr+12;
+                if(hr == 12)
+                    %nothing
+                else
+                    hr = hr+12;
+                end
             case 'am'
                 if(hr == 12)
                     hr = 0;
@@ -113,9 +110,8 @@ function data = GC_AgilentloadTCDbin(fid)
                 disp(timecodes{1}{3});
         end
         timecode = posixtime(datetime(year,month,day,hr,minute,seconds));
+        data = {timecode; y};
     else
-        timecode = 0;
-        y = [];
+        data = [];
     end
-    data = {timecode; y};
 end

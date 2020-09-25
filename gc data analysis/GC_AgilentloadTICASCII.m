@@ -1,24 +1,40 @@
 %Licence: GNU General Public License version 2 (GPLv2)
 function data = GC_AgilentloadTICASCII(fid)
-    timecode = 0;
     if(fid ~= -1)
         h = fgets(fid);
         timecodes = textscan(h,'%s');
-        day = str2double(timecodes{1}{2});
-        year = 2000+str2double(timecodes{1}{4});
-        tmpstr = timecodes{1}{5};
-        hr = str2double(tmpstr(1:2));
-        minute = str2double(tmpstr(4:5));
-        seconds = 0;
-        month = 0;
-        switch timecodes{1}{6}
-            case 'pm'
-                hr = hr+12;
-            case 'am'
-                if(hr == 12)
-                    hr = 0;
-                end
+        if isfinite(str2double(timecodes{1}{6}))
+            % filename Wed Sep DD HH:MM:SS YYYY
+            day = str2double(timecodes{1}{4});
+            year = str2double(timecodes{1}{6});
+            tmpstr = timecodes{1}{5};
+            hr = str2double(tmpstr(1:2));
+            minute = str2double(tmpstr(4:5));
+            seconds = str2double(tmpstr(7:8));
+            month = 0;
+        else
+            % filename DD Sep YY  HH:MM pm    
+            day = str2double(timecodes{1}{2});
+            year = 2000+str2double(timecodes{1}{4});
+            tmpstr = timecodes{1}{5};
+            hr = str2double(tmpstr(1:2));
+            minute = str2double(tmpstr(4:5));
+            seconds = 0;
+            month = 0;
+            switch timecodes{1}{6}
+                case 'pm'
+                    if(hr == 12)
+                        %nothing
+                    else
+                        hr = hr+12;
+                    end
+                case 'am'
+                    if(hr == 12)
+                        hr = 0;
+                    end
+            end
         end
+
         switch timecodes{1}{3}
             case 'Jan'
                 month = 1;
@@ -53,8 +69,8 @@ function data = GC_AgilentloadTICASCII(fid)
         y = textscan(fid,'%f','delimiter',',','emptyvalue', NaN);
         rows = size(y{1},1)/2;
         y =[reshape(y{1},[2,rows])]';
+        data = {timecode; y};
     else
-        y = [];
+        data = [];
     end
-    data = {timecode; y};
 end

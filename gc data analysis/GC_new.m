@@ -3,7 +3,6 @@ function data = GC_new(hfigure, expname)
 	eval(hfigure.GC_usersetting); % load settings
     disp('Loading new data!');
     GCandEC = 1;
-    data = '';
     if nargin == 1
     	expname = '';
     end
@@ -43,23 +42,37 @@ function data = GC_new(hfigure, expname)
         area = 1;
     else
         eval(sprintf('CA_%s = datatmp;',expname));
-        save(sprintf('CA_%s.mat',expname),sprintf('CA_%s',expname));
+        save(sprintf('CA_%s.mat',expname),sprintf('CA_%s',expname),'-v7.3');
         Rcmpcol = strmatch('Rcmp/Ohm', datatmp(1).header,'exact');% potential col 17 in Coulomb,
         if(isempty(Rcmpcol))
-            Rcmpcol = -1;
             Rcmp = 0;
         else
             Rcmp = datatmp(1).spectrum(1,Rcmpcol);
             Rcmp = Rcmp/0.85;
         end
-    end    
+    end
     clear('datatmp');
 
     disp('Step (2/3): Loading GC data.');
     figure(hfigure.figure);
-    UIprog.Value = 0.5; 
+    UIprog.Value = 0.5;
+    
+	tmpstr = {};
+    for ii = 1:length(GCset)
+        tmpstr(ii) = {GCset(ii).name};
+    end
+    
+    typeID = listdlg('ListString', ...
+            tmpstr,'SelectionMode','single');
+    if isempty(typeID)
+        figure(hfigure.figure);
+        UIprog.Value = 1;
+        close(UIprog);
+        return;
+    end
+    
     UIprog.Message = 'Loading GC data.';
-    switch GCtype
+    switch GCset(typeID).type
         case 'Agilent'
             datatmp = GC_dloadAgilent;
         case 'SRI'
@@ -82,13 +95,15 @@ function data = GC_new(hfigure, expname)
         CH1nums = [];        
         for i = 1:size(datatmp,2)
             index = strfind(datatmp(i).name,'_');
-            strtmp = datatmp(i).name(index(end)+1:end);
-            type = strtmp(1:3);
-            num = strtmp(4:end);
-            if(strcmpi(type,ch2name) == 1)
+            strtmp = datatmp(i).name(index(end)+1:end);            
+            idxnum = find(~isletter(strtmp));
+            idxtype = find(isletter(strtmp));
+            type = strtmp(idxtype);
+            num = strtmp(idxnum);
+            if(strcmpi(type,GCset(typeID).CH(2).name) == 1)
                 CH2nums(CH2i) = str2double(num);
                 CH2i = CH2i+1;
-            elseif(strcmpi(type,ch1name) == 1)
+            elseif(strcmpi(type,GCset(typeID).CH(1).name) == 1)
                 CH1nums(CH1i) = str2double(num);
                 CH1i = CH1i+1;
             end
@@ -106,7 +121,6 @@ function data = GC_new(hfigure, expname)
             for i=1:CH2i-1
                 if(find(CH2nums(i) == CH1nums))
                 else
-                    CH2nums(i)
                     disp('CH1# != CH2#');
                     data = '';
                     figure(hfigure.figure);
@@ -117,7 +131,7 @@ function data = GC_new(hfigure, expname)
             end
         end
         eval(sprintf('GC_%s = datatmp;',expname));
-        save(sprintf('GC_%s.mat',expname),sprintf('GC_%s',expname));
+        save(sprintf('GC_%s.mat',expname),sprintf('GC_%s',expname),'-v7.3');
     end
     clear('datatmp');
     
@@ -136,7 +150,7 @@ function data = GC_new(hfigure, expname)
     else
         data = {s_id,s_date,str2double(answer(1)),'-',str2double(answer(2)), ...
             str2double(answer(5)),str2double(answer(6)),str2double(answer(7)),...
-            str2double(answer(3)),str2double(answer(4)),GCandEC};
+            str2double(answer(3)),str2double(answer(4)),GCandEC,GCset(typeID).type,typeID};
     end
     figure(hfigure.figure);
     UIprog.Value = 1;

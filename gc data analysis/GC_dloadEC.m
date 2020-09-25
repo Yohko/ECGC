@@ -2,16 +2,17 @@
 %load multiple EC-Lab ASCII files
 function [spectraEC, area] = GC_dloadEC()
     [FileNamecell,PathName,Fileindex] = uigetfile({'*.mpt;*.MPT', 'EC-Lab ASCII'},'Select EC-Lab txt files','MultiSelect', 'on');
-    FileName = char(FileNamecell); % convert from cell to string list
-    spectraEC = struct([]);
+    spectraEC = [];
     area = 0;
-    areaunit = 'cm²';
     if(Fileindex == 0)
         return;
     end
-    for i=1:size(FileName,1)
-        [~,name,~] = fileparts(FileName(i,:));
-        fid=fopen(stripstrfirstlastspaces(sprintf('%s%s',PathName,FileName(i,:))),'r');
+    if ~iscell(FileNamecell)
+        FileNamecell = {FileNamecell};
+    end
+    for i=1:length(FileNamecell)
+        [~,name,~] = fileparts(FileNamecell{i});
+        fid=fopen(sprintf('%s%s',PathName,FileNamecell{i}),'r');
         data = GC_EClabASCIIload(fid);
         fclose(fid);
         if(isempty(data{2})==0)
@@ -37,11 +38,7 @@ function [spectraEC, area] = GC_dloadEC()
                 case 'µm²'
                     area = area * 1e-8;
             end
-            if i > 1
-                spectraEC = [spectraEC, struct('name',name,'header',data(1),'spectrum',data(2),'timecode',data(3))];
-            else
-                spectraEC = struct('name',name,'header',data(1),'spectrum',data(2),'timecode',data(3));
-            end
+            spectraEC = [spectraEC, struct('name',name,'header',data(1),'spectrum',data(2),'timecode',data(3))];
         end
     end
 end

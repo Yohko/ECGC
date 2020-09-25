@@ -3,25 +3,28 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     % http://journals.iucr.org/j/issues/1975/01/00/a12580/a12580.pdf
     % param(1) integration start % not used anymore
     % param(2) integration end % not used anymore
-    % param(3) show plot
-    % param(4) max BG iterations
-    % param(5) approx peak max (used if we have more then one peak and but)
-    % param(6) #points in between
-    % param(7) curvature parameter
-    % param(8) 0.. random spaced, 1 even spaced
+    param_showplot = param(3);      % show plot
+    param_maxBGiter = param(4);     % max BG iterations
+    %param(5);  %approx peak max (used if we have more then one peak and but)
+    param_BGpoints = param(6);      % #points in between
+    param_curvature = param(7);     % curvature parameter
+    param_BGspacing = param(8);     % 0.. random spaced, 1 even spaced
+    param_subM = param(9);          % sub M?
+    param_peakcutoff = param(10);   % criteria to detect detector saturation
+    
     retvals = [0;0;0;0;0;0];
     index = find(datax > start & datax < stop);
     if(isempty(index))
         return;
     end
-    %index = find((datax > start & datax < stop) & datay>hfigure.input.CO2_cutoff);
+    %index = find((datax > start & datax < stop) & datay>param_peakcutoff);
     XB = datax(index);
     YB = datay(index);
-    idx = find(YB>=hfigure.input.CO2_cutoff, 1);
+    idx = find(YB >= param_peakcutoff, 1);
     indexold = index;
     if(isempty(idx) == 0)
-        % delete all point between first and last index
-        indexover = find(YB>=hfigure.input.CO2_cutoff);
+        % delete all points between first and last index
+        indexover = find(YB >= param_peakcutoff);
         index = [1:(indexover(1)-1),(indexover(end)+1):length(XB)];
         if(length(index) < 3)
             disp('Error with calculating peak area in ');
@@ -32,23 +35,23 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         XB = XB(index);
         YB = YB(index);
     end
-    if(param(7)<0)
-        curvature = abs(param(7));
+    if(param_curvature<0)
+        curvature = abs(param_curvature);
     else
-        curvature = abs(YB(end)-YB(1))*param(7);
+        curvature = abs(YB(end)-YB(1))*param_curvature;
     end
 
-    samplepoints = zeros(param(6)+1,1);
-    switch param(8)
-        %case 0 %random
+    samplepoints = zeros(param_BGpoints+1,1);
+    switch param_BGspacing
+        %case 0 % random
         case 1
-            for i=0:param(6)
-                samplepoints(i+1) = 1+round((length(XB)-1)/param(6)*i);
+            for i=0:param_BGpoints
+                samplepoints(i+1) = 1+round((length(XB)-1)/param_BGpoints*i);
             end
         otherwise % random
             samplepoints(1) = 1;
             samplepoints(2) = length(XB);
-            for i=3:param(6)+1
+            for i=3:param_BGpoints+1
                 samplepoints(i) = randi(length(XB));
             end    
     end
@@ -57,7 +60,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     XBsample = XB(samplepoints);
     YBsample = YB(samplepoints);
 
-    for i=1:param(4)
+    for i=1:param_maxBGiter
         %forward
         for j=2:length(XBsample)-1
             middle = (YBsample(j+1)+YBsample(j-1))/2;
@@ -85,11 +88,11 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     if(round(maxval/std(YBsub,1))<=3)
         factor = 1;
     end
-    for j=1:(param(4)/10)
+    for j=1:(param_maxBGiter/10)
         S = std(YBsub(index_onlynoise),1); % standard deviation
         M = mean(YBsub(index_onlynoise)); % mean value
         Snew = S;
-        for i=1:param(4)
+        for i=1:param_maxBGiter
             %index_onlynoise = find(YBsub <= M+3*S); % reject all points above M+3*S
             index_onlynoise = find(YBsub <= factor*Snew); % reject all points above M+3*S
             Snew = std(YBsub(index_onlynoise),1); % standard deviation
@@ -111,9 +114,16 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     % remove BGline below peak and make it a straight line
     % interpolate new background to original grid so we can substract it
     BGline = interp1(XB(index_onlynoise),BGline(index_onlynoise),XB,'linear','extrap');
+    if(param_subM)
+        BGline = BGline + M;
+    end
     YBsub = YB-BGline;
-    idx = find(YBsub<0);
-    YBsub(idx) = 0;
+
+    %idx = find(YBsub<0);
+    %YBsub(idx) = 0;
+    if(param_subM == 0)
+        YBsub(find(YBsub<0)) = 0;
+    end
     rawarea = trapz(XB, YBsub);
     
     % calculate the final error
@@ -154,7 +164,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
             centerfound = XB(starti(i))+(XB(stopi(i))-XB(starti(i)))/2;
             if(centerfound < range_stop && centerfound > range_start)
                 display = sprintf('%s center %s range %s %s\n',display,num2str(centerfound),num2str(range_start),num2str(range_stop));
-                index_onlysignal = starti(i):stopi(i);
+                %index_onlysignal = starti(i):stopi(i);
                 retvals(2) = XB(starti(i));
                 retvals(3) = XB(stopi(i));
                 break;
@@ -172,8 +182,8 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         try
             %f = fit(x2(idx),y2(idx),'gauss1',...
             f = fit(XB, YBsub,'gauss1',...
-            'Lower',[0.5*hfigure.input.CO2_cutoff, start, 0.01],...
-            'Upper',[20*hfigure.input.CO2_cutoff, stop, abs(stop-start)]);%,...
+            'Lower',[0.5*param_peakcutoff, start, 0.01],...
+            'Upper',[20*param_peakcutoff, stop, abs(stop-start)]);%,...
             %'StartPoint',[a0 a1 a2]);
         catch
             disp('Error with prelim Gauss fit in ');
@@ -216,10 +226,10 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
             area = 0;
         end
     end
-    
-    display = sprintf('%s STDev_{noise}=%s; mean_{noise}=%s\narea=%s',display,num2str(S),num2str(M), num2str(area));
     areaerr = (3*S+M)*(XB(end)-XB(1));
-    if(param(3) == 1) % plot
+    display = sprintf('%s area=%s %s %s', display, num2str(area),char(177),num2str(areaerr));
+    
+    if(param_showplot == 1) % plot
         GC_settings_graph;
         f_caption = 10;
         plot(hfigure.ax1,XB,YB, 'linewidth', f_line);
@@ -263,12 +273,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         ylabel(hfigure.ax2,'intensity / mV', 'fontsize',f_caption);
         set(hfigure.ax2, 'linewidth', f_line);
         set(hfigure.ax2, 'fontsize', f_caption);
-        set(hfigure.figtitle,'Text',display);
-%         if(verLessThan('matlab','9.5'))
-%             title(display);
-%         else
-%             sgtitle(display);
-%         end
+        set(hfigure.figtitle,'Text',display,'fontsize',10);
     end
         
     if(area <= 0) % just in case
@@ -279,9 +284,8 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     % 2: XB(intl)
     % 3: XB(intr)
     % 4: integrate raw area
-    % 5: area from peak fit
+    % 5: area from peak fit (if saturated), or from peak above noise
     % 6: peak area error
-%    retvals(1) = area;
     if rawarea<0
         rawarea = 0;
     end

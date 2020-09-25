@@ -2,37 +2,48 @@
 function GC_exportCSV(hfigure)
     filename = sprintf('%s.csv',hfigure.input.resultname);
     fileID = fopen(filename,'w');
+
     % print header
     fprintf(fileID,'%s,%s,%s','Name','Number','timecode');
-    for ii = 1:length(hfigure.result.peakCH1)
-        fprintf(fileID,',%s',hfigure.result.peakCH1(ii).name);
-    end    
-	for ii = 1:length(hfigure.result.peakCH2)
-        fprintf(fileID,',%s',hfigure.result.peakCH2(ii).name);
-	end
-    fprintf(fileID,'%s,%s,%s,%s,%','U_vs_RHE','current','time','charge','flowrate');
-	fprintf(fileID,'\n');
-    % print data
-    for row = 1:size(hfigure.input.runname,1)
-        fprintf(fileID,'%s,%s,%s',...
-            hfigure.input.runname(row),...
-            num2str(hfigure.input.runnum(row)),...
-            hfigure.result.GCtimes(row));
-        for ii = 1:length(hfigure.result.peakCH1)
-            fprintf(fileID,',%s',hfigure.result.peakCH1(ii).area(row));
-        end    
-        for ii = 1:length(hfigure.result.peakCH2)
-            fprintf(fileID,',%s',hfigure.result.peakCH2(ii).area(row));
+	for jj = 1:length(hfigure.result.CH)
+        for ii = 1:length(hfigure.result.CH(jj).peak)
+            fprintf(fileID,',%s_%s',hfigure.result.CH(jj).name, hfigure.result.CH(jj).peak(ii).name);
         end
-        tmp = hfigure.result.GCpotential(row)+hfigure.input.UtoRHE+...
-            (hfigure.result.GCcurrent(row)*1E-3)*hfigure.result.GCRu(row)*(1-hfigure.input.compensation);
-        fprintf(fileID,'%s,%s,%s,%s,%',...
-            tmp,...            
-            hfigure.result.GCcurrent(row),...
-            hfigure.result.GCtime(row),...
-            hfigure.result.GCcharge(row),...
-            hfigure.result.GCflowrate(row));
-        fprintf(fileID,'\n');
+	end
+    fprintf(fileID,',%s,%s,%s,%s,%s','U_vs_RHE','current','time','charge','flowrate');
+	fprintf(fileID,'\n');
+
+    % print data
+    for row = 1:length(hfigure.input.CH(1).spectra)
+        fprintf(fileID,'%s,%s,%s',...
+            hfigure.input.CH(1).spectra(row).runname,...
+            num2str(hfigure.input.CH(1).spectra(row).runnum),...
+            hfigure.input.CH(1).spectra(row).timecode+8*60*60); % timezone correction
+        
+        for jj = 1:length(hfigure.result.CH)
+            for ii = 1:length(hfigure.result.CH(jj).peak)
+                fprintf(fileID,',%s',hfigure.result.CH(jj).peak(ii).area(row));
+            end
+        end
+        if(hfigure.input.GCandEC == 1)
+            tmp = hfigure.result.GCpotential(row)+hfigure.input.UtoRHE+...
+                (hfigure.result.GCcurrent(row)*1E-3)*hfigure.result.GCRu(row)*(1-hfigure.input.compensation);
+            fprintf(fileID,',%s,%s,%s,%s,%s',...
+                num2str(tmp),...
+                num2str(hfigure.result.GCcurrent(row)),...
+                num2str(hfigure.result.GCtime(row)),...
+                num2str(hfigure.result.GCcharge(row)),...
+                num2str(hfigure.result.GCflowrate(row)));
+            fprintf(fileID,'\n');
+        else
+            fprintf(fileID,',%s,%s,%s,%s,%s',...
+                '',...            
+                '',...
+                '',...
+                '',...
+                '');
+            fprintf(fileID,'\n');
+        end
     end
     fclose(fileID);
 end
