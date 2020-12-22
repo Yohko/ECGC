@@ -22,7 +22,7 @@ function GC_exportCSV(hfigure)
         
         for jj = 1:length(hfigure.result.CH)
             for ii = 1:length(hfigure.result.CH(jj).peak)
-                fprintf(fileID,',%s',hfigure.result.CH(jj).peak(ii).area(row));
+                fprintf(fileID,',%f',hfigure.result.CH(jj).peak(ii).area(row));
             end
         end
         if(hfigure.input.GCandEC == 1)
