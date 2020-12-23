@@ -1,8 +1,34 @@
 %Licence: GNU General Public License version 2 (GPLv2)
-% peak position window for integration
+% individual settings for GC, peak windows, calibration factors, etc.
 
+% --- Peak specific settings ---
+% e.g. GCset(settingnum).CH(channelnum).peak(peaknum).
 % curvature > 0: relative to actual curvature
 % curvature < 0: absolute curvature
+% subpeak: which peak(area) to subtract from current peak(area)
+% subpeakCH: channel of 'subpeak' peak
+% subpeakf: scaling factor for area subtraction (useful for MS detector)
+% n: charge for FE calculation
+% offset, factor: ppm = measarea*factor + offset (calibration factors)
+% start, end: define peak window
+% BGpoints: optional (default is 10), # of node points for BG calculation
+
+% --- GC specific settings ---
+% e.g. GCset(settingnum).
+% type: to select the correct loader (SRI or Agilent)
+% name: unique name for current setting, e.g. different calibration dates
+
+% --- Channel specific settings ---
+% e.g. GCset(settingnum).CH(channelnum).
+% name: name of channel, e.g. name of channel data file (MSD, TIC, TCDA,
+%       FIDB for Agilent), or substring of filename for SRI
+% RT_cutoff: channel saturation threshold
+
+% --- not functional ---
+% RT_shift: % 0 .. disable time shift correction, 1 .. enable time shift correction
+% RT_offset:
+% RT_edge_start:
+% RT_edge_center:
 
 %% ########################################################################
 GCset(1).type = 'SRI'; % to select the correct loader
@@ -755,3 +781,264 @@ GCset(4).CH(2).peak(ii).n = 14;
 GCset(4).CH(2).peak(ii).subpeak = 0;
 GCset(4).CH(2).peak(ii).subpeakCH = 0;
 GCset(4).CH(2).peak(ii).subpeakf = 1;
+
+%% ########################################################################
+numsetting = 5;
+GCset(numsetting).type = 'SRI';
+GCset(numsetting).name = 'SRI GC Stanford 20/12';
+
+GCset(numsetting).CH(1).name = 'FID';
+GCset(numsetting).CH(1).RT_shift = 0;
+GCset(numsetting).CH(1).RT_offset = 1.37;
+GCset(numsetting).CH(1).RT_edge_start = 1.25;
+GCset(numsetting).CH(1).RT_edge_center = 1.7;
+GCset(numsetting).CH(1).RT_cutoff = 4100; 
+
+GCset(numsetting).CH(2).name = 'TCD';
+GCset(numsetting).CH(2).RT_shift = 0;
+GCset(numsetting).CH(2).RT_offset = 1.37;
+GCset(numsetting).CH(2).RT_edge_start = 1.25;
+GCset(numsetting).CH(2).RT_edge_center = 1.7;
+GCset(numsetting).CH(2).RT_cutoff = 4100;
+
+% used for exporting to XLS and TXT
+GCset(numsetting).idCO.peak = 1;
+GCset(numsetting).idCO.CH = 1;
+GCset(numsetting).idCH4.peak = 2;
+GCset(numsetting).idCH4.CH = 1;
+GCset(numsetting).idC2H4.peak = 3;
+GCset(numsetting).idC2H4.CH = 1;
+GCset(numsetting).idC2H6.peak = 4;
+GCset(numsetting).idC2H6.CH = 1;
+GCset(numsetting).idCO2nd.peak = 1;
+GCset(numsetting).idCO2nd.CH = 1;
+GCset(numsetting).idCH42nd.peak = 2;
+GCset(numsetting).idCH42nd.CH = 1;
+GCset(numsetting).idH2.peak = 1;
+GCset(numsetting).idH2.CH = 2;
+GCset(numsetting).idO2.peak = 2;
+GCset(numsetting).idO2.CH = 2;
+
+% ### FID #################################################################
+ii = 1;
+GCset(numsetting).CH(1).peak(ii).name = "MS_O2";
+GCset(numsetting).CH(1).peak(ii).start = 0.1;
+GCset(numsetting).CH(1).peak(ii).end = 1.3;
+GCset(numsetting).CH(1).peak(ii).curvature = 0.02;
+GCset(numsetting).CH(1).peak(ii).offset = 0.0;
+GCset(numsetting).CH(1).peak(ii).factor = 0.0;
+GCset(numsetting).CH(1).peak(ii).n = 0;
+GCset(numsetting).CH(1).peak(ii).subpeak = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakf = 1;
+
+ii = 2;
+GCset(numsetting).CH(1).peak(ii).name = "MS_CH4";
+GCset(numsetting).CH(1).peak(ii).start = 1.2;
+GCset(numsetting).CH(1).peak(ii).end = 2.6;
+GCset(numsetting).CH(1).peak(ii).curvature = 0.02;
+GCset(numsetting).CH(1).peak(ii).offset = 0.0;
+GCset(numsetting).CH(1).peak(ii).factor = 0.0;
+GCset(numsetting).CH(1).peak(ii).n = 8;
+GCset(numsetting).CH(1).peak(ii).subpeak = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakf = 1;
+
+ii = 3;
+GCset(numsetting).CH(1).peak(ii).name = "MS_CO";
+GCset(numsetting).CH(1).peak(ii).start = 2.6;
+GCset(numsetting).CH(1).peak(ii).end = 4.4;
+GCset(numsetting).CH(1).peak(ii).curvature = 0.02;
+GCset(numsetting).CH(1).peak(ii).offset = 0.0;
+GCset(numsetting).CH(1).peak(ii).factor = 0.0;
+GCset(numsetting).CH(1).peak(ii).n = 2;
+GCset(numsetting).CH(1).peak(ii).subpeak = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakf = 1;
+
+ii = 4;
+GCset(numsetting).CH(1).peak(ii).name = "HD_CO";
+GCset(numsetting).CH(1).peak(ii).start = 5.1;
+GCset(numsetting).CH(1).peak(ii).end = 6.2;
+GCset(numsetting).CH(1).peak(ii).curvature = 0.000001;
+GCset(numsetting).CH(1).peak(ii).offset = 0.0;
+GCset(numsetting).CH(1).peak(ii).factor = 0.0;
+GCset(numsetting).CH(1).peak(ii).n = 2;
+GCset(numsetting).CH(1).peak(ii).subpeak = 5;
+GCset(numsetting).CH(1).peak(ii).subpeakCH = 1;
+GCset(numsetting).CH(1).peak(ii).subpeakf = 1;
+
+ii = 5;
+GCset(numsetting).CH(1).peak(ii).name = "HD_CH4";
+GCset(numsetting).CH(1).peak(ii).start = 5.6;
+GCset(numsetting).CH(1).peak(ii).end = 6.2;
+GCset(numsetting).CH(1).peak(ii).curvature = 0.000001;
+GCset(numsetting).CH(1).peak(ii).offset = 0.0;
+GCset(numsetting).CH(1).peak(ii).factor = 0.0;
+GCset(numsetting).CH(1).peak(ii).n = 8;
+GCset(numsetting).CH(1).peak(ii).subpeak = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakf = 1;
+
+ii = 6;
+GCset(numsetting).CH(1).peak(ii).name = "HD_CO2";
+GCset(numsetting).CH(1).peak(ii).start = 6.1;
+GCset(numsetting).CH(1).peak(ii).end = 7.0;
+GCset(numsetting).CH(1).peak(ii).curvature = 0.000001;
+GCset(numsetting).CH(1).peak(ii).offset = 0.0;
+GCset(numsetting).CH(1).peak(ii).factor = 0.0;
+GCset(numsetting).CH(1).peak(ii).n = 0;
+GCset(numsetting).CH(1).peak(ii).subpeak = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakf = 1;
+
+ii = 7;
+GCset(numsetting).CH(1).peak(ii).name = "HD_C2H4";
+GCset(numsetting).CH(1).peak(ii).start = 6.9;
+GCset(numsetting).CH(1).peak(ii).end = 7.7;
+GCset(numsetting).CH(1).peak(ii).curvature = 0.0001;
+GCset(numsetting).CH(1).peak(ii).offset = 0.0;
+GCset(numsetting).CH(1).peak(ii).factor = 0.0;
+GCset(numsetting).CH(1).peak(ii).n = 12;
+GCset(numsetting).CH(1).peak(ii).subpeak = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakf = 1;
+
+ii = 8;
+GCset(numsetting).CH(1).peak(ii).name = "HD_C2H6";
+GCset(numsetting).CH(1).peak(ii).start = 7.7;
+GCset(numsetting).CH(1).peak(ii).end = 8.6;
+GCset(numsetting).CH(1).peak(ii).curvature = 0.0001;
+GCset(numsetting).CH(1).peak(ii).offset = 0.0;
+GCset(numsetting).CH(1).peak(ii).factor = 0.0;
+GCset(numsetting).CH(1).peak(ii).n = 14;
+GCset(numsetting).CH(1).peak(ii).subpeak = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakf = 1;
+
+ii = 9;
+GCset(numsetting).CH(1).peak(ii).name = "HD_C3H8"; % Propane?
+GCset(numsetting).CH(1).peak(ii).start = 10;
+GCset(numsetting).CH(1).peak(ii).end = 11.4;
+GCset(numsetting).CH(1).peak(ii).curvature = 0.001;
+GCset(numsetting).CH(1).peak(ii).offset = 0.0;
+GCset(numsetting).CH(1).peak(ii).factor = 0.0;
+GCset(numsetting).CH(1).peak(ii).n = 20;
+GCset(numsetting).CH(1).peak(ii).subpeak = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakf = 1;
+
+
+ii = 10;
+GCset(numsetting).CH(1).peak(ii).name = "HD_C3H6";  % Propylene?
+GCset(numsetting).CH(1).peak(ii).start = 11.3;
+GCset(numsetting).CH(1).peak(ii).end = 12.5;
+GCset(numsetting).CH(1).peak(ii).curvature = 0.000001;
+GCset(numsetting).CH(1).peak(ii).offset = 0.0;
+GCset(numsetting).CH(1).peak(ii).factor = 0.0;
+GCset(numsetting).CH(1).peak(ii).n = 18;
+GCset(numsetting).CH(1).peak(ii).subpeak = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(1).peak(ii).subpeakf = 1;
+
+% ### TCD #################################################################
+ii = 1;
+GCset(numsetting).CH(2).peak(ii).name = "MS_H2";
+GCset(numsetting).CH(2).peak(ii).start = 0.50;
+GCset(numsetting).CH(2).peak(ii).end = 0.8;
+GCset(numsetting).CH(2).peak(ii).curvature = [0.15, 0.05];
+GCset(numsetting).CH(2).peak(ii).offset = 0.0;
+GCset(numsetting).CH(2).peak(ii).factor = 0.0;
+GCset(numsetting).CH(2).peak(ii).n = 2;
+GCset(numsetting).CH(2).peak(ii).subpeak = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakf = 1;
+GCset(numsetting).CH(2).peak(ii).BGpoints = 15;
+
+
+ii = 2;
+GCset(numsetting).CH(2).peak(ii).name = "MS_O2";
+GCset(numsetting).CH(2).peak(ii).start = 0.7;
+GCset(numsetting).CH(2).peak(ii).end = 1.0;
+GCset(numsetting).CH(2).peak(ii).curvature = 0.005;
+GCset(numsetting).CH(2).peak(ii).offset = 0.0;
+GCset(numsetting).CH(2).peak(ii).factor = 0.0;
+GCset(numsetting).CH(2).peak(ii).n = 0;
+GCset(numsetting).CH(2).peak(ii).subpeak = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakf = 1;
+
+ii = 3;
+GCset(numsetting).CH(2).peak(ii).name = "MS_N2";
+GCset(numsetting).CH(2).peak(ii).start = 0.9;
+GCset(numsetting).CH(2).peak(ii).end = 1.6;
+GCset(numsetting).CH(2).peak(ii).curvature = 0.005;
+GCset(numsetting).CH(2).peak(ii).offset = 0.0;
+GCset(numsetting).CH(2).peak(ii).factor = 0.0;
+GCset(numsetting).CH(2).peak(ii).n = 0;
+GCset(numsetting).CH(2).peak(ii).subpeak = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakf = 1;
+
+ii = 4;
+GCset(numsetting).CH(2).peak(ii).name = "MS_CH4";
+GCset(numsetting).CH(2).peak(ii).start = 1.5;
+GCset(numsetting).CH(2).peak(ii).end = 2.6;
+GCset(numsetting).CH(2).peak(ii).curvature = 0.005;
+GCset(numsetting).CH(2).peak(ii).offset = 0.0;
+GCset(numsetting).CH(2).peak(ii).factor = 0.0;
+GCset(numsetting).CH(2).peak(ii).n = 8;
+GCset(numsetting).CH(2).peak(ii).subpeak = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakf = 1;
+
+ii = 5;
+GCset(numsetting).CH(2).peak(ii).name = "MS_CO";
+GCset(numsetting).CH(2).peak(ii).start = 2.6;
+GCset(numsetting).CH(2).peak(ii).end = 4.3;
+GCset(numsetting).CH(2).peak(ii).curvature = 0.005;
+GCset(numsetting).CH(2).peak(ii).offset = 0.0;
+GCset(numsetting).CH(2).peak(ii).factor = 0.0;
+GCset(numsetting).CH(2).peak(ii).n = 2;
+GCset(numsetting).CH(2).peak(ii).subpeak = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakf = 1;
+
+
+ii = 6;
+GCset(numsetting).CH(2).peak(ii).name = "HD_H2";
+GCset(numsetting).CH(2).peak(ii).start = 5.1;
+GCset(numsetting).CH(2).peak(ii).end = 5.37;
+GCset(numsetting).CH(2).peak(ii).curvature = [0.002,0.001];
+GCset(numsetting).CH(2).peak(ii).offset = 0.0;
+GCset(numsetting).CH(2).peak(ii).factor = 0.0;
+GCset(numsetting).CH(2).peak(ii).n = 2;
+GCset(numsetting).CH(2).peak(ii).subpeak = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakf = 1;
+GCset(numsetting).CH(2).peak(ii).BGpoints = 20;
+
+
+ii = 7;
+GCset(numsetting).CH(2).peak(ii).name = "HD_O2/N2/CO";
+GCset(numsetting).CH(2).peak(ii).start = 5.3;
+GCset(numsetting).CH(2).peak(ii).end = 5.7;
+GCset(numsetting).CH(2).peak(ii).curvature = 0.005;
+GCset(numsetting).CH(2).peak(ii).offset = 0.0;
+GCset(numsetting).CH(2).peak(ii).factor = 0.0;
+GCset(numsetting).CH(2).peak(ii).n = 0;
+GCset(numsetting).CH(2).peak(ii).subpeak = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakf = 1;
+
+ii = 8;
+GCset(numsetting).CH(2).peak(ii).name = "HD_CH4";
+GCset(numsetting).CH(2).peak(ii).start = 5.6;
+GCset(numsetting).CH(2).peak(ii).end = 6.2;
+GCset(numsetting).CH(2).peak(ii).curvature = 0.005;
+GCset(numsetting).CH(2).peak(ii).offset = 0.0;
+GCset(numsetting).CH(2).peak(ii).factor = 0.0;
+GCset(numsetting).CH(2).peak(ii).n = 8;
+GCset(numsetting).CH(2).peak(ii).subpeak = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(2).peak(ii).subpeakf = 1;

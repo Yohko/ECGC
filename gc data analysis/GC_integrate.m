@@ -71,10 +71,22 @@ function hfigure = GC_integrate(hfigure)
                                                      sprintf('%d %s',i,graph_title));
                         %case 3 % multi line
                         otherwise % default
+                            param = struct();
+                            param.showplot = hfigure.input.plotpeaks & displot;
+                            param.maxBGiter = BGiter;
+                            if (isfield(hfigure.input.CH(jj).peak(ii),'BGpoints') && ~isempty(hfigure.input.CH(jj).peak(ii).BGpoints))
+                                param.BGpoints = hfigure.input.CH(jj).peak(ii).BGpoints;
+                            else
+                                param.BGpoints = 10;
+                            end
+                            param.curvature = hfigure.input.CH(jj).peak(ii).curvature;
+                            param.BGspacing = 1;
+                            param.subM = subM;
+                            param.peakcutoff = hfigure.input.CH(jj).RT_cutoff;
                             area = GC_peakInteg_multiline(hfigure.input.CH(jj).spectra(i).spectrum(:,1),...
                                                      hfigure.input.CH(jj).spectra(i).spectrum(:,2),...
                                                      start, stop, ...
-                                                     [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift;10;hfigure.input.CH(jj).peak(ii).curvature;1;subM;hfigure.input.CH(jj).RT_cutoff],...
+                                                     param, ...
                                                      sprintf('%d %s',i,graph_title),hfigure);
                             hfigure.result.CH(jj).peak(ii).err(i) = area(6);
                     end

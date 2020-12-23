@@ -1,30 +1,28 @@
 %Licence: GNU General Public License version 2 (GPLv2)
 function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, display, hfigure)
     % http://journals.iucr.org/j/issues/1975/01/00/a12580/a12580.pdf
-    % param(1) integration start % not used anymore
-    % param(2) integration end % not used anymore
-    param_showplot = param(3);      % show plot
-    param_maxBGiter = param(4);     % max BG iterations
-    %param(5);  %approx peak max (used if we have more then one peak and but)
-    param_BGpoints = param(6);      % #points in between
-    param_curvature = param(7);     % curvature parameter
-    param_BGspacing = param(8);     % 0.. random spaced, 1 even spaced
-    param_subM = param(9);          % sub M?
-    param_peakcutoff = param(10);   % criteria to detect detector saturation
+
+    %param.showplot      % show plot
+    %param.maxBGiter     % max BG iterations
+    %param.BGpoints      % #points in between
+    %param.curvature     % curvature parameter
+    %param.BGspacing     % 0.. random spaced, 1 even spaced
+    %param.subM          % sub M?
+    %param.peakcutoff    % criteria to detect detector saturation    
     
     retvals = [0;0;0;0;0;0];
     index = find(datax > start & datax < stop);
     if(isempty(index))
         return;
     end
-    %index = find((datax > start & datax < stop) & datay>param_peakcutoff);
+
     XB = datax(index);
     YB = datay(index);
-    idx = find(YB >= param_peakcutoff, 1);
+    idx = find(YB >= param.peakcutoff, 1);
     indexold = index;
     if(isempty(idx) == 0)
         % delete all points between first and last index
-        indexover = find(YB >= param_peakcutoff);
+        indexover = find(YB >= param.peakcutoff);
         index = [1:(indexover(1)-1),(indexover(end)+1):length(XB)];
         if(length(index) < 3)
             disp('Error with calculating peak area in ');
@@ -35,23 +33,39 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         XB = XB(index);
         YB = YB(index);
     end
-    if(param_curvature<0)
-        curvature = abs(param_curvature);
+    
+    % absolute or relative curvature, forward and backward?
+    if length(param.curvature) > 1
+        if(param.curvature(1)<0)
+            curvature(1) = abs(param.curvature(1));
+        else
+            curvature(1) = abs(YB(end)-YB(1))*param.curvature(1);
+        end
+        if(param.curvature(2)<0)
+            curvature(2) = abs(param.curvature(2));
+        else
+            curvature(2) = abs(YB(end)-YB(1))*param.curvature(2);
+        end
     else
-        curvature = abs(YB(end)-YB(1))*param_curvature;
+        if(param.curvature<0)
+            curvature = abs(param.curvature);
+        else
+            curvature = abs(YB(end)-YB(1))*param.curvature;
+        end
     end
 
-    samplepoints = zeros(param_BGpoints+1,1);
-    switch param_BGspacing
+    % get nodes at which the BG is calculated
+    samplepoints = zeros(param.BGpoints+1,1);
+    switch param.BGspacing
         %case 0 % random
         case 1
-            for i=0:param_BGpoints
-                samplepoints(i+1) = 1+round((length(XB)-1)/param_BGpoints*i);
+            for i=0:param.BGpoints
+                samplepoints(i+1) = 1+round((length(XB)-1)/param.BGpoints*i);
             end
         otherwise % random
             samplepoints(1) = 1;
             samplepoints(2) = length(XB);
-            for i=3:param_BGpoints+1
+            for i=3:param.BGpoints+1
                 samplepoints(i) = randi(length(XB));
             end    
     end
@@ -60,72 +74,79 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     XBsample = XB(samplepoints);
     YBsample = YB(samplepoints);
 
-    for i=1:param_maxBGiter
-        %forward
-        for j=2:length(XBsample)-1
-            middle = (YBsample(j+1)+YBsample(j-1))/2;
-            if((middle+curvature)<YBsample(j))
-                YBsample(j) = middle;
-            end
+    % calculate BG
+    if length(param.curvature) > 1
+        % (1) different curvarure values for forward and backward
+        YBsamplef = YB(samplepoints);
+        YBsampleb = YB(samplepoints);
+        for i=1:param.maxBGiter
+            %forward
+            YBsamplef = my_BGforward(YBsamplef, curvature(1));
+            %backward
+            YBsampleb = my_BGbackward(YBsampleb, curvature(2));
         end
-        %backward
-        for j=2:length(XBsample)-1
-            k = length(XBsample)-j+1;
-            middle = (YBsample(k+1)+YBsample(k-1))/2;
-            if((middle+curvature)<YBsample(k))
-                YBsample(k) = middle;
-            end
+
+        [BGlinef, index_onlynoisef, ~, Mf] = my_BGhelper1(XB, YB, XBsample,YBsamplef,param.maxBGiter);
+        [BGlineb, index_onlynoiseb, ~, Mb] = my_BGhelper1(XB, YB, XBsample,YBsampleb,param.maxBGiter);
+        
+        
+        % find left BG end (beginning of the index gap)
+        idf = find((index_onlynoisef(2:end)-index_onlynoisef(1:end-1))>1,1,'first');
+        % find right BG beginning (end of the index gap)
+        idb = 1+find((index_onlynoiseb(2:end)-index_onlynoiseb(1:end-1))>1,1,'last');
+        
+        % if no beginning or end is found set to default values
+        if isempty(idf)
+            idf = length(index_onlynoisef);
         end
+        if isempty(idb)
+            idb = 1;
+        end
+        
+        % add let BGline and right BGline together
+        % remove duplicate points and interpolate again
+        XBtmp = [XB(index_onlynoisef(1:idf));XB(index_onlynoiseb(idb:end))];
+        BGlinetmp = [BGlinef(index_onlynoisef(1:idf));BGlineb(index_onlynoiseb(idb:end))];
+        [XBtmp, ia, ~] = unique(XBtmp);        
+        BGline = interp1(XBtmp,BGlinetmp(ia),XB,'linear','extrap');
+        
+        
+        index_onlynoise = unique([index_onlynoisef(1:idf);index_onlynoiseb(idb:end)]);
+        % points which are not noise belong to peaks
+        index_onlysignal = setdiff(1:length(BGline), index_onlynoise);
+
+        M = (Mb+Mf)/2;
+        if(param.subM)
+            BGline = BGline + M;
+        end
+    else
+        % (2) same curvarure value for forward and backward
+        for i=1:param.maxBGiter
+           %forward
+            YBsample = my_BGforward(YBsample, curvature);
+            %backward
+            YBsample = my_BGbackward(YBsample, curvature);
+        end
+        
+        [BGline, index_onlynoise, ~, M] = my_BGhelper1(XB, YB, XBsample,YBsample,param.maxBGiter);
+        
+        % points which are not noise belong to peaks
+        index_onlysignal = setdiff(1:length(BGline), index_onlynoise);
+        
+        if(param.subM)
+            BGline = BGline + M;
+        end
+
     end
-    
-    % interpolate new background to original grid so we can substract it
-    BGline = interp1(XBsample,YBsample,XB,'linear','extrap');
-    % calculate noise level and reject points based on this
-    index_onlynoise = 1:length(BGline);
+
+
     YBsub = YB-BGline;
-    maxval = max(YBsub);
-    factor = 3;
-    if(round(maxval/std(YBsub,1))<=3)
-        factor = 1;
-    end
-    for j=1:(param_maxBGiter/10)
-        S = std(YBsub(index_onlynoise),1); % standard deviation
-        M = mean(YBsub(index_onlynoise)); % mean value
-        Snew = S;
-        for i=1:param_maxBGiter
-            %index_onlynoise = find(YBsub <= M+3*S); % reject all points above M+3*S
-            index_onlynoise = find(YBsub <= factor*Snew); % reject all points above M+3*S
-            Snew = std(YBsub(index_onlynoise),1); % standard deviation
-            if(Snew/S<0.01) % TBD what is the optimal parameter for the change
-                break;
-            end
-        end
-        if(i==1)
-           break; 
-        end
-    end
 
-    % points which are not noise belong to peaks
-    index_onlysignal = 1:length(BGline);
-    for i= 1:length(index_onlynoise)
-        index_onlysignal = index_onlysignal(find(index_onlynoise(i)~=index_onlysignal));
-    end
-
-    % remove BGline below peak and make it a straight line
-    % interpolate new background to original grid so we can substract it
-    BGline = interp1(XB(index_onlynoise),BGline(index_onlynoise),XB,'linear','extrap');
-    if(param_subM)
-        BGline = BGline + M;
-    end
-    YBsub = YB-BGline;
-
-    %idx = find(YBsub<0);
-    %YBsub(idx) = 0;
-    if(param_subM == 0)
-        YBsub(find(YBsub<0)) = 0;
+    if(param.subM == 0)
+        YBsub(YBsub<0) = 0;
     end
     rawarea = trapz(XB, YBsub);
-    
+
     % calculate the final error
     S = std(YBsub(index_onlynoise)); % standard deviation
     M = mean(YBsub(index_onlynoise)); % mean value
@@ -182,8 +203,8 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         try
             %f = fit(x2(idx),y2(idx),'gauss1',...
             f = fit(XB, YBsub,'gauss1',...
-            'Lower',[0.5*param_peakcutoff, start, 0.01],...
-            'Upper',[20*param_peakcutoff, stop, abs(stop-start)]);%,...
+            'Lower',[0.5*param.peakcutoff, start, 0.01],...
+            'Upper',[20*param.peakcutoff, stop, abs(stop-start)]);%,...
             %'StartPoint',[a0 a1 a2]);
         catch
             disp('Error with prelim Gauss fit in ');
@@ -193,7 +214,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         end
 
         % get initial guesses from Gauss
-        a0= f.a1*f.c1*(pi)^.5; % peak area
+        a0 = f.a1*f.c1*(pi)^.5; % peak area
         a1 = f.b1; % elution time
         a2 = f.c1; % width of gaussian
         a3 = 0.1; % exponential damping term
@@ -210,15 +231,11 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
             return;
         end
         area = f2.a0; % Todo: include error of fit
-        %area = trapz(datax(indexold),f2(datax(indexold))); %skewed Gaussian    
     else
         % no saturation, just integrate over YB-BGline
-        % area = trapz(XB, YBsub);
         if(length(index_onlysignal) > 1)
             % integrate only 'detected peak'
             area = trapz(XB(index_onlysignal), YBsub(index_onlysignal));
-            % integrate everything
-            %area = trapz(XB, YBsub);
             if(S*(XB(end)-XB(1))> area) % check if area is above noise level
                area = 0;
             end
@@ -227,9 +244,9 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         end
     end
     areaerr = (3*S+M)*(XB(end)-XB(1));
+
     display = sprintf('%s area=%s %s %s', display, num2str(area),char(177),num2str(areaerr));
-    
-    if(param_showplot == 1) % plot
+    if(param.showplot == 1)
         GC_settings_graph;
         f_caption = 10;
         plot(hfigure.ax1,XB,YB, 'linewidth', f_line);
@@ -293,4 +310,59 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     retvals(4) = rawarea;
     retvals(5) = area; 
     retvals(6) = areaerr;
+end
+
+
+function YBsample = my_BGforward(YBsample, curvature)
+    for j=2:length(YBsample)-1
+        middle = (YBsample(j+1)+YBsample(j-1))/2;
+        if((middle+curvature)<YBsample(j))
+            YBsample(j) = middle;
+        end
+    end
+end
+
+
+function YBsample = my_BGbackward(YBsample, curvature)
+    for j=2:length(YBsample)-1
+        k = length(YBsample)-j+1;
+        middle = (YBsample(k+1)+YBsample(k-1))/2;
+        if((middle+curvature)<YBsample(k))
+            YBsample(k) = middle;
+        end
+    end
+end
+
+
+function [BGline, index_onlynoise, S, M] = my_BGhelper1(XB, YB, XBsample,YBsample,maxBGiter)
+    % interpolate new background to original grid so we can substract it
+    BGline = interp1(XBsample,YBsample,XB,'linear','extrap');
+    % calculate noise level and reject points based on this
+    index_onlynoise = 1:length(BGline);
+    YBsub = YB-BGline;
+    maxval = max(YBsub);
+    factor = 3;
+    % cannot always use 3 but need to scale it down if necessary
+    if(round(maxval/std(YBsub,1))<=3)
+        factor = 1;
+    end
+    for j=1:(maxBGiter/10)
+        S = std(YBsub(index_onlynoise),1); % standard deviation
+        M = mean(YBsub(index_onlynoise)); % mean value
+        Snew = S;
+        for i=1:maxBGiter
+            index_onlynoise = find(YBsub <= factor*Snew); % reject all points above M+3*S
+            Snew = std(YBsub(index_onlynoise),1); % standard deviation
+            if(Snew/S<0.01) % TBD what is the optimal parameter for the change
+                break;
+            end
+        end
+        if(i==1)
+           break; 
+        end
+    end
+    
+    % remove BGline below peak and make it a straight line
+    % interpolate new background to original grid so we can substract it
+    BGline = interp1(XB(index_onlynoise),BGline(index_onlynoise),XB,'linear','extrap');
 end
