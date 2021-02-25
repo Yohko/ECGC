@@ -37,10 +37,14 @@ function hfigure = GC_calcfaradaicEff(hfigure)
     
     % loop through all GC spectra
     for i=1:injcounter
+        % find all CA data point before the injection time
         binidx = find((hfigure.input.CH(1).spectra(i).timecode/60-hfigure.input.GCinttime-hfigure.input.GCoffsettime)<CA_timeline);
+
         if(hfigure.input.GC_binning == 0) % for accumulation experiment
+            % get complete charge until injection
             charge =CA_chargelinesum(binidx(1));
             time = CA_times(1,binidx(1));
+            % calculate average current, flow and potential for this injection
             binidxavg = find((hfigure.input.CH(1).spectra(i).timecode/60-hfigure.input.GCoffsettime)>CA_timeline & (hfigure.input.CH(1).spectra(i).timecode/60-hfigure.input.GCinttime-hfigure.input.GCoffsettime)<CA_timeline);
             CAcurrent = mean(CA_current(binidxavg));
             CAcurrenterr = std(CA_current(binidxavg));
@@ -48,8 +52,10 @@ function hfigure = GC_calcfaradaicEff(hfigure)
             potential = mean(CA_potentialline(binidxavg));
             Rucmp = mean(CA_Rcmp(binidxavg));
         elseif(hfigure.input.GC_binning == 1) % for flowcell experiment
+            % get the all CA data points within the injection window
+            % (t_inj-t_offset-t_integrate) < t_CA < (t_inj-t_offset)
             binidxavg = find((hfigure.input.CH(1).spectra(i).timecode/60-hfigure.input.GCoffsettime)>CA_timeline & (hfigure.input.CH(1).spectra(i).timecode/60-hfigure.input.GCinttime-hfigure.input.GCoffsettime)<CA_timeline);
-            if(isempty(binidxavg))
+            if(isempty(binidxavg)) % no CA information available
                 charge = 0;
                 time = 0;
                 CAcurrent = 0;
@@ -57,7 +63,7 @@ function hfigure = GC_calcfaradaicEff(hfigure)
                 CAflowrate = 0;
                 potential = 0;
                 Rucmp = 0;
-            else
+            else % CA information available
                 charge = CA_chargelinesum(binidxavg(end))-CA_chargelinesum(binidxavg(1));
                 CAcurrent = mean(CA_current(binidxavg));
                 CAcurrenterr = std(CA_current(binidxavg));

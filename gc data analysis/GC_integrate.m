@@ -79,12 +79,24 @@ function hfigure = GC_integrate(hfigure)
                             else
                                 param.BGpoints = 10;
                             end
+                            
+                            % especially useful for Agilent GC 
+                            % with TCD and FID in series
+                            % (Accessory 19232C)
+                            if (isfield(hfigure.input.CH(jj).peak(ii),'filter') && ~isempty(hfigure.input.CH(jj).peak(ii).filter))
+                                windowSize = hfigure.input.CH(jj).peak(ii).filter; 
+                                b = (1/windowSize)*ones(1,windowSize);
+                                a = 1;
+                                newY = filter(b,a,hfigure.input.CH(jj).spectra(i).spectrum(:,2));
+                            else
+                                newY = hfigure.input.CH(jj).spectra(i).spectrum(:,2);
+                            end
                             param.curvature = hfigure.input.CH(jj).peak(ii).curvature;
                             param.BGspacing = 1;
                             param.subM = subM;
                             param.peakcutoff = hfigure.input.CH(jj).RT_cutoff;
                             area = GC_peakInteg_multiline(hfigure.input.CH(jj).spectra(i).spectrum(:,1),...
-                                                     hfigure.input.CH(jj).spectra(i).spectrum(:,2),...
+                                                     newY,...
                                                      start, stop, ...
                                                      param, ...
                                                      sprintf('%d %s',i,graph_title),hfigure);

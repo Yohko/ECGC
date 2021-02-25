@@ -251,6 +251,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         f_caption = 10;
         plot(hfigure.ax1,XB,YB, 'linewidth', f_line);
         hold(hfigure.ax1,'on');
+        %plot(hfigure.ax1,XB(samplepoints),BGline(samplepoints),'o-', 'linewidth', f_line,'MarkerSize',4);
         plot(hfigure.ax1,XB,BGline,'-', 'linewidth', f_line);
         hold(hfigure.ax1,'off');
         box(hfigure.ax1,'on');

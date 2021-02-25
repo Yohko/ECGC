@@ -26,6 +26,8 @@ function data = GC_new(hfigure, expname)
             return;
         end
         s_id = answer{1};
+        s_id = strrep(s_id, '/', '');
+        s_id = strrep(s_id, '\', '');        
         s_date = str2double(answer{2});
         expname=sprintf('%s_%s',answer{2},answer{1});    
     end
