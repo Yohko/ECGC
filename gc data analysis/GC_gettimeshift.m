@@ -15,7 +15,11 @@ function hfigure = GC_gettimeshift(hfigure)
                 datay = datay(index);                
                 [maxyval, maxyidx] = max(datay);
                 index2 = find(datay(1:maxyidx) > (maxyval/2) & datay(1:maxyidx) < maxyval);
-                hfigure.result.CH(jj).RT_edgepos(ii) = datax(index2(1));
+                if ~isempty(index2)
+                    hfigure.result.CH(jj).RT_edgepos(ii) = datax(index2(1));                
+                else
+                    hfigure.result.CH(jj).RT_edgepos(ii) = center;
+                end
             end
         end
     end

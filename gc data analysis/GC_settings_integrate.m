@@ -525,13 +525,14 @@ GCset(2).CH(jj).peak(ii).subpeakCH = 0;
 GCset(2).CH(jj).peak(ii).subpeakf = 1;
 
 %% ########################################################################
+
 GCset(3).type = 'SRI'; % to select the correct loader
 GCset(3).name = 'SRI GC FastLoop 20/06'; % for naming it in loader, different names for different calibration etc
 GCset(3).CH(1).name = 'FID';
 GCset(3).CH(2).name = 'TCD';
 
 % settings to automatically align different spectra
-for ii=1:length(GCset(2).CH)
+for ii=1:length(GCset(3).CH)
     GCset(3).CH(ii).RT_shift = 0;
     GCset(3).CH(ii).RT_offset = 1.37;
     GCset(3).CH(ii).RT_edge_start = 1.25;
@@ -1435,7 +1436,7 @@ GCset(numsetting).CH(jj).peak(ii).subpeakf = 1;
 %% Agilent GC TCD FID 2021/02
 f_TCD = 1;
 f_FID = 1;
-numsetting = 2;%5;
+numsetting = 7;
 GCset(numsetting).type = 'Agilent'; % to select the correct loader
 GCset(numsetting).name = 'Agilent GCTCDFID 21/02v1'; % for naming it in loader, different names for different calibration etc
 GCset(numsetting).CH(1).name = 'TCDA';

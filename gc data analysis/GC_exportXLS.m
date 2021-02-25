@@ -7,14 +7,7 @@ function GC_exportXLS(hfigure)
     path = mfilename('fullpath');
     path = path(1:end-length('GC_exportXLS'));
     tmp = strfind(javaclasspath(),'poi'); % check if already loaded
-    if(isempty(tmp))
-        javaaddpath(sprintf('%s%s',path,'poi_library/poi-3.8-20120326.jar'));
-        javaaddpath(sprintf('%s%s',path,'poi_library/poi-ooxml-3.8-20120326.jar'));
-        javaaddpath(sprintf('%s%s',path,'poi_library/poi-ooxml-schemas-3.8-20120326.jar'));
-        javaaddpath(sprintf('%s%s',path,'poi_library/xmlbeans-2.3.0.jar'));
-        javaaddpath(sprintf('%s%s',path,'poi_library/dom4j-1.6.1.jar'));
-        javaaddpath(sprintf('%s%s',path,'poi_library/stax-api-1.0.1.jar'));   
-    elseif(isempty(tmp{1}))
+    if(isempty(tmp) || isempty(tmp{1}))
         javaaddpath(sprintf('%s%s',path,'poi_library/poi-3.8-20120326.jar'));
         javaaddpath(sprintf('%s%s',path,'poi_library/poi-ooxml-3.8-20120326.jar'));
         javaaddpath(sprintf('%s%s',path,'poi_library/poi-ooxml-schemas-3.8-20120326.jar'));
