@@ -6,7 +6,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     %param.maxBGiter     % max BG iterations
     %param.BGpoints      % #points in between
     %param.curvature     % curvature parameter
-    %param.BGspacing     % 0.. random spaced, 1 even spaced
+    %param.BGspacing     % 0.. random spaced, 1 evenly spaced
     %param.subM          % sub M?
     %param.peakcutoff    % criteria to detect detector saturation    
     
@@ -18,9 +18,9 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
 
     XB = datax(index);
     YB = datay(index);
-    idx = find(YB >= param.peakcutoff, 1);
+    idx_abovethreshold = find(YB >= param.peakcutoff, 1);
     indexold = index;
-    if(isempty(idx) == 0)
+    if(isempty(idx_abovethreshold) == 0)
         % delete all points between first and last index
         indexover = find(YB >= param.peakcutoff);
         index = [1:(indexover(1)-1),(indexover(end)+1):length(XB)];
@@ -34,7 +34,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         YB = YB(index);
     end
     
-    % absolute or relative curvature, forward and backward?
+    %% absolute or relative curvature, forward and backward?
     if length(param.curvature) > 1
         if(param.curvature(1)<0)
             curvature(1) = abs(param.curvature(1));
@@ -54,7 +54,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         end
     end
 
-    % get nodes at which the BG is calculated
+    %% get nodes at which the BG is calculated
     samplepoints = zeros(param.BGpoints+1,1);
     switch param.BGspacing
         %case 0 % random
@@ -74,7 +74,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     XBsample = XB(samplepoints);
     YBsample = YB(samplepoints);
 
-    % calculate BG
+    %% calculate BG
     if length(param.curvature) > 1
         % (1) different curvarure values for forward and backward
         YBsamplef = YB(samplepoints);
@@ -141,17 +141,18 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
 
 
     YBsub = YB-BGline;
-
-    if(param.subM == 0)
-        YBsub(YBsub<0) = 0;
-    end
+    %if(param.subM == 0)
+    %    YBsub(YBsub<0) = 0;
+    %end
+    
+    % integrate BG corrected curve to obtain raw peak area
     rawarea = trapz(XB, YBsub);
 
-    % calculate the final error
+    %% calculate the final error
     S = std(YBsub(index_onlynoise)); % standard deviation
     M = mean(YBsub(index_onlynoise)); % mean value
     
-    % detect individual peaks
+    %% detect individual peaks
     starti(1) = 0;
     stopi(1) = 0;
     peak_count = 0;
@@ -174,6 +175,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         end
     end
     
+    
     %check if peaks fit into the range expected for the
     %particular molecule, else it might be a different one especially for
     %peaks which are close together (e.g. CO and CH4)
@@ -193,7 +195,33 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
        end
     end
 
-    if(isempty(idx) == 0)
+    %% peak fit if defined in config
+    if (~isempty(param.fit_type))
+        try
+            switch param.fit_type
+                case 'gauss2'
+                    fp = fit_Gauss2(XB, YBsub, param, start, stop);
+                    fparea = fp.a1*fp.c1*(pi)^.5; % peak area
+                    fp_peak = fp.a1.*exp(-((XB-fp.b1)./fp.c1).^2);
+                case 'asymgauss2'
+                    fp = fit_asymGauss2(XB, YBsub, param, start, stop);
+                    fparea = fp.a0; % Todo: include error of fit                    
+                    fp_peak = GC_asym_Gauss(XB, fp.a0, fp.a1, fp.a2, fp.a3);
+                otherwise
+                    disp('Error');
+                    return;
+            end
+        catch
+            disp('Error in peak fit in ');
+            disp(display);
+            fp_area = -1;
+        end
+    end
+    
+    %% some points are above saturation threshold
+    % do a peak fitting to approximate peak to extrapolate saturated
+    % peak
+    if(isempty(idx_abovethreshold) == 0)
         % peak is saturated, need to do some peak fitting to 
         % approximate the area 
         % first get some approximate guesses based on Gauss peak profile
@@ -201,7 +229,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         %b1 = % elution time
         %c1 = % width of gaussian
         try
-            %f = fit(x2(idx),y2(idx),'gauss1',...
+            %f = fit(x2(idx_abovethreshold),y2(idx_abovethreshold),'gauss1',...
             f = fit(XB, YBsub,'gauss1',...
             'Lower',[0.5*param.peakcutoff, start, 0.01],...
             'Upper',[20*param.peakcutoff, stop, abs(stop-start)]);%,...
@@ -236,7 +264,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         if(length(index_onlysignal) > 1)
             % integrate only 'detected peak'
             area = trapz(XB(index_onlysignal), YBsub(index_onlysignal));
-            if(S*(XB(end)-XB(1))> area) % check if area is above noise level
+            if(3*S*(XB(end)-XB(1))> area) % check if area is above noise level
                area = 0;
             end
         else
@@ -245,7 +273,19 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     end
     areaerr = (3*S+M)*(XB(end)-XB(1));
 
-    display = sprintf('%s area=%s %s %s', display, num2str(area),char(177),num2str(areaerr));
+    
+    % calculated raw area is smaller then just integrating noise with
+    % 99.9% confidence (3x)
+    % 97.7% confidence (2x)
+    % 84.1% confidence (1x)
+    
+    if rawarea < 2*S*(XB(end)-XB(1))
+        rawarea = 0;
+    end
+    
+    
+    %% plot in GUI
+    display = sprintf('%s area=%s %s %s', display, num2str(rawarea),char(177),num2str(areaerr));
     if(param.showplot == 1)
         GC_settings_graph;
         f_caption = 10;
@@ -261,7 +301,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         set(hfigure.ax1, 'fontsize', f_caption);
         legend(hfigure.ax1,'Data', 'BG');
         legend(hfigure.ax1,'boxoff');
-        if(isempty(idx) == 0)
+        if(isempty(idx_abovethreshold) == 0)
             plot(hfigure.ax2,XB,YBsub,'-', 'linewidth', f_line);
             hold(hfigure.ax2,'on');
             plot(hfigure.ax2,datax(indexold),f2(datax(indexold)), 'linewidth', f_line); % Skewed Gaussian
@@ -279,11 +319,19 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
             hold(hfigure.ax2,'on');
             if(length(index_onlysignal)>2)
                 plot(hfigure.ax2,XB(index_onlysignal),YBsub(index_onlysignal),'o', 'color', 'black', 'linewidth', f_line);
-                legend(hfigure.ax2,'Data-BG','above noise');
+                hlegend = legend(hfigure.ax2,'Data-BG','above noise');
             else
-                legend(hfigure.ax2,'Data-BG');            
+                hlegend = legend(hfigure.ax2,'Data-BG');            
             end
+            if (~isempty(param.fit_type) && fp_area >= 0)
+                plot(hfigure.ax2,XB,fp(XB), 'linewidth', f_line,'DisplayName','cust. model'); % user defined peak model
+                plot(hfigure.ax2,XB,fp_peak, 'linewidth', f_line,'DisplayName','POI'); % the peak of interest
+
+            end
+            
             legend(hfigure.ax2,'boxoff');
+            %patch('Parent',  hlegend, 'FaceColor','y', 'FaceAlpha',0.2);
+            set(hlegend,'color','none');
             hold(hfigure.ax2,'off');
             box(hfigure.ax2,'on');
         end
@@ -307,10 +355,21 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     if rawarea<0
         rawarea = 0;
     end
+    
+    % if a peak model was defined in the config file
+    % we only use the area for the first peak (as defined in by the
+    % centerparam in the config file)
+    if (~isempty(param.fit_type))
+        fprintf('Using cust. model: ROI = %s, FULL = %s\n',num2str(fparea),num2str(rawarea));
+        rawarea = fparea;
+        area = fparea;
+    end
+
+    
     retvals(1) = rawarea;
     retvals(4) = rawarea;
     retvals(5) = area; 
-    retvals(6) = areaerr;
+    retvals(6) = areaerr; % (3*S+M)*(XB(end)-XB(1));
 end
 
 
@@ -366,4 +425,83 @@ function [BGline, index_onlynoise, S, M] = my_BGhelper1(XB, YB, XBsample,YBsampl
     % remove BGline below peak and make it a straight line
     % interpolate new background to original grid so we can substract it
     BGline = interp1(XB(index_onlynoise),BGline(index_onlynoise),XB,'linear','extrap');
+end
+
+
+function fp = fit_Gauss2(XB, YBsub, param, start, stop)
+    % params for gauss are
+    % height(a), center (b), width (c)
+
+    % lower limits
+    a1_l = 0; % height
+    b1_l = param.fit_param(1)-param.fit_param(2); % center
+    c1_l = 0.01; % width
+
+    a2_l =  0; % height
+    b2_l =  param.fit_param(3)-param.fit_param(4); % center
+    c2_l = 0.01; % width
+
+    % upper limits
+    a1_u = param.peakcutoff; % height
+    b1_u = param.fit_param(1)+param.fit_param(2); % center
+    c1_u = abs(stop-start); % width
+
+    a2_u =  param.peakcutoff; % height
+    b2_u =  param.fit_param(3)+param.fit_param(4); % center
+    c2_u = abs(stop-start); % width
+
+    fpoptions = fitoptions('gauss2', ...
+        'Lower', [a1_l b1_l c1_l a2_l b2_l c2_l],...
+        'Upper', [a1_u b1_u c1_u a2_u b2_u c2_u]);
+    fp = fit(XB, YBsub,'gauss2',fpoptions);
+end
+
+function fp = fit_asymGauss2(XB, YBsub, param, start, stop)
+    % get initial guesses from Gauss
+    fp = fit_Gauss2(XB, YBsub, param, start, stop);
+    
+    a0 = fp.a1*fp.c1*(pi)^.5; % peak area
+    a1 = fp.b1; % elution time
+    a2 = fp.c1; % width of gaussian
+    a3 = 0.01; % exponential damping term
+
+    b0 = fp.a2*fp.c2*(pi)^.5; % peak area
+    b1 = fp.b2; % elution time
+    b2 = fp.c2; % width of gaussian
+    b3 = 0.01; % exponential damping term
+
+    a0_l = 0; % peak area
+    a1_l = a1-0.1*abs(a1-b1); % center
+    a2_l = 0.01; % width of gaussian
+    a3_l = 0; % exponential damping term
+ 
+    b0_l = 0; % peak area
+    b1_l = b1-0.1*abs(a1-b1); % center
+    b2_l = 0.01; % width of gaussian
+    b3_l = 0; % exponential damping term
+ 
+    a0_u = 2*a0; % peak area
+    a1_u = a1+0.1*abs(a1-b1); % center
+    a2_u = 2*a2; % width of gaussian
+    a3_u = 1; % exponential damping term
+
+    b0_u = 2*b0; % peak area
+    b1_u = b1+0.1*abs(a1-b1); % center
+    b2_u = 2*b2; % width of gaussian
+    b3_u = 1; % exponential damping term
+
+    ft = fittype('GC_asym_Gauss2(x, a0, a1, a2, a3, b0, b1, b2, b3)');
+    try
+        fp = fit( XB, YBsub, ft,...
+            'Lower',[a0_l, a1_l, a2_l, a3_l, ...
+                     b0_l, b1_l, b2_l, b3_l],...
+            'Upper',[a0_u, a1_u, a2_u, a3_u, ...
+                     b0_u, b1_u, b2_u, b3_u],...
+            'StartPoint',[a0 a1 a2 a3,...
+                          b0, b1, b2, b3]);
+    catch ME
+        disp('Error with Skewed Gauss fit in ');
+        disp(ME);
+        rethrow(ME);
+    end
 end

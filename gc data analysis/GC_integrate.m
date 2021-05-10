@@ -18,6 +18,8 @@ function hfigure = GC_integrate(hfigure)
     peakcounter2 = 0;
     progresscounter = 0;
     totalpeakcount = 0;
+    % calculate the total peak count for integration
+    % (for GUI)
 	for jj = 1:length(hfigure.result.CH)
         for i=1:length(hfigure.input.CH(jj).spectra)
             for ii = 1:length(hfigure.result.CH(jj).peak)
@@ -26,15 +28,23 @@ function hfigure = GC_integrate(hfigure)
         end
 	end
     
+    % loop though all defined channels
 	for jj = 1:length(hfigure.result.CH)
+        % for GUI to keep track of peak count
         peakcounter1 = peakcounter1 + peakcounter2;
+
+        % loop though all spectra of current channel
         for i=1:length(hfigure.input.CH(jj).spectra)
             peakcounter2 = 0;
+            % peak drift correction
+            % currently globally disabled
             if (hfigure.input.CH(jj).RT_shift == 1)
                 shift = 0;
             else
                 shift = 0;
             end
+
+            % loop trough all defined peaks of current channel
             for ii = 1:length(hfigure.result.CH(jj).peak)
                 progresscounter = progresscounter + 1;
                 peakcounter2 = peakcounter2 + 1;
@@ -54,55 +64,67 @@ function hfigure = GC_integrate(hfigure)
                     otherwise
                         subM = 0;
                 end
-                
+
+                % exclude peaks which have a start of -1 and put its area
+                % to zero
                 if(hfigure.input.CH(jj).peak(ii).start ~= -1)
-                    switch hfigure.input.intselBGtype(ii)
-                        case 1 % linear
-                            area = GC_peakInteg_line(hfigure.input.CH(jj).spectra(i).spectrum(:,1),...
-                                                     hfigure.input.CH(jj).spectra(i).spectrum(:,2),...
-                                                     start, stop, ...
-                                                     [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift],...
-                                                     sprintf('%d %s',i,graph_title));
-                        case 2 % linearfit
-                            area = GC_peakInteg_linefit(hfigure.input.CH(jj).spectra(i).spectrum(:,1),...
-                                                     hfigure.input.CH(jj).spectra(i).spectrum(:,2),...
-                                                     start, stop, ...
-                                                     [0;0;hfigure.input.plotpeaks & displot;BGiter;0.87+shift],...
-                                                     sprintf('%d %s',i,graph_title));
-                        %case 3 % multi line
-                        otherwise % default
-                            param = struct();
-                            param.showplot = hfigure.input.plotpeaks & displot;
-                            param.maxBGiter = BGiter;
-                            if (isfield(hfigure.input.CH(jj).peak(ii),'BGpoints') && ~isempty(hfigure.input.CH(jj).peak(ii).BGpoints))
-                                param.BGpoints = hfigure.input.CH(jj).peak(ii).BGpoints;
-                            else
-                                param.BGpoints = 10;
-                            end
-                            
-                            % especially useful for Agilent GC 
-                            % with TCD and FID in series
-                            % (Accessory 19232C)
-                            if (isfield(hfigure.input.CH(jj).peak(ii),'filter') && ~isempty(hfigure.input.CH(jj).peak(ii).filter))
-                                windowSize = hfigure.input.CH(jj).peak(ii).filter; 
-                                b = (1/windowSize)*ones(1,windowSize);
-                                a = 1;
-                                newY = filter(b,a,hfigure.input.CH(jj).spectra(i).spectrum(:,2));
-                            else
-                                newY = hfigure.input.CH(jj).spectra(i).spectrum(:,2);
-                            end
-                            param.curvature = hfigure.input.CH(jj).peak(ii).curvature;
-                            param.BGspacing = 1;
-                            param.subM = subM;
-                            param.peakcutoff = hfigure.input.CH(jj).RT_cutoff;
-                            area = GC_peakInteg_multiline(hfigure.input.CH(jj).spectra(i).spectrum(:,1),...
-                                                     newY,...
-                                                     start, stop, ...
-                                                     param, ...
-                                                     sprintf('%d %s',i,graph_title),hfigure);
-                            hfigure.result.CH(jj).peak(ii).err(i) = area(6);
+                    param = struct();
+                    param.showplot = hfigure.input.plotpeaks & displot;
+                    param.maxBGiter = BGiter;
+                    if (isfield(hfigure.input.CH(jj).peak(ii),'BGpoints') && ~isempty(hfigure.input.CH(jj).peak(ii).BGpoints))
+                        param.BGpoints = hfigure.input.CH(jj).peak(ii).BGpoints;
+                    else
+                        param.BGpoints = 10;
                     end
+
+                    % peak fit parameters
+                    if (isfield(hfigure.input.CH(jj).peak(ii),'fit_type') && ~isempty(hfigure.input.CH(jj).peak(ii).fit_type) &&...
+                        isfield(hfigure.input.CH(jj).peak(ii),'fit_param') && ~isempty(hfigure.input.CH(jj).peak(ii).fit_param))
+                        param.fit_type = hfigure.input.CH(jj).peak(ii).fit_type;
+                        param.fit_param = hfigure.input.CH(jj).peak(ii).fit_param;
+                    else
+                       param.fit_type = []; 
+                       param.fit_param = []; 
+                    end
+
+                    % especially useful for Agilent GC 
+                    % with TCD and FID in series
+                    % (Accessory 19232C)
+                    if (isfield(hfigure.input.CH(jj).peak(ii),'filter') && ~isempty(hfigure.input.CH(jj).peak(ii).filter))
+                        windowSize = hfigure.input.CH(jj).peak(ii).filter; 
+                        b = (1/windowSize)*ones(1,windowSize);
+                        a = 1;
+                        newY = filter(b,a,hfigure.input.CH(jj).spectra(i).spectrum(:,2));
+                    else
+                        newY = hfigure.input.CH(jj).spectra(i).spectrum(:,2);
+                    end
+                    param.curvature = hfigure.input.CH(jj).peak(ii).curvature;
+                    param.BGspacing = 1;  % 0.. random spaced, 1 even spaced
+                    param.subM = subM;
+                    param.peakcutoff = hfigure.input.CH(jj).RT_cutoff;
+
+                    % calculate BG and integrate peak
+                    area = GC_peakInteg_multiline(hfigure.input.CH(jj).spectra(i).spectrum(:,1),...
+                                             newY,...
+                                             start, stop, ...
+                                             param, ...
+                                             sprintf('%d %s',i,graph_title),hfigure);
+
+                    % return values:
+                    % 1: peak area
+                    % 2: XB(intl)
+                    % 3: XB(intr)
+                    % 4: integrate raw area
+                    % 5: area from peak fit (if saturated), or from peak above noise
+                    % 6: peak area error
+
+                    % save calculated peak area
                     hfigure.result.CH(jj).peak(ii).area(i) = area(1);
+
+                    % save calculated peak area error
+                    hfigure.result.CH(jj).peak(ii).err(i) = area(6);
+
+                    % pause for a few seconds if plotting peaks
                     if(hfigure.input.plotpeaks && displot)
                         pause(disppauseval);
                     end
@@ -113,7 +135,7 @@ function hfigure = GC_integrate(hfigure)
         end
 	end
     
-    % convert to seconds to get the same peak area as in the SRI Software
+    % convert x-axis from min to seconds to get the same peak area as in the SRI Software
     for jj = 1:length(hfigure.result.CH)
         for ii = 1:length(hfigure.result.CH(jj).peak)
             hfigure.result.CH(jj).peak(ii).area = hfigure.result.CH(jj).peak(ii).area*60;

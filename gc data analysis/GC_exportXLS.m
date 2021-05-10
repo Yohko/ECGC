@@ -3,6 +3,8 @@ function GC_exportXLS(hfigure)
     eval(hfigure.GC_usersetting); % load settings
     warning('off','MATLAB:xlswrite:AddSheet');
 
+    % Has a conflict with 'Text Analytics toolbox' for 2019b and higher
+    
     % Add Java POI Libs to matlab javapath
     path = mfilename('fullpath');
     path = path(1:end-length('GC_exportXLS'));
