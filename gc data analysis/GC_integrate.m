@@ -109,7 +109,7 @@ function hfigure = GC_integrate(hfigure)
                                              start, stop, ...
                                              param, ...
                                              sprintf('%d %s',i,graph_title),hfigure);
-
+                    fprintf('%d CH %s %s: area=%f\n',i, hfigure.input.CH(jj).name, hfigure.result.CH(jj).peak(ii).name, area(1))
                     % return values:
                     % 1: peak area
                     % 2: XB(intl)

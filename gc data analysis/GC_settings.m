@@ -6,5 +6,5 @@
 headspacevol = 0.17; % in L
 flowrate = 7.5; %in sccm, fallback if not included in EC-Lab file
 path_to_EXCEL = '/Applications/Microsoft\\ Excel.app';
-
+GC_timezonecorr = 8*60*60;
 GC_settings_integrate;

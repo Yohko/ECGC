@@ -157,7 +157,7 @@ function GC_exportXLS(hfigure)
         flowrateoffset = coloffset;
         xlwrite(fileName, {'flowrate [sccm]'}, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset)));
         for i=2:length(runnum)+1
-            xlwrite(fileName, {hfigure.result.GCflowrate(i-1)}, sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset), i));
+            xlwrite(fileName, {hfigure.result.GC_data.flowrate(i-1)}, sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset), i));
         end
         coloffset = coloffset+1;
 
@@ -187,17 +187,17 @@ function GC_exportXLS(hfigure)
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset-1)));
         % calculate current density
         for i=2:length(runnum)+1
-            xlwrite(fileName, {sprintf('=%d/%d',hfigure.result.GCcurrent(i-1),hfigure.input.area)}, sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset-1),i));    
+            xlwrite(fileName, {sprintf('=%d/%d',hfigure.result.GC_data.current(i-1),hfigure.input.area)}, sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset-1),i));    
         end
         % correct potential for RHE and do IR compensation to 100%
         for i=2:length(runnum)+1
-            xlwrite(fileName, {sprintf('=%d+%d+%d*%d*%d',hfigure.result.GCpotential(i-1),hfigure.input.UtoRHE,(hfigure.result.GCcurrent(i-1)*1E-3),hfigure.result.GCRu(i-1),(1-hfigure.input.compensation))}, sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset),i));    
+            xlwrite(fileName, {sprintf('=%d+%d+%d*%d*%d',hfigure.result.GC_data.potential(i-1),hfigure.input.UtoRHE,(hfigure.result.GC_data.current(i-1)*1E-3),hfigure.result.GC_data.Ru(i-1),(1-hfigure.input.compensation))}, sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset),i));    
         end
 
-        xlwrite(fileName, num2cell(hfigure.result.GCcharge), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+1)));
-        xlwrite(fileName, num2cell(hfigure.result.GCtime), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+2)));
+        xlwrite(fileName, num2cell(hfigure.result.GC_data.charge'), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+1)));
+        xlwrite(fileName, num2cell(hfigure.result.GC_data.time'), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+2)));
         for i=2:length(runnum)+1
-            xlwrite(fileName, {sprintf('=(1/(%s%d/96500*1E6)*%s%d/60*100)',GC_getXLScolumn(chargeoffset), i, GC_getXLScolumn(timeoffset), i)}, sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset+3),i));
+            xlwrite(fileName, {sprintf('=(1/(ABS(%s%d)/96500*1E6)*%s%d/60*100)',GC_getXLScolumn(chargeoffset), i, GC_getXLScolumn(timeoffset), i)}, sheetName, sprintf('%s%d', GC_getXLScolumn(coloffset+3),i));
         end
         coloffset = coloffset+4;
 
@@ -226,7 +226,7 @@ function GC_exportXLS(hfigure)
 
         xlsData = {'timecode'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset-1)));
-        xlwrite(fileName, num2cell(hfigure.result.GCtimes'), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset-1)));
+        xlwrite(fileName, num2cell(hfigure.result.GC_data.times'), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset-1)));
 
         selectoroffset = coloffset;
         xlsData = {'Selector'};
@@ -238,7 +238,7 @@ function GC_exportXLS(hfigure)
         errorcurrentoffset = coloffset+1;
         xlsData = {'Error Current [mA]'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+1)));
-        xlwrite(fileName, num2cell(hfigure.result.GCcurrenterr), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+1)));
+        xlwrite(fileName, num2cell(hfigure.result.GC_data.currenterr), sheetName, sprintf('%s2',GC_getXLScolumn(coloffset+1)));
 
         xlsData = {'Error CO [raw]'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(coloffset+2)));
@@ -316,42 +316,42 @@ function GC_exportXLS(hfigure)
         xlsData = {'Error CO'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(Erroroffset)));
         for i=2:length(runnum)+1
-            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(hfigure.result.GCcurrenterr(i-1)),abs(hfigure.result.GCcurrent(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idCO.CH).peak(GCset(hfigure.settingsID).idCO.peak).err(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idCO.CH).peak(GCset(hfigure.settingsID).idCO.peak).area(i-1)), GC_getXLScolumn(effoffset),i)};
+            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(hfigure.result.GC_data.currenterr(i-1)),abs(hfigure.result.GC_data.current(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idCO.CH).peak(GCset(hfigure.settingsID).idCO.peak).err(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idCO.CH).peak(GCset(hfigure.settingsID).idCO.peak).area(i-1)), GC_getXLScolumn(effoffset),i)};
             xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(Erroroffset), i));
         end
 
         xlsData = {'Error CH4'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(Erroroffset+1)));
         for i=2:length(runnum)+1
-            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(hfigure.result.GCcurrenterr(i-1)),abs(hfigure.result.GCcurrent(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idCH4.CH).peak(GCset(hfigure.settingsID).idCH4.peak).err(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idCH4.CH).peak(GCset(hfigure.settingsID).idCH4.peak).area(i-1)), GC_getXLScolumn(effoffset+1),i)};
+            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(hfigure.result.GC_data.currenterr(i-1)),abs(hfigure.result.GC_data.current(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idCH4.CH).peak(GCset(hfigure.settingsID).idCH4.peak).err(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idCH4.CH).peak(GCset(hfigure.settingsID).idCH4.peak).area(i-1)), GC_getXLScolumn(effoffset+1),i)};
             xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(Erroroffset+1), i));
         end
 
         xlsData = {'Error C2H4'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(Erroroffset+2)));
         for i=2:length(runnum)+1
-            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(hfigure.result.GCcurrenterr(i-1)),abs(hfigure.result.GCcurrent(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idC2H4.CH).peak(GCset(hfigure.settingsID).idC2H4.peak).err(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idC2H4.CH).peak(GCset(hfigure.settingsID).idC2H4.peak).area(i-1)), GC_getXLScolumn(effoffset+2),i)};
+            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(hfigure.result.GC_data.currenterr(i-1)),abs(hfigure.result.GC_data.current(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idC2H4.CH).peak(GCset(hfigure.settingsID).idC2H4.peak).err(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idC2H4.CH).peak(GCset(hfigure.settingsID).idC2H4.peak).area(i-1)), GC_getXLScolumn(effoffset+2),i)};
             xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(Erroroffset+2), i));
         end
 
         xlsData = {'Error C2H6'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(Erroroffset+3)));
         for i=2:length(runnum)+1
-            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(hfigure.result.GCcurrenterr(i-1)),abs(hfigure.result.GCcurrent(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idC2H6.CH).peak(GCset(hfigure.settingsID).idC2H6.peak).err(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idC2H6.CH).peak(GCset(hfigure.settingsID).idC2H6.peak).area(i-1)), GC_getXLScolumn(effoffset+3),i)};
+            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(hfigure.result.GC_data.currenterr(i-1)),abs(hfigure.result.GC_data.current(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idC2H6.CH).peak(GCset(hfigure.settingsID).idC2H6.peak).err(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idC2H6.CH).peak(GCset(hfigure.settingsID).idC2H6.peak).area(i-1)), GC_getXLScolumn(effoffset+3),i)};
             xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(Erroroffset+3), i));
         end
 
         xlsData = {'Error O2'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(Erroroffset+4)));
         for i=2:length(runnum)+1
-            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(hfigure.result.GCcurrenterr(i-1)),abs(hfigure.result.GCcurrent(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idO2.CH).peak(GCset(hfigure.settingsID).idO2.peak).err(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idO2.CH).peak(GCset(hfigure.settingsID).idO2.peak).area(i-1)), GC_getXLScolumn(effoffset+4),i)};
+            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(hfigure.result.GC_data.currenterr(i-1)),abs(hfigure.result.GC_data.current(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idO2.CH).peak(GCset(hfigure.settingsID).idO2.peak).err(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idO2.CH).peak(GCset(hfigure.settingsID).idO2.peak).area(i-1)), GC_getXLScolumn(effoffset+4),i)};
             xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(Erroroffset+4), i));
         end
 
         xlsData = {'Error H2'};
         xlwrite(fileName, xlsData, sheetName, sprintf('%s1',GC_getXLScolumn(Erroroffset+5)));
         for i=2:length(runnum)+1
-            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(hfigure.result.GCcurrenterr(i-1)),abs(hfigure.result.GCcurrent(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idH2.CH).peak(GCset(hfigure.settingsID).idH2.peak).err(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idH2.CH).peak(GCset(hfigure.settingsID).idH2.peak).area(i-1)), GC_getXLScolumn(effoffset+5),i)};
+            xlsData = {sprintf('=IFERROR((%d/%d+%d/%d)*%s%d,0)', abs(hfigure.result.GC_data.currenterr(i-1)),abs(hfigure.result.GC_data.current(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idH2.CH).peak(GCset(hfigure.settingsID).idH2.peak).err(i-1)), abs(hfigure.result.CH(GCset(hfigure.settingsID).idH2.CH).peak(GCset(hfigure.settingsID).idH2.peak).area(i-1)), GC_getXLScolumn(effoffset+5),i)};
             xlwrite(fileName, xlsData, sheetName, sprintf('%s%d', GC_getXLScolumn(Erroroffset+5), i));
         end
     

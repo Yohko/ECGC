@@ -14,8 +14,8 @@ function hfigure = GC_init(hfigure)
     hfigure.input.Ru = 0;
     hfigure.input.compensation = 0.85;
     hfigure.input.headspacevol = headspacevol;
+    hfigure.input.GC_timezonecorr = GC_timezonecorr;
     hfigure.input.flowrate = flowrate;
-    hfigure.input.hr = hfigure.input.headspacevol/hfigure.input.flowrate/60*1000;
     % update data in app
     guidata(hfigure.figure,hfigure);
 end

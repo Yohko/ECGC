@@ -38,11 +38,11 @@ function GC_main(hfigure)
     end
     
     %% (7) ######## Calculate production rate #############################
-    hfigure.UIprog.Value = 0.6;
-    hfigure.UIprog.Message = 'STEP (7) calculate production rate';
-    if(hfigure.input.GCandEC == 1)
-        hfigure = GC_calcproductrate(hfigure);
-    end
+%     hfigure.UIprog.Value = 0.6;
+%     hfigure.UIprog.Message = 'STEP (7) calculate production rate';
+%     if(hfigure.input.GCandEC == 1)
+%         hfigure = GC_calcproductrate(hfigure);
+%     end
 
     %% (8) ######## Calc Faradaic Efficiency ##############################
     hfigure.UIprog.Value = 0.7;
@@ -66,7 +66,7 @@ function GC_main(hfigure)
     if hfigure.input.exportCSV
         hfigure.UIprog.Message = 'STEP (10) export data as CSV';
         try
-            GC_exportCSV(hfigure);
+            GC_exportCSV_V2(hfigure);
         catch ME
             uialert(hfigure.figure,'Matlab Error.','Error');
             rethrow(ME)

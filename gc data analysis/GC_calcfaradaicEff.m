@@ -1,97 +1,95 @@
 %Licence: GNU General Public License version 2 (GPLv2)
 function hfigure = GC_calcfaradaicEff(hfigure)
-    %CA_potentials = cell2mat(hfigure.result.CAdata(1));
-    %CA_charge = cell2mat(hfigure.result.CAdata(2));
-    CA_times = cell2mat(hfigure.result.CAdata(3));
-    %CA_totaltime = cumsum(CA_times);
-    %CA_flowin = cell2mat(hfigure.result.CAdata(4));
-    CA_flowout = cell2mat(hfigure.result.CAdata(5));
-    CA_timeline = cell2mat(hfigure.result.CAdata(6)); % already in minutes
-    %CA_timeline = CA_timeline-CA_timeline(1);
-    CA_chargeline = abs(cell2mat(hfigure.result.CAdata(7)));
-    CA_current = abs(cell2mat(hfigure.result.CAdata(8)));
-    CA_potentialline = cell2mat(hfigure.result.CAdata(9));
-    CA_Rcmp = cell2mat(hfigure.result.CAdata(10))/hfigure.input.compensation;
-    %CA_chargeline = cell2mat(hfigure.result.CAdata(7));
-    
-    % get number of injections for channels
-	injcounter = length(hfigure.input.CH(1).spectra);
-    
-    hfigure.result.GCpotential = zeros(injcounter,1);
-    hfigure.result.GCcurrent = zeros(injcounter,1);
-    hfigure.result.GCcurrenterr = zeros(injcounter,1);
-    hfigure.result.GCflowrate = zeros(injcounter,1);
-    hfigure.result.GCcharge = zeros(injcounter,1);
-    hfigure.result.GCtime = zeros(injcounter,1);
-    
-    CAcurrent = 0;
     offset = 0;
-    CA_chargelinesum = zeros(length(CA_chargeline),1);
-    for i=1:size(CA_chargeline,2)
-       if(CA_chargeline(i) == 0 && i > 1)
-          offset = CA_chargelinesum(i-1);
+    CA_chargesum = zeros(length(hfigure.result.CA_data.charge),1);
+    for i=1:length(hfigure.result.CA_data.charge)
+       if(hfigure.result.CA_data.charge(i) == 0 && i > 1)
+          offset = CA_chargesum(i-1);
        end
-       CA_chargelinesum(i) =  offset + CA_chargeline(i);
+       CA_chargesum(i) =  offset + hfigure.result.CA_data.charge(i);
     end
 
+    charge = 0;
+    time = 0;
+    CAcurrent = 0;
+    CAcurrenterr = 0;
+    CAflowrate = 0;
+    potential = 0;
+    Rucmp = 0;
     
     % loop through all GC spectra
-    for i=1:injcounter
-        % find all CA data point before the injection time
-        binidx = find((hfigure.input.CH(1).spectra(i).timecode/60-hfigure.input.GCinttime-hfigure.input.GCoffsettime)<CA_timeline);
-
+    for i=1:length(hfigure.input.CH(1).spectra)
         if(hfigure.input.GC_binning == 0) % for accumulation experiment
+            % find all CA data point before the injection time
+            binidxavg = find((hfigure.input.CH(1).spectra(i).timecode/60-hfigure.input.GCoffsettime)>=hfigure.result.CA_data.time);
             % get complete charge until injection
-            charge =CA_chargelinesum(binidx(1));
-            time = CA_times(1,binidx(1));
+            charge = CA_chargesum(binidxavg(end));
+            time = hfigure.result.CA_data.time(binidxavg(end));
             % calculate average current, flow and potential for this injection
-            binidxavg = find((hfigure.input.CH(1).spectra(i).timecode/60-hfigure.input.GCoffsettime)>CA_timeline & (hfigure.input.CH(1).spectra(i).timecode/60-hfigure.input.GCinttime-hfigure.input.GCoffsettime)<CA_timeline);
-            CAcurrent = mean(CA_current(binidxavg));
-            CAcurrenterr = std(CA_current(binidxavg));
-            CAflowrate = mean(CA_flowout(binidxavg));
-            potential = mean(CA_potentialline(binidxavg));
-            Rucmp = mean(CA_Rcmp(binidxavg));
+            CAcurrent = mean(hfigure.result.CA_data.current(binidxavg));
+            CAcurrenterr = std(hfigure.result.CA_data.current(binidxavg));
+            CAflowrate = mean(hfigure.result.CA_data.flowout(binidxavg));
+            potential = mean(hfigure.result.CA_data.potential(binidxavg));
+            CAflowrateerr = std(hfigure.result.CA_data.flowout(binidxavg));
+            potentialerr = std(hfigure.result.CA_data.potential(binidxavg));
+            Rucmp = mean(hfigure.result.CA_data.Rcmp(binidxavg));
         elseif(hfigure.input.GC_binning == 1) % for flowcell experiment
+            % find all CA data point before the injection time
+            binidxavg = find((hfigure.input.CH(1).spectra(i).timecode/60-hfigure.input.GCoffsettime)>=hfigure.result.CA_data.time ...
+                & (hfigure.input.CH(1).spectra(i).timecode/60-hfigure.input.GCinttime-hfigure.input.GCoffsettime)<=hfigure.result.CA_data.time);
             % get the all CA data points within the injection window
             % (t_inj-t_offset-t_integrate) < t_CA < (t_inj-t_offset)
-            binidxavg = find((hfigure.input.CH(1).spectra(i).timecode/60-hfigure.input.GCoffsettime)>CA_timeline & (hfigure.input.CH(1).spectra(i).timecode/60-hfigure.input.GCinttime-hfigure.input.GCoffsettime)<CA_timeline);
             if(isempty(binidxavg)) % no CA information available
                 charge = 0;
                 time = 0;
                 CAcurrent = 0;
                 CAcurrenterr = 0;
                 CAflowrate = 0;
+                CAflowrateerr = 0;
                 potential = 0;
+                potentialerr = 0;
                 Rucmp = 0;
             else % CA information available
-                charge = CA_chargelinesum(binidxavg(end))-CA_chargelinesum(binidxavg(1));
-                CAcurrent = mean(CA_current(binidxavg));
-                CAcurrenterr = std(CA_current(binidxavg));
-                CAflowrate = mean(CA_flowout(binidxavg));
-                potential = mean(CA_potentialline(binidxavg));
-                Rucmp = mean(CA_Rcmp(binidxavg));
-                time = CA_timeline(binidxavg(end))-CA_timeline(binidxavg(1));
+                charge = CA_chargesum(binidxavg(end))-CA_chargesum(binidxavg(1));
+                CAcurrent = mean(hfigure.result.CA_data.current(binidxavg));
+                CAcurrenterr = std(hfigure.result.CA_data.current(binidxavg));
+                CAflowrate = mean(hfigure.result.CA_data.flowout(binidxavg));
+                CAflowrateerr = std(hfigure.result.CA_data.flowout(binidxavg));
+                potential = mean(hfigure.result.CA_data.potential(binidxavg));
+                potentialerr = std(hfigure.result.CA_data.potential(binidxavg));
+                Rucmp = mean(hfigure.result.CA_data.Rcmp(binidxavg));
+                time = hfigure.result.CA_data.time(binidxavg(end))-hfigure.result.CA_data.time(binidxavg(1));
             end
         end
         
-        if(charge<0)
-        % nothing here
-        end
-
-        factor = (1/(charge/96500*1E6)*time/60*100);
+        % calculate the faradaic efficiency for each component/peak
+        factor = (1/(abs(charge)/96500*1E6)*time/60*100);
         for jj = 1:length(hfigure.result.CH)
             for ii = 1:length(hfigure.result.CH(jj).peak)
-                 hfigure.result.CH(jj).peak(ii).Faraday = hfigure.result.CH(jj).peak(ii).umolhr*hfigure.result.CH(jj).peak(ii).n*factor;
+                hr = hfigure.input.headspacevol/CAflowrate/60*1000;
+                hfigure.result.CH(jj).peak(ii).ppm(i) = hfigure.result.CH(jj).peak(ii).area(i) ...
+                                                        .*hfigure.result.CH(jj).peak(ii).factor ...
+                                                        +hfigure.result.CH(jj).peak(ii).offset;
+                hfigure.result.CH(jj).peak(ii).uM(i) = hfigure.result.CH(jj).peak(ii).ppm(i)./24.5;
+                hfigure.result.CH(jj).peak(ii).umol(i) = hfigure.result.CH(jj).peak(ii).uM(i) ...
+                                                         .*hfigure.input.headspacevol;
+                hfigure.result.CH(jj).peak(ii).umolhr(i) = hfigure.result.CH(jj).peak(ii).umol(i) ...
+                                                           ./hr;
+                hfigure.result.CH(jj).peak(ii).Faraday(i) = hfigure.result.CH(jj).peak(ii).umolhr(i) ...
+                                                            *hfigure.result.CH(jj).peak(ii).n ...
+                                                            *factor;
             end
         end
-
-        hfigure.result.GCpotential(i) = potential;
-        hfigure.result.GCcharge(i) = charge;
-        hfigure.result.GCtime(i) = time;
-        hfigure.result.GCtimes(i) = hfigure.input.CH(1).spectra(i).timecode+8*60*60; % timezone correction
-        hfigure.result.GCcurrent(i) = CAcurrent;
-        hfigure.result.GCRu(i) = Rucmp;
-        hfigure.result.GCflowrate(i) = CAflowrate;
-        hfigure.result.GCcurrenterr(i) = 3*CAcurrenterr;
+        
+        hfigure.result.GC_data.potential(i) = potential;
+        hfigure.result.GC_data.potentialerr(i) = 3*potentialerr;
+        hfigure.result.GC_data.charge(i) = charge;
+        hfigure.result.GC_data.time(i) = time;
+        hfigure.result.GC_data.times(i) = hfigure.input.CH(1).spectra(i).timecode+hfigure.input.GC_timezonecorr; % timezone correction
+        hfigure.result.GC_data.current(i) = CAcurrent;
+        hfigure.result.GC_data.Ru(i) = Rucmp/hfigure.input.compensation;
+        hfigure.result.GC_data.flowrate(i) = CAflowrate;
+        hfigure.result.GC_data.flowrateerr(i) = 3*CAflowrateerr;
+        hfigure.result.GC_data.currenterr(i) = 3*CAcurrenterr;
     end
 end
