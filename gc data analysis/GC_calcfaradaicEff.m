@@ -63,10 +63,10 @@ function hfigure = GC_calcfaradaicEff(hfigure)
         end
         
         % calculate the faradaic efficiency for each component/peak
-        factor = (1/(abs(charge)/96500*1E6)*time/60*100);
+        factor = (1/(abs(charge)/96500*1E6)*time*60*100);
         for jj = 1:length(hfigure.result.CH)
             for ii = 1:length(hfigure.result.CH(jj).peak)
-                hr = hfigure.input.headspacevol/CAflowrate/60*1000;
+                hr = hfigure.input.headspacevol/(CAflowrate/60)*1000;
                 hfigure.result.CH(jj).peak(ii).ppm(i) = hfigure.result.CH(jj).peak(ii).area(i) ...
                                                         .*hfigure.result.CH(jj).peak(ii).factor ...
                                                         +hfigure.result.CH(jj).peak(ii).offset;

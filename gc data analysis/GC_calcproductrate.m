@@ -1,7 +1,7 @@
 %Licence: GNU General Public License version 2 (GPLv2)
 function hfigure = GC_calcproductrate(hfigure)
     hfigure.input.flowrate = mean(hfigure.result.CA_data.flowout);
-    hfigure.input.hr = hfigure.input.headspacevol/hfigure.input.flowrate/60*1000;
+    hfigure.input.hr = hfigure.input.headspacevol/(hfigure.input.flowrate/60)*1000;
 	for jj = 1:length(hfigure.result.CH)
         for ii = 1:length(hfigure.result.CH(jj).peak)
             hfigure.result.CH(jj).peak(ii).ppm = hfigure.result.CH(jj).peak(ii).area.*hfigure.result.CH(jj).peak(ii).factor+hfigure.result.CH(jj).peak(ii).offset;

@@ -45,7 +45,7 @@ function data = GC_new(hfigure, expname)
     else
         eval(sprintf('CA_%s = datatmp;',expname));
         save(sprintf('CA_%s.mat',expname),sprintf('CA_%s',expname),'-v7.3');
-        Rcmpcol = strmatch('Rcmp/Ohm', datatmp(1).header,'exact');% potential col 17 in Coulomb,
+        Rcmpcol = find(strcmp('Rcmp/Ohm', datatmp(1).header));% potential col 17 in Coulomb,
         if(isempty(Rcmpcol))
             Rcmp = 0;
         else

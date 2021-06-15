@@ -76,11 +76,13 @@ function GC_main(hfigure)
     %% (10-2) ######## export data to XLS #################################
     if hfigure.input.exportXLS
         hfigure.UIprog.Message = 'STEP (10) export data as XLS (slow)';
-        try
-            GC_exportXLS(hfigure); % requires JAVA scripts
-        catch ME
-            uialert(hfigure.figure,'Matlab Error.','Error');
-            rethrow(ME)
+        if(hfigure.input.GCandEC == 1) % GC and EC data present
+            try
+                GC_exportXLS_V2(hfigure); % requires JAVA scripts
+            catch ME
+                uialert(hfigure.figure,'Matlab Error.','Error');
+                rethrow(ME)
+            end
         end
     end
     hfigure.UIprog.Value = 1;

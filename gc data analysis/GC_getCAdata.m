@@ -1,24 +1,24 @@
 %Licence: GNU General Public License version 2 (GPLv2)
 function hfigure = GC_getCAdata(hfigure)
     % for CA ECLab data:
-    potcol = strmatch('Ewe/V', hfigure.input.spectraEC(1).header,'exact');
-    chargecol = strmatch('(Q-Qo)/C', hfigure.input.spectraEC(1).header,'exact');
-    timecol = strmatch('time/s', hfigure.input.spectraEC(1).header,'exact');
-    flowincol = strmatch('Analog IN 1/V', hfigure.input.spectraEC(1).header,'exact');
+    potcol = find(strcmp('Ewe/V', hfigure.input.spectraEC(1).header));
+    chargecol = find(strcmp('(Q-Qo)/C', hfigure.input.spectraEC(1).header));
+    timecol = find(strcmp('time/s', hfigure.input.spectraEC(1).header));
+    flowincol = find(strcmp('Analog IN 1/V', hfigure.input.spectraEC(1).header));
     if(isempty(flowincol))
         flowincol = -1;
     end
-    flowoutcol = strmatch('Analog IN 2/V', hfigure.input.spectraEC(1).header,'exact');
+    flowoutcol = find(strcmp('Analog IN 2/V', hfigure.input.spectraEC(1).header));
     if(isempty(flowoutcol))
         flowoutcol = -1;
     end
-    Rcmpcol = strmatch('Rcmp/Ohm', hfigure.input.spectraEC(1).header,'exact');
+    Rcmpcol = find(strcmp('Rcmp/Ohm', hfigure.input.spectraEC(1).header));
     if(isempty(Rcmpcol))
         Rcmpcol = -1;
     end
-    Icol = strmatch('I/mA', hfigure.input.spectraEC(1).header,'exact');
+    Icol = find(strcmp('I/mA', hfigure.input.spectraEC(1).header));
     if(isempty(Icol))
-        Icol = strmatch('<I>/mA', hfigure.input.spectraEC(1).header,'exact');
+        Icol = find(strcmp('<I>/mA', hfigure.input.spectraEC(1).header));
         if(isempty(Icol))
             Icol = -1;
         end
@@ -27,26 +27,26 @@ function hfigure = GC_getCAdata(hfigure)
     % need to check that all CA contain the information needed
     % todo: add support for mixed data files
     for i = 1:size(hfigure.input.spectraEC,1)
-        if(potcol ~= strmatch('Ewe/V', hfigure.input.spectraEC(1).header,'exact'))
+        if(potcol ~= find(strcmp('Ewe/V', hfigure.input.spectraEC(1).header)))
             potcol = -1; 
         end
-        if(chargecol ~= strmatch('(Q-Qo)/C', hfigure.input.spectraEC(1).header,'exact'))
+        if(chargecol ~= find(strcmp('(Q-Qo)/C', hfigure.input.spectraEC(1).header)))
             chargecol = -1;
         end
-        if(timecol ~= strmatch('time/s', hfigure.input.spectraEC(1).header,'exact'))
+        if(timecol ~= find(strcmp('time/s', hfigure.input.spectraEC(1).header)))
             timecol = -1;
         end
-        if(flowincol ~= strmatch('Analog IN 1/V', hfigure.input.spectraEC(1).header,'exact'))
+        if(flowincol ~= find(strcmp('Analog IN 1/V', hfigure.input.spectraEC(1).header)))
             flowincol = -1;
         end
-        if(flowoutcol ~= strmatch('Analog IN 2/V', hfigure.input.spectraEC(1).header,'exact'))
+        if(flowoutcol ~= find(strcmp('Analog IN 2/V', hfigure.input.spectraEC(1).header)))
             flowoutcol = -1;
         end
-        if(Rcmpcol ~= strmatch('Rcmp/Ohm', hfigure.input.spectraEC(1).header,'exact'))
+        if(Rcmpcol ~= find(strcmp('Rcmp/Ohm', hfigure.input.spectraEC(1).header)))
             Rcmpcol = -1;
         end
-        if(Icol ~= strmatch('I/mA', hfigure.input.spectraEC(1).header,'exact'))
-            if(Icol ~= strmatch('<I/mA>', hfigure.input.spectraEC(1).header,'exact'))
+        if(Icol ~= find(strcmp('I/mA', hfigure.input.spectraEC(1).header)))
+            if(Icol ~= find(strcmp('<I/mA>', hfigure.input.spectraEC(1).header)))
                 Icol = -1;
             end
         end
