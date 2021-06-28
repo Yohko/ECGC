@@ -196,16 +196,17 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     end
 
     %% peak fit if defined in config
+    fp_area = -1;
     if (~isempty(param.fit_type))
         try
             switch param.fit_type
                 case 'gauss2'
                     fp = fit_Gauss2(XB, YBsub, param, start, stop);
-                    fparea = fp.a1*fp.c1*(pi)^.5; % peak area
+                    fp_area = fp.a1*fp.c1*(pi)^.5; % peak area
                     fp_peak = fp.a1.*exp(-((XB-fp.b1)./fp.c1).^2);
                 case 'asymgauss2'
                     fp = fit_asymGauss2(XB, YBsub, param, start, stop);
-                    fparea = fp.a0; % Todo: include error of fit                    
+                    fp_area = fp.a0; % Todo: include error of fit                    
                     fp_peak = GC_asym_Gauss(XB, fp.a0, fp.a1, fp.a2, fp.a3);
                 otherwise
                     disp('Error');
@@ -325,7 +326,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
             end
             if (~isempty(param.fit_type) && fp_area >= 0)
                 plot(hfigure.ax2,XB,fp(XB), 'linewidth', f_line,'DisplayName','cust. model'); % user defined peak model
-                plot(hfigure.ax2,XB,fp_peak, 'linewidth', f_line,'DisplayName','POI'); % the peak of interest
+                plot(hfigure.ax2,XB,fp_peak, 'linewidth', f_line,'DisplayName','prod. peak'); % the peak of interest
 
             end
             
@@ -360,9 +361,9 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
     % we only use the area for the first peak (as defined in by the
     % centerparam in the config file)
     if (~isempty(param.fit_type))
-        fprintf('Using cust. model: ROI = %s, FULL = %s\n',num2str(fparea),num2str(rawarea));
-        rawarea = fparea;
-        area = fparea;
+        fprintf('Using cust. model: ROI = %s, FULL = %s\n',num2str(fp_area),num2str(rawarea));
+        rawarea = fp_area;
+        area = fp_area;
     end
 
     
