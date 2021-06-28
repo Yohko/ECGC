@@ -2,6 +2,14 @@
 EC&amp;GC spectra analysis tool
 =======================
 
+Calculates faraday efficiency by evaluating electrochemistry, gas chromatography and gas flow measurements.
+
+**Supported formats**:
+  - Agilent MassHunter *.D (GC)
+  - SRI PeakSimple *.asc (GC)
+  - BioLogic EC-Lab *.mpt (EC)
+
+
 <img src="GC_GUI.png" width="400">
 
 Gas flow rates are controlled by ALICAT flow controllers and recorded in EC-Lab through the analog inputs of the potentiostat.
