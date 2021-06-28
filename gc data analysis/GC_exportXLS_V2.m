@@ -24,20 +24,27 @@ function GC_exportXLS_V2(hfigure)
     %% calibration sheet
     coloffset = 1;
     % header
-    xlsData = {'name', 'factor', 'offset'};
+    xlsData = {'name', 'offset'};
+    for jj=1:length(hfigure.result.CH(1).peak(1).factor)
+        xlsData = [xlsData,...
+            {sprintf('factor%d',jj)}];
+    end
+    writecell(xlsData,  fileName, 'Sheet', 'CAL_DATA', 'Range', sprintf('%s1',GC_getXLScolumn(coloffset)),'UseExcel',true);
     % data
-
-    
+    xlsData = {};
+    datanum = 0;
 	for jj = 1:length(hfigure.result.CH)
         for ii = 1:length(hfigure.result.CH(jj).peak)
-            xlsData = [xlsData;...
-                {sprintf('%s_%s',hfigure.result.CH(jj).name, hfigure.result.CH(jj).peak(ii).name), ...
-                 hfigure.result.CH(jj).peak(ii).factor,...
-                 hfigure.result.CH(jj).peak(ii).offset...
-                }];
+            xlsData = {sprintf('%s_%s',hfigure.result.CH(jj).name, hfigure.result.CH(jj).peak(ii).name), ...
+                 hfigure.result.CH(jj).peak(ii).offset};
+            for m=1:length(hfigure.result.CH(jj).peak(ii).factor)
+                xlsData = [xlsData,...
+                    {hfigure.result.CH(jj).peak(ii).factor(m)}];
+            end        
+            writecell(xlsData,  fileName, 'Sheet', 'CAL_DATA', 'Range', sprintf('%s%d',GC_getXLScolumn(coloffset),2+datanum),'UseExcel',true);
+            datanum = datanum + 1;
         end
 	end
-    writecell(xlsData,  fileName, 'Sheet', 'CAL_DATA', 'Range', sprintf('%s1',GC_getXLScolumn(coloffset)),'UseExcel',true);
     coloffset = coloffset+size(xlsData,2);
 
 
@@ -96,8 +103,8 @@ function GC_exportXLS_V2(hfigure)
         for jj = 1:length(hfigure.result.CH)
             for ii = 1:length(hfigure.result.CH(jj).peak)
                 xlsDataline = [xlsDataline,...
-                    {sprintf('=%s%d*CAL_DATA!B%d+CAL_DATA!C%d',GC_getXLScolumn(rawoffset+datanum),i+1,peaknum,peaknum), ...
-                    sprintf('=%s%d*CAL_DATA!B%d+CAL_DATA!C%d',GC_getXLScolumn(rawoffset+1+datanum),i+1,peaknum,peaknum)}];
+                    {sprintf('=IFERROR(SERIESSUM(%s%d,0,1,CAL_DATA!B%d:AA%d),0)',GC_getXLScolumn(rawoffset+datanum),i+1,peaknum,peaknum), ...
+                    sprintf('=IFERROR(SERIESSUM(%s%d,0,1,CAL_DATA!B%d:AA%d),0)',GC_getXLScolumn(rawoffset+1+datanum),i+1,peaknum,peaknum)}];
                 datanum = datanum+2;
                 peaknum = peaknum+1;
             end

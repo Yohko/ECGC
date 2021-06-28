@@ -18,7 +18,7 @@ function hfigure = GC_calcfaradaicEff(hfigure)
     Rucmp = 0;
     
     % loop through all GC spectra
-    for i=1:length(hfigure.input.CH(1).spectra)
+	for i=1:length(hfigure.input.CH(1).spectra)
         if(hfigure.input.GC_binning == 0) % for accumulation experiment
             % find all CA data point before the injection time
             binidxavg = find((hfigure.input.CH(1).spectra(i).timecode/60-hfigure.input.GCoffsettime)>=hfigure.result.CA_data.time);
@@ -67,9 +67,11 @@ function hfigure = GC_calcfaradaicEff(hfigure)
         for jj = 1:length(hfigure.result.CH)
             for ii = 1:length(hfigure.result.CH(jj).peak)
                 hr = hfigure.input.headspacevol/(CAflowrate/60)*1000;
-                hfigure.result.CH(jj).peak(ii).ppm(i) = hfigure.result.CH(jj).peak(ii).area(i) ...
-                                                        .*hfigure.result.CH(jj).peak(ii).factor ...
-                                                        +hfigure.result.CH(jj).peak(ii).offset;
+                hfigure.result.CH(jj).peak(ii).ppm(i) = hfigure.result.CH(jj).peak(ii).offset;
+                for m=1:length(hfigure.result.CH(jj).peak(ii).factor)
+                    hfigure.result.CH(jj).peak(ii).ppm(i) = hfigure.result.CH(jj).peak(ii).ppm(i) + ...
+                      hfigure.result.CH(jj).peak(ii).factor(m) * hfigure.result.CH(jj).peak(ii).area(i)^m;
+                end
                 hfigure.result.CH(jj).peak(ii).uM(i) = hfigure.result.CH(jj).peak(ii).ppm(i)./24.5;
                 hfigure.result.CH(jj).peak(ii).umol(i) = hfigure.result.CH(jj).peak(ii).uM(i) ...
                                                          .*hfigure.input.headspacevol;
@@ -91,5 +93,5 @@ function hfigure = GC_calcfaradaicEff(hfigure)
         hfigure.result.GC_data.flowrate(i) = CAflowrate;
         hfigure.result.GC_data.flowrateerr(i) = 3*CAflowrateerr;
         hfigure.result.GC_data.currenterr(i) = 3*CAcurrenterr;
-    end
+	end
 end
