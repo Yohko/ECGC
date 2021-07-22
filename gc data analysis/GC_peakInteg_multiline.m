@@ -215,7 +215,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
         catch
             disp('Error in peak fit in ');
             disp(display);
-            fp_area = -1;
+            fp_area = 0;
         end
     end
     
@@ -324,7 +324,7 @@ function retvals = GC_peakInteg_multiline(datax, datay, start, stop, param, disp
             else
                 hlegend = legend(hfigure.ax2,'Data-BG');            
             end
-            if (~isempty(param.fit_type) && fp_area >= 0)
+            if (~isempty(param.fit_type) && fp_area > 0)
                 plot(hfigure.ax2,XB,fp(XB), 'linewidth', f_line,'DisplayName','cust. model'); % user defined peak model
                 plot(hfigure.ax2,XB,fp_peak, 'linewidth', f_line,'DisplayName','prod. peak'); % the peak of interest
 

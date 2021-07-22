@@ -67,6 +67,7 @@ function GC_main(hfigure)
         hfigure.UIprog.Message = 'STEP (10) export data as CSV';
         try
             GC_exportCSV_V2(hfigure);
+%            GC_exportCSV(hfigure);
         catch ME
             uialert(hfigure.figure,'Matlab Error.','Error');
             rethrow(ME)

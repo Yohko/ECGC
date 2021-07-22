@@ -10,8 +10,10 @@ function ECdata = GC_EClabASCIIload(fid)
         [headerlines] = strread(h, 'Nb header lines : %d');
         for i=3:headerlines-1
             h = fgets(fid);
+            % the time column lists time with reference to "Acquisition
+            % started" and not "Technique started"
             if(strfind(h,'Acquisition started on') == 1)
-                [month, day, year, hr, minute, seconds] = strread(h, 'Acquisition started on : %d/%d/%d %d:%d:%d');
+                [month, day, year, hr, minute, seconds] = strread(h, 'Acquisition started on : %d/%d/%d %d:%d:%f');
                 % The POSIX time is the number of seconds (including fractional seconds)
                 timecode = posixtime(datetime(year,month,day,hr,minute,seconds));
             end

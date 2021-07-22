@@ -11,13 +11,13 @@ function GC_exportCSV_V2(hfigure)
             fprintf(fileID,',%s_%s_err[raw]',hfigure.result.CH(jj).name, hfigure.result.CH(jj).peak(ii).name);
         end
 	end
-	for jj = 1:length(hfigure.result.CH)
-        for ii = 1:length(hfigure.result.CH(jj).peak)
-            fprintf(fileID,',%s_%s[ppm]',hfigure.result.CH(jj).name, hfigure.result.CH(jj).peak(ii).name);
-            fprintf(fileID,',%s_%s_err[ppm]',hfigure.result.CH(jj).name, hfigure.result.CH(jj).peak(ii).name);
-        end
-	end
     if(hfigure.input.GCandEC == 1) % GC and EC data present
+        for jj = 1:length(hfigure.result.CH)
+            for ii = 1:length(hfigure.result.CH(jj).peak)
+                fprintf(fileID,',%s_%s[ppm]',hfigure.result.CH(jj).name, hfigure.result.CH(jj).peak(ii).name);
+                fprintf(fileID,',%s_%s_err[ppm]',hfigure.result.CH(jj).name, hfigure.result.CH(jj).peak(ii).name);
+            end
+        end
         fprintf(fileID,',%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s',...
             'U[V]','Uerr[V]','U2RHE[V]','Ru[ohm]','comp','j[mA]','j_err[mA]','time[min]','charge[C]','flowrate[sccm]','flowrate_err[sccm]');
     end
@@ -36,15 +36,15 @@ function GC_exportCSV_V2(hfigure)
                 fprintf(fileID,',%f',hfigure.result.CH(jj).peak(ii).err(row));
             end
         end
-        for jj = 1:length(hfigure.result.CH)
-            for ii = 1:length(hfigure.result.CH(jj).peak)
-                fprintf(fileID,',%f',hfigure.result.CH(jj).peak(ii).ppm(row));
-                fprintf(fileID,',%f',hfigure.result.CH(jj).peak(ii).ppm(row)*...
-                    hfigure.result.CH(jj).peak(ii).err(row)/...
-                    hfigure.result.CH(jj).peak(ii).area(row));
-            end
-        end
         if(hfigure.input.GCandEC == 1) % GC and EC data present
+            for jj = 1:length(hfigure.result.CH)
+                for ii = 1:length(hfigure.result.CH(jj).peak)
+                    fprintf(fileID,',%f',hfigure.result.CH(jj).peak(ii).ppm(row));
+                    fprintf(fileID,',%f',hfigure.result.CH(jj).peak(ii).ppm(row)*...
+                        hfigure.result.CH(jj).peak(ii).err(row)/...
+                        hfigure.result.CH(jj).peak(ii).area(row));
+                end
+            end
             fprintf(fileID,',%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s',...
                 num2str(hfigure.result.GC_data.potential(row)),... % U
                 num2str(hfigure.result.GC_data.potentialerr(row)),...
@@ -57,8 +57,8 @@ function GC_exportCSV_V2(hfigure)
                 num2str(hfigure.result.GC_data.charge(row)),... % charge
                 num2str(hfigure.result.GC_data.flowrate(row)),... % flowrateerr
                 num2str(hfigure.result.GC_data.flowrateerr(row))); % flowrate
-            fprintf(fileID,'\n');
         end
+        fprintf(fileID,'\n');
     end
     fclose(fileID);
 end
