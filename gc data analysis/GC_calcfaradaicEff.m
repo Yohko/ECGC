@@ -84,14 +84,14 @@ function hfigure = GC_calcfaradaicEff(hfigure)
         end
         
         hfigure.result.GC_data.potential(i) = potential;
-        hfigure.result.GC_data.potentialerr(i) = 3*potentialerr;
+        hfigure.result.GC_data.potentialerr(i) = potentialerr;
         hfigure.result.GC_data.charge(i) = charge;
         hfigure.result.GC_data.time(i) = time;
         hfigure.result.GC_data.times(i) = hfigure.input.CH(1).spectra(i).timecode+hfigure.input.GC_timezonecorr; % timezone correction
         hfigure.result.GC_data.current(i) = CAcurrent;
         hfigure.result.GC_data.Ru(i) = Rucmp/hfigure.input.compensation;
         hfigure.result.GC_data.flowrate(i) = CAflowrate;
-        hfigure.result.GC_data.flowrateerr(i) = 3*CAflowrateerr;
-        hfigure.result.GC_data.currenterr(i) = 3*CAcurrenterr;
+        hfigure.result.GC_data.flowrateerr(i) = CAflowrateerr;
+        hfigure.result.GC_data.currenterr(i) = CAcurrenterr;
 	end
 end

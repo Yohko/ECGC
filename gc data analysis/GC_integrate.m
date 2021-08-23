@@ -86,7 +86,12 @@ function hfigure = GC_integrate(hfigure)
                        param.fit_type = []; 
                        param.fit_param = []; 
                     end
-
+                    if ( isfield(hfigure.input.CH(jj).peak(ii),'fit_low_criterion') && ...
+                        ~isempty(hfigure.input.CH(jj).peak(ii).fit_low_criterion) )
+                        param.fit_low_criterion = hfigure.input.CH(jj).peak(ii).fit_low_criterion;
+                    else
+                        param.fit_low_criterion = -Inf; % never fit the data
+                    end
                     % especially useful for Agilent GC 
                     % with TCD and FID in series
                     % (Accessory 19232C)
@@ -104,25 +109,18 @@ function hfigure = GC_integrate(hfigure)
                     param.peakcutoff = hfigure.input.CH(jj).RT_cutoff;
 
                     % calculate BG and integrate peak
-                    area = GC_peakInteg_multiline(hfigure.input.CH(jj).spectra(i).spectrum(:,1),...
+                    [ret_area, ret_error] = GC_peak_integrate(hfigure.input.CH(jj).spectra(i).spectrum(:,1),...
                                              newY,...
                                              start, stop, ...
                                              param, ...
                                              sprintf('%d %s',i,graph_title),hfigure);
-                    %fprintf('%d CH %s %s: area=%f\n',i, hfigure.input.CH(jj).name, hfigure.result.CH(jj).peak(ii).name, area(1))
-                    % return values:
-                    % 1: peak area
-                    % 2: XB(intl)
-                    % 3: XB(intr)
-                    % 4: integrate raw area
-                    % 5: area from peak fit (if saturated), or from peak above noise
-                    % 6: peak area error
+                    %fprintf('%d CH %s %s: area=%f\n',i, hfigure.input.CH(jj).name, hfigure.result.CH(jj).peak(ii).name, ret_area)
 
                     % save calculated peak area
-                    hfigure.result.CH(jj).peak(ii).area(i) = area(1);
+                    hfigure.result.CH(jj).peak(ii).area(i) = ret_area;
 
                     % save calculated peak area error
-                    hfigure.result.CH(jj).peak(ii).err(i) = area(6);
+                    hfigure.result.CH(jj).peak(ii).err(i) = ret_error;
 
                     % pause for a few seconds if plotting peaks
                     if(hfigure.input.plotpeaks && displot)
