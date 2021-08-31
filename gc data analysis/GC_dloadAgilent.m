@@ -34,14 +34,14 @@ function spectra = GC_dloadAgilent()
         end
 
         fid=fopen(CH1file);
-        dataCH1 = GC_AgilentloadTCDbin(fid);
+        dataCH1 = GC_AgilentloadCHbin(fid);
         if(fid ~= -1)
             fclose(fid);
             fclose all;
         end
         
         fid=fopen(CH2file);
-        dataCH2 = GC_AgilentloadTCDbin(fid);
+        dataCH2 = GC_AgilentloadCHbin(fid);
         if(fid ~= -1)
             fclose(fid);
             fclose all;
