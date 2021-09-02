@@ -32,7 +32,16 @@ function spectra = GC_dloadAgilent()
             fclose(fid);
             fclose all;
         end
-
+        if isempty(dataTIC)
+            TICfile = sprintf('%s%s%stic_back.csv',PathName,FileNamecell{i},filesep);
+            fid=fopen(TICfile);
+            dataTIC = GC_AgilentloadTICASCII(fid);
+            if(fid ~= -1)
+                fclose(fid);
+                fclose all;
+            end
+        end
+        
         fid=fopen(CH1file);
         dataCH1 = GC_AgilentloadCHbin(fid);
         if(fid ~= -1)

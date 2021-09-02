@@ -92,7 +92,13 @@ function hfigure = GC_integrate(hfigure)
                     else
                         param.fit_low_criterion = -Inf; % never fit the data
                     end
-                    % especially useful for Agilent GC 
+                    if ( isfield(hfigure.input.CH(jj).peak(ii),'av_width') && ...
+                        ~isempty(hfigure.input.CH(jj).peak(ii).av_width) )
+                        param.av_width = hfigure.input.CH(jj).peak(ii).av_width;
+                    else
+                        param.av_width = -1;
+                    end
+                    % especially useful for Agilent GC
                     % with TCD and FID in series
                     % (Accessory 19232C)
                     if (isfield(hfigure.input.CH(jj).peak(ii),'filter') && ~isempty(hfigure.input.CH(jj).peak(ii).filter))

@@ -76,13 +76,14 @@ function [ret_area, ret_error] = GC_peak_integrate(datax, datay, start, stop, pa
 
     samplepoints=unique(samplepoints,'sorted');
     XBsample = XB(samplepoints);
-    YBsample = YB(samplepoints);
 
-    %% calculate BG
+    %% calculate BG    
     if length(param.curvature) > 1
         % (1) different curvarure values for forward and backward
-        YBsamplef = YB(samplepoints);
-        YBsampleb = YB(samplepoints);
+        YBsamplef = get_avYBsample(YB, samplepoints, param.av_width);
+        YBsampleb = get_avYBsample(YB, samplepoints, param.av_width);
+%        YBsamplef = YB(samplepoints);
+%        YBsampleb = YB(samplepoints);
         for i=1:param.maxBGiter
             %forward
             YBsamplef = my_BGforward(YBsamplef, curvature(1));
@@ -125,6 +126,8 @@ function [ret_area, ret_error] = GC_peak_integrate(datax, datay, start, stop, pa
         end
     else
         % (2) same curvarure value for forward and backward
+        %YBsample = YB(samplepoints);
+        YBsample = get_avYBsample(YB, samplepoints, param.av_width);
         for i=1:param.maxBGiter
            %forward
             YBsample = my_BGforward(YBsample, curvature);
@@ -204,6 +207,8 @@ function [ret_area, ret_error] = GC_peak_integrate(datax, datay, start, stop, pa
     fp_area = 0;
     fp_error = 0;
     do_fit = 0;
+    fp_center = 0;
+    fp_fwhm = 0;
     area_criterion = param.fit_low_criterion*error_S*(XB(end)-XB(1));
     testfactor = raw_area/(error_S*(XB(end)-XB(1)));
     if ~isempty(param.fit_type)
@@ -224,36 +229,80 @@ function [ret_area, ret_error] = GC_peak_integrate(datax, datay, start, stop, pa
                     fp_peak = fp.a1.*exp(-((XB-fp.b1)./fp.c1).^2);
                     error_S_fp = std(YBsub-fp(XB));
                     fp_error = (error_S_fp)*(3*fp.c1);
+                    fp_center = fp.b1;
+                    fp_fwhm = fp.c1;
+                case 'linoffset_gauss1'
+                    fp = fit_linoffsetGauss1(XB, YBsub, param, start, stop);
+                    fp_area = fp.a1*fp.c1*(pi)^.5;
+                    fp_peak = fp.a1.*exp(-((XB-fp.b1)./fp.c1).^2);
+                    error_S_fp = std(YBsub-fp(XB));
+                    fp_error = (error_S_fp)*(3*fp.c1);
+                    fp_center = fp.b1;
+                    fp_fwhm = fp.c1;
                 case 'gauss1'
                     fp = fit_Gauss1(XB, YBsub, param, start, stop);
                     fp_area = fp.a1*fp.c1*(pi)^.5;
                     fp_peak = fp.a1.*exp(-((XB-fp.b1)./fp.c1).^2);
                     error_S_fp = std(YBsub-fp(XB));
                     fp_error = (error_S_fp)*(3*fp.c1);
+                    fp_center = fp.b1;
+                    fp_fwhm = fp.c1;
                 case 'gauss2'
                     fp = fit_Gauss2(XB, YBsub, param, start, stop);
                     fp_area = fp.a1*fp.c1*(pi)^.5;
                     fp_peak = fp.a1.*exp(-((XB-fp.b1)./fp.c1).^2);
                     error_S_fp = std(YBsub-fp(XB));
                     fp_error = (error_S_fp)*(3*fp.c1);
-                case 'offset_asymGauss1'
+                    fp_center = fp.b1;
+                    fp_fwhm = fp.c1;
+                case 'offset_gauss2'
+                    fp = fit_offsetGauss2(XB, YBsub, param, start, stop);
+                    fp_area = fp.a1*fp.c1*(pi)^.5;
+                    fp_peak = fp.a1.*exp(-((XB-fp.b1)./fp.c1).^2);
+                    error_S_fp = std(YBsub-fp(XB));
+                    fp_error = (error_S_fp)*(3*fp.c1);
+                    fp_center = fp.b1;
+                    fp_fwhm = fp.c1;
+                case 'linoffset_gauss2'
+                    fp = fit_linoffsetGauss2(XB, YBsub, param, start, stop);
+                    fp_area = fp.a1*fp.c1*(pi)^.5;
+                    fp_peak = fp.a1.*exp(-((XB-fp.b1)./fp.c1).^2);
+                    error_S_fp = std(YBsub-fp(XB));
+                    fp_error = (error_S_fp)*(3*fp.c1);
+                    fp_center = fp.b1;
+                    fp_fwhm = fp.c1;
+                case 'offset_asymgauss1'
                     fp = fit_offsetasymGauss1(XB, YBsub, param, start, stop);
                     fp_area = fp.a0;
                     fp_peak = GC_asym_Gauss(XB, fp.a0, fp.a1, fp.a2, fp.a3);
                     error_S_fp = std(YBsub-fp(XB));
                     fp_error = (error_S_fp)*(3*fp.a2);
-                case 'asymGauss1'
+                    fp_center = fp.a1;
+                    fp_fwhm = fp.a2;
+                case 'linoffset_asymgauss1'
+                    fp = fit_linoffsetasymGauss1(XB, YBsub, param, start, stop);
+                    fp_area = fp.a0;
+                    fp_peak = GC_asym_Gauss(XB, fp.a0, fp.a1, fp.a2, fp.a3);
+                    error_S_fp = std(YBsub-fp(XB));
+                    fp_error = (error_S_fp)*(3*fp.a2);
+                    fp_center = fp.a1;
+                    fp_fwhm = fp.a2;
+                case 'asymgauss1'
                     fp = fit_asymGauss1(XB, YBsub, param, start, stop);
                     fp_area = fp.a0;
                     fp_peak = GC_asym_Gauss(XB, fp.a0, fp.a1, fp.a2, fp.a3);
                     error_S_fp = std(YBsub-fp(XB));
                     fp_error = (error_S_fp)*(3*fp.a2);
+                    fp_center = fp.a1;
+                    fp_fwhm = fp.a2;
                 case 'asymgauss2'
                     fp = fit_asymGauss2(XB, YBsub, param, start, stop);
                     fp_area = fp.a0;
                     fp_peak = GC_asym_Gauss(XB, fp.a0, fp.a1, fp.a2, fp.a3);
                     error_S_fp = std(YBsub-fp(XB));
                     fp_error = (error_S_fp)*(3*fp.a2);
+                    fp_center = fp.a1;
+                    fp_fwhm = fp.a2;
                 otherwise
                     disp('Error');
                     return;
@@ -315,7 +364,7 @@ function [ret_area, ret_error] = GC_peak_integrate(datax, datay, start, stop, pa
 
 %% decide on area and error
     if (~isempty(param.fit_type) && do_fit == 1)
-        fprintf('%s - Using cust. model: ROI = %s%s%s, FULL = %s%s%s\n',display_org,num2str(fp_area),char(177),num2str(fp_error),num2str(raw_area),char(177),num2str(raw_error));
+        fprintf('%s - Using cust. model: ROI = %s%s%s, FULL = %s%s%s with center = %s, width = %s\n',display_org,num2str(fp_area),char(177),num2str(fp_error),num2str(raw_area),char(177),num2str(raw_error), num2str(fp_center),num2str(fp_fwhm));
         ret_area = fp_area;
         ret_error = fp_error;
     elseif (isempty(idx_abovethreshold) == 0)
@@ -343,8 +392,8 @@ function [ret_area, ret_error] = GC_peak_integrate(datax, datay, start, stop, pa
         f_caption = 10;
         plot(hfigure.ax1,XB,YB, 'linewidth', f_line);
         hold(hfigure.ax1,'on');
-        %plot(hfigure.ax1,XB(samplepoints),BGline(samplepoints),'o-', 'linewidth', f_line,'MarkerSize',4);
-        plot(hfigure.ax1,XB,BGline,'-', 'linewidth', f_line);
+        plot(hfigure.ax1,XB(samplepoints),BGline(samplepoints),'o-', 'linewidth', f_line,'MarkerSize',4);
+        %plot(hfigure.ax1,XB,BGline,'-', 'linewidth', f_line);
         hold(hfigure.ax1,'off');
         box(hfigure.ax1,'on');
         xlabel(hfigure.ax1,'retention time / min', 'fontsize',f_caption);
@@ -392,8 +441,44 @@ function [ret_area, ret_error] = GC_peak_integrate(datax, datay, start, stop, pa
         set(hfigure.ax2, 'linewidth', f_line);
         set(hfigure.ax2, 'fontsize', f_caption);
         set(hfigure.figtitle,'Text',display,'fontsize',10);
+
+        x_width = XB(end)-XB(1);
+        xlim(hfigure.ax1,[XB(1)-0.05*x_width XB(end)+0.05*x_width])
+        xlim(hfigure.ax2,[XB(1)-0.05*x_width XB(end)+0.05*x_width])
+
+        maxY = max(YB);
+        minY = min(YB);
+        y_width = maxY-minY;
+        ylim(hfigure.ax1,[minY-0.1*y_width maxY+0.1*y_width])
+
+        maxY = max(YBsub);
+        minY = min(YBsub);
+        y_width = maxY-minY;
+        ylim(hfigure.ax2,[minY-0.1*y_width maxY+0.1*y_width])
+
     end
 
+end
+
+%%
+function YBsample = get_avYBsample(YB, samplepoints, av_width)
+    av_width = round(av_width);
+    if av_width > 0
+        lenYB = length(YB);
+        YBsample = zeros(size(YB(samplepoints)));
+        counts = zeros(size(YB(samplepoints)));
+        for ii=1:length(samplepoints)
+            for jj=-av_width:av_width
+                if ((samplepoints(ii)+jj)) >= 1 && ((samplepoints(ii)+jj)) <= lenYB
+                    counts(ii) = counts(ii) + 1;
+                    YBsample(ii) = YBsample(ii) + YB(samplepoints(ii)+jj);
+                end
+            end
+        end
+        YBsample = YBsample./counts;
+    else % default
+        YBsample = YB(samplepoints);
+    end    
 end
 
 %%
@@ -455,14 +540,16 @@ end
 function fp = fit_offsetGauss1(XB, YBsub, param, start, stop)
     % params for gauss are
     % height(a), center (b), width (c)
-
+    maxh = max(YBsub);
+    minh = min(YBsub);
+    
     % lower limits
-    a1_l = 0; % height
+    a1_l = 0.5*maxh; % height
     b1_l = param.fit_param(1)-param.fit_param(2); % center
     c1_l = 0.01; % width
 
     % upper limits
-    a1_u = param.peakcutoff; % height
+    a1_u = 2*maxh; % height
     b1_u = param.fit_param(1)+param.fit_param(2); % center
     c1_u = 2*param.fit_param(2); % width
 
@@ -479,8 +566,8 @@ function fp = fit_offsetGauss1(XB, YBsub, param, start, stop)
         
         fp = fit(XB, YBsub,myfittype, ...
             'StartPoint', [a1_s b1_s c1_s 0],...
-            'Lower', [a1_l b1_l c1_l 0],...
-            'Upper', [a1_u b1_u c1_u val]...
+            'Lower', [a1_l b1_l c1_l minh],...
+            'Upper', [a1_u b1_u c1_u maxh]...
             );
     catch ME
         disp('Error with offset Gauss fit in ');
@@ -490,17 +577,58 @@ function fp = fit_offsetGauss1(XB, YBsub, param, start, stop)
 end
 
 %%
-function fp = fit_Gauss1(XB, YBsub, param, start, stop)
+function fp = fit_linoffsetGauss1(XB, YBsub, param, start, stop)
     % params for gauss are
     % height(a), center (b), width (c)
-
+    maxh = max(YBsub);
+    minh = min(YBsub);
+    
     % lower limits
-    a1_l = 0; % height
+    a1_l = 0.5*maxh; % height
     b1_l = param.fit_param(1)-param.fit_param(2); % center
     c1_l = 0.01; % width
 
     % upper limits
-    a1_u = param.peakcutoff; % height
+    a1_u = 2*maxh; % height
+    b1_u = param.fit_param(1)+param.fit_param(2); % center
+    c1_u = 2*param.fit_param(2); % width
+
+    
+    try
+        myfittype = fittype('d1+e1*x+a1*exp(-((x-b1)/c1)^2)',...
+            'dependent',{'y'},'independent',{'x'},...
+            'coefficients',{'a1','b1','c1', 'd1', 'e1'});
+
+        [val, idx] = max(YBsub);
+        a1_s = val;
+        b1_s = XB(idx);
+        c1_s = param.fit_param(2);
+        
+        fp = fit(XB, YBsub,myfittype, ...
+            'StartPoint', [a1_s b1_s c1_s 0 0],...
+            'Lower', [a1_l b1_l c1_l minh -Inf],...
+            'Upper', [a1_u b1_u c1_u maxh +Inf]...
+            );
+    catch ME
+        disp('Error with offset Gauss fit in ');
+        disp(ME);
+        rethrow(ME);
+    end
+end
+
+
+%%
+function fp = fit_Gauss1(XB, YBsub, param, start, stop)
+    % params for gauss are
+    % height(a), center (b), width (c)
+    maxh = max(YBsub);
+    % lower limits
+    a1_l = 0; % height
+    b1_l = param.fit_param(1)-param.fit_param(2); % center
+    c1_l = 0.001; % width
+
+    % upper limits
+    a1_u = 4*maxh; % height
     b1_u = param.fit_param(1)+param.fit_param(2); % center
     c1_u = 2*param.fit_param(2); % width
 
@@ -514,22 +642,22 @@ end
 function fp = fit_Gauss2(XB, YBsub, param, start, stop)
     % params for gauss are
     % height(a), center (b), width (c)
-
+    maxh = max(YBsub);
     % lower limits
     a1_l = 0; % height
     b1_l = param.fit_param(1)-param.fit_param(2); % center
-    c1_l = 0.01; % width
+    c1_l = 0.001; % width
 
     a2_l =  0; % height
     b2_l =  param.fit_param(3)-param.fit_param(4); % center
-    c2_l = 0.01; % width
+    c2_l = 0.001; % width
 
     % upper limits
-    a1_u = param.peakcutoff; % height
+    a1_u = 4*maxh; % height
     b1_u = param.fit_param(1)+param.fit_param(2); % center
     c1_u = 2*param.fit_param(2); % width
 
-    a2_u =  param.peakcutoff; % height
+    a2_u =  4*maxh; % height
     b2_u =  param.fit_param(3)+param.fit_param(4); % center
     c2_u = 2*param.fit_param(4); % width
 
@@ -540,31 +668,134 @@ function fp = fit_Gauss2(XB, YBsub, param, start, stop)
 end
 
 %%
+function fp = fit_offsetGauss2(XB, YBsub, param, start, stop)
+    % params for gauss are
+    % height(a), center (b), width (c)
+    minh = min(YBsub);
+    maxh = max(YBsub);
+    % lower limits
+    a1_l = 0; % height
+    b1_l = param.fit_param(1)-param.fit_param(2); % center
+    c1_l = 0.001; % width
+
+    a2_l =  0; % height
+    b2_l =  param.fit_param(3)-param.fit_param(4); % center
+    c2_l = 0.001; % width
+
+    % upper limits
+    a1_u = 4*maxh; % height
+    b1_u = param.fit_param(1)+param.fit_param(2); % center
+    c1_u = 2*param.fit_param(2); % width
+
+    a2_u =  4*maxh; % height
+    b2_u =  param.fit_param(3)+param.fit_param(4); % center
+    c2_u = 2*param.fit_param(4); % width
+    try
+        myfittype = fittype('d1+a1*exp(-((x-b1)/c1)^2)+a2*exp(-((x-b2)/c2)^2)',...
+            'dependent',{'y'},'independent',{'x'},...
+            'coefficients',{'a1','b1','c1','a2','b2','c2', 'd1'});
+
+        [val, idx] = max(YBsub);
+        a1_s = val;
+        b1_s = param.fit_param(1);
+        c1_s = param.fit_param(2);
+
+        a2_s = val;
+        b2_s = param.fit_param(3);
+        c2_s = param.fit_param(4);
+
+        fp = fit(XB, YBsub,myfittype, ...
+            'StartPoint', [a1_s b1_s c1_s a2_s b2_s c2_s 0],...
+            'Lower', [a1_l b1_l c1_l a2_l b2_l c2_l minh],...
+            'Upper', [a1_u b1_u c1_u a2_u b2_u c2_u maxh]...
+            );
+    catch ME
+        disp('Error with offset Gauss fit in ');
+        disp(ME);
+        rethrow(ME);
+    end
+end
+
+
+%%
+function fp = fit_linoffsetGauss2(XB, YBsub, param, start, stop)
+    % params for gauss are
+    % height(a), center (b), width (c)
+    minh = min(YBsub);
+    maxh = max(YBsub);
+    % lower limits
+    a1_l = 0; % height
+    b1_l = param.fit_param(1)-param.fit_param(2); % center
+    c1_l = 0.001; % width
+
+    a2_l =  0; % height
+    b2_l =  param.fit_param(3)-param.fit_param(4); % center
+    c2_l = 0.001; % width
+
+    % upper limits
+    a1_u = 4*maxh; % height
+    b1_u = param.fit_param(1)+param.fit_param(2); % center
+    c1_u = 2*param.fit_param(2); % width
+
+    a2_u =  4*maxh; % height
+    b2_u =  param.fit_param(3)+param.fit_param(4); % center
+    c2_u = 2*param.fit_param(4); % width
+    try
+        myfittype = fittype('d1+e1*x+a1*exp(-((x-b1)/c1)^2)+a2*exp(-((x-b2)/c2)^2)',...
+            'dependent',{'y'},'independent',{'x'},...
+            'coefficients',{'a1','b1','c1','a2','b2','c2', 'd1','e1'});
+
+        [val, idx] = max(YBsub);
+        a1_s = val;
+        b1_s = param.fit_param(1);
+        c1_s = param.fit_param(2);
+
+        a2_s = val;
+        b2_s = param.fit_param(3);
+        c2_s = param.fit_param(4);
+
+        fp = fit(XB, YBsub,myfittype, ...
+            'StartPoint', [a1_s b1_s c1_s a2_s b2_s c2_s 0 0],...
+            'Lower', [a1_l b1_l c1_l a2_l b2_l c2_l minh -Inf],...
+            'Upper', [a1_u b1_u c1_u a2_u b2_u c2_u maxh +Inf]...
+            );
+    catch ME
+        disp('Error with offset Gauss fit in ');
+        disp(ME);
+        rethrow(ME);
+    end
+end
+
+%%
 function fp = fit_offsetasymGauss1(XB, YBsub, param, start, stop)
     % get initial guesses from Gauss
     fp = fit_offsetGauss1(XB, YBsub, param, start, stop);
-    a0 = fp.a1*fp.c1*(pi)^.5; % peak area
+    area = fp.a1*fp.c1*(pi)^.5;
+    maxh = max(YBsub);
+    minh = min(YBsub);
+
+    a0 = area; % peak area
     a1 = fp.b1; % retention time
     a2 = fp.c1; % width of gaussian
     a3 = 0.01; % exponential damping term
     offset = fp.d1;
 
-    a0_l = 0; % peak area
+    a0_l = 0.5*area; % peak area
     a1_l = a1-a2; % center
     a2_l = 0.5*a2; % width of gaussian
-    a3_l = 0; % exponential damping term
+    a3_l = 0.0; % exponential damping term
 
-    a0_u = 2*a0; % peak area
+    a0_u = 2*area; % peak area
     a1_u = a1+a2; % center
     a2_u = 2*a2; % width of gaussian
-    a3_u = 1; % exponential damping term
+    a3_u = 0.5; % exponential damping term
     
     [val, ~] = max(YBsub);
     ft = fittype('GC_offset_asym_Gauss(x, a0, a1, a2, a3, offset)');
     try
         fp = fit( XB, YBsub, ft,...
-            'Lower',[a0_l, a1_l, a2_l, a3_l, 0],...
-            'Upper',[a0_u, a1_u, a2_u, a3_u, val],...
+            'Lower',[a0_l, a1_l, a2_l, a3_l, minh],...
+            'Upper',[a0_u, a1_u, a2_u, a3_u, maxh],...
             'StartPoint',[a0 a1 a2 a3 offset]);
     catch ME
         disp('Error with Skewed Gauss fit in ');
@@ -572,7 +803,47 @@ function fp = fit_offsetasymGauss1(XB, YBsub, param, start, stop)
         rethrow(ME);
     end
 end
- 
+
+%%
+function fp = fit_linoffsetasymGauss1(XB, YBsub, param, start, stop)
+    % get initial guesses from Gauss
+    fp = fit_linoffsetGauss1(XB, YBsub, param, start, stop);
+    area = fp.a1*fp.c1*(pi)^.5;
+    maxh = max(YBsub);
+    minh = min(YBsub);
+
+    a0 = area; % peak area
+    a1 = fp.b1; % retention time
+    a2 = fp.c1; % width of gaussian
+    a3 = 0.01; % exponential damping term
+    offset = fp.d1;
+    slope = fp.e1;
+
+    a0_l = 0.5*area; % peak area
+    a1_l = a1-a2; % center
+    a2_l = 0.5*a2; % width of gaussian
+    a3_l = 0.0; % exponential damping term
+
+    a0_u = 2*area; % peak area
+    a1_u = a1+a2; % center
+    a2_u = 2*a2; % width of gaussian
+    a3_u = 0.5; % exponential damping term
+    
+    [val, ~] = max(YBsub);
+    ft = fittype('GC_linoffset_asym_Gauss(x, a0, a1, a2, a3, offset, slope)');
+    try
+        fp = fit( XB, YBsub, ft,...
+            'Lower',[a0_l, a1_l, a2_l, a3_l, minh -Inf],...
+            'Upper',[a0_u, a1_u, a2_u, a3_u, maxh +Inf],...
+            'StartPoint',[a0 a1 a2 a3 offset slope]);
+    catch ME
+        disp('Error with Skewed Gauss fit in ');
+        disp(ME);
+        rethrow(ME);
+    end
+end
+
+
 %%
 
 
@@ -580,13 +851,14 @@ end
 function fp = fit_asymGauss1(XB, YBsub, param, start, stop)
     % get initial guesses from Gauss
     fp = fit_Gauss(XB, YBsub, param, start, stop);
-    
+    area = fp.a1*fp.c1*(pi)^.5;
+
     a0 = fp.a1*fp.c1*(pi)^.5; % peak area
     a1 = fp.b1; % retention time
     a2 = fp.c1; % width of gaussian
     a3 = 0.01; % exponential damping term
 
-    a0_l = 0; % peak area
+    a0_l = 0.5*area; % peak area
     a1_l = a1-a2; % center
     a2_l = 0.5*a2; % width of gaussian
     a3_l = 0; % exponential damping term
@@ -594,7 +866,7 @@ function fp = fit_asymGauss1(XB, YBsub, param, start, stop)
     a0_u = 2*a0; % peak area
     a1_u = a1+a2; % center
     a2_u = 2*a2; % width of gaussian
-    a3_u = 1; % exponential damping term
+    a3_u = 0.5; % exponential damping term
 
 
     ft = fittype('GC_asym_Gauss(x, a0, a1, a2, a3)');

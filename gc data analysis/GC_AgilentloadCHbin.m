@@ -88,7 +88,7 @@ function data = read_179(fid)
     CSfileinfo.acq_operator = read_str(fid, 2);
     
     fseek(fid,2391,'bof');
-    CSfileinfo.datestr = read_str(fid, 2);
+    CSfileinfo.date_str = read_str(fid, 2);
 
     fseek(fid,2492,'bof');
     CSfileinfo.instrument_model = read_str(fid, 2);
@@ -135,7 +135,7 @@ function data = read_179(fid)
     y(:,2) = yaxis;
 
     %DD MMM YY HH:MM PM    
-    timecode = to_timecode(CSfileinfo.datestr);
+    timecode = to_timecode(CSfileinfo.date_str);
     data = {timecode; y};
     %CSfileinfo
 end
@@ -155,8 +155,8 @@ function data = read_8(fid)
     CSfileinfo.acq_operator = read_str(fid, 1);
 
     fseek(fid,178,'bof');
-    CSfileinfo.datestr = read_str(fid, 1);
-    timecode = to_timecode(CSfileinfo.datestr);
+    CSfileinfo.date_str = read_str(fid, 1);
+    timecode = to_timecode(CSfileinfo.date_str);
     fseek(fid,208,'bof');
     CSfileinfo.instrument_model = read_str(fid, 1);
     fseek(fid,218,'bof');
@@ -268,8 +268,8 @@ function data = read_81(fid)
     fseek(fid,148,'bof');
     CSfileinfo.acq_operator = read_str(fid, 1);
     fseek(fid,178,'bof');
-    CSfileinfo.datestr = read_str(fid, 1);
-    timecode = to_timecode(CSfileinfo.datestr);
+    CSfileinfo.date_str = read_str(fid, 1);
+    timecode = to_timecode(CSfileinfo.date_str);
     fseek(fid,208,'bof');
     CSfileinfo.instrument_model = read_str(fid, 1);
     fseek(fid,218,'bof');
@@ -357,13 +357,13 @@ function text = read_str(fid, numchars)
 end
 
 
-function timecode = to_timecode(datestr)
-    if contains(datestr,'/')
+function timecode = to_timecode(date_str)
+    if contains(date_str,'/')
         % M/DD/YY h:mm:ss PM"
-        t = datetime(datestr,'InputFormat',"M/dd/yy h:mm:ss a");
+        t = datetime(date_str,'InputFormat','M/dd/yy h:mm:ss a');
     else
         % DD MMM YY HH:MM PM
-        t = datetime(datestr,'InputFormat',"dd MMM yy h:m a");
+        t = datetime(date_str,'InputFormat','dd MMM yy h:m a');
     end
     timecode = posixtime(t);
 end
