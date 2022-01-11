@@ -82,9 +82,18 @@ function hfigure = GC_integrate(hfigure)
                         isfield(hfigure.input.CH(jj).peak(ii),'fit_param') && ~isempty(hfigure.input.CH(jj).peak(ii).fit_param))
                         param.fit_type = hfigure.input.CH(jj).peak(ii).fit_type;
                         param.fit_param = hfigure.input.CH(jj).peak(ii).fit_param;
+                        if (isfield(hfigure.input.CH(jj).peak(ii),'fit_drift'))
+                            param.fit_drift = hfigure.input.CH(jj).peak(ii).fit_drift;
+                        else
+                            param.fit_drift = 0;
+                        end
+
+                    
+                    
                     else
                        param.fit_type = []; 
                        param.fit_param = []; 
+                       param.fit_drift = 0;
                     end
                     if ( isfield(hfigure.input.CH(jj).peak(ii),'fit_low_criterion') && ...
                         ~isempty(hfigure.input.CH(jj).peak(ii).fit_low_criterion) )
@@ -98,6 +107,15 @@ function hfigure = GC_integrate(hfigure)
                     else
                         param.av_width = -1;
                     end
+                    
+                    if ( isfield(hfigure.input.CH(jj).peak(ii),'sel_peak') && ...
+                        ~isempty(hfigure.input.CH(jj).peak(ii).sel_peak) )
+                        param.sel_peak = hfigure.input.CH(jj).peak(ii).sel_peak;
+                    else
+                        param.sel_peak = 1;
+                    end
+                    
+                    
                     % especially useful for Agilent GC
                     % with TCD and FID in series
                     % (Accessory 19232C)

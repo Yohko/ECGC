@@ -6,7 +6,7 @@
 % curvature > 0: relative to actual curvature
 % curvature < 0: absolute curvature
 % subpeak: which peak(area) to subtract from current peak(area)
-% subpeakCH: channel of 'subpeak' peak
+% subpeakCH: channel of "subpeak" peak
 % subpeakf: scaling factor for area subtraction (useful for MS detector)
 % n: charge for FE calculation
 % offset, factor: ppm = measarea*factor + offset (calibration factors)
@@ -35,34 +35,34 @@ numsetting = 1;
 f_MSD = 1;
 f_TCD = 1;
 
-GCset(numsetting).type = 'Agilent'; % to select the correct loader
-GCset(numsetting).name = 'GCMS_216'; % for naming it in loader, different names for different calibration etc
+GCset(numsetting).type = "Agilent"; % to select the correct loader
+GCset(numsetting).name = "GCMS_216"; % for naming it in loader, different names for different calibration etc
 
 
-GCset(numsetting).CH(1).name = 'TIC';
-GCset(numsetting).CH(2).name = 'TCDA';
+GCset(numsetting).CH(1).name = "MSDTIC";
+GCset(numsetting).CH(2).name = "TCDA";
 
-GCset(numsetting).CH(3).name = 'MSD';
+GCset(numsetting).CH(3).name = "MSD";
 GCset(numsetting).CH(3).mz = 26;
 GCset(numsetting).CH(3).mzplus = 0.5;
 GCset(numsetting).CH(3).mzminus = 0.5;
 
-GCset(numsetting).CH(4).name = 'MSD';
+GCset(numsetting).CH(4).name = "MSD";
 GCset(numsetting).CH(4).mz = 32;
 GCset(numsetting).CH(4).mzplus = 0.5;
 GCset(numsetting).CH(4).mzminus = 0.5;
 
-GCset(numsetting).CH(5).name = 'MSD';
+GCset(numsetting).CH(5).name = "MSD";
 GCset(numsetting).CH(5).mz = 14;
 GCset(numsetting).CH(5).mzplus = 0.5;
 GCset(numsetting).CH(5).mzminus = 0.5;
 
-GCset(numsetting).CH(6).name = 'MSD';
+GCset(numsetting).CH(6).name = "MSD";
 GCset(numsetting).CH(6).mz = 28;
 GCset(numsetting).CH(6).mzplus = 0.5;
 GCset(numsetting).CH(6).mzminus = 0.5;
 
-GCset(numsetting).CH(7).name = 'MSD';
+GCset(numsetting).CH(7).name = "MSD";
 GCset(numsetting).CH(7).mz = 15;
 GCset(numsetting).CH(7).mzplus = 0.5;
 GCset(numsetting).CH(7).mzminus = 0.5;
@@ -70,32 +70,32 @@ GCset(numsetting).CH(7).mzminus = 0.5;
 
 
 % 
-% GCset(numsetting).CH(7).name = 'MSD';
+% GCset(numsetting).CH(7).name = "MSD";
 % GCset(numsetting).CH(7).mz = 29;
 % GCset(numsetting).CH(7).mzplus = 0.5;
 % GCset(numsetting).CH(7).mzminus = 0.5;
 % 
-% GCset(numsetting).CH(8).name = 'MSD';
+% GCset(numsetting).CH(8).name = "MSD";
 % GCset(numsetting).CH(8).mz = 31;
 % GCset(numsetting).CH(8).mzplus = 0.5;
 % GCset(numsetting).CH(8).mzminus = 0.5;
 % 
-% GCset(numsetting).CH(9).name = 'MSD';
+% GCset(numsetting).CH(9).name = "MSD";
 % GCset(numsetting).CH(9).mz = 43;
 % GCset(numsetting).CH(9).mzplus = 0.5;
 % GCset(numsetting).CH(9).mzminus = 0.5;
 % 
-% GCset(numsetting).CH(10).name = 'MSD';
+% GCset(numsetting).CH(10).name = "MSD";
 % GCset(numsetting).CH(10).mz = 45;
 % GCset(numsetting).CH(10).mzplus = 0.5;
 % GCset(numsetting).CH(10).mzminus = 0.5;
 % 
-% GCset(numsetting).CH(11).name = 'MSD';
+% GCset(numsetting).CH(11).name = "MSD";
 % GCset(numsetting).CH(11).mz = 57;
 % GCset(numsetting).CH(11).mzplus = 0.5;
 % GCset(numsetting).CH(11).mzminus = 0.5;
 % 
-% GCset(numsetting).CH(12).name = 'MSD';
+% GCset(numsetting).CH(12).name = "MSD";
 % GCset(numsetting).CH(12).mz = 58;
 % GCset(numsetting).CH(12).mzplus = 0.5;
 % GCset(numsetting).CH(12).mzminus = 0.5;
@@ -149,7 +149,7 @@ GCset(numsetting).CH(CHid).peak(ii).start = 1.5;
 GCset(numsetting).CH(CHid).peak(ii).end = 2.15;
 GCset(numsetting).CH(CHid).peak(ii).curvature = 0.02;
 GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;%x0
-GCset(numsetting).CH(CHid).peak(ii).factor = [0.000116785, 7.82E-13];% X1, X2, ...
+GCset(numsetting).CH(CHid).peak(ii).factor = [8.68903E-05, 2.89935E-12];% X1, X2, ...
 GCset(numsetting).CH(CHid).peak(ii).n = 2;
 GCset(numsetting).CH(CHid).peak(ii).subpeak = 2;
 GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 1;
@@ -157,15 +157,16 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     BG_spacing);
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
 
 ii = 2;
 GCset(numsetting).CH(CHid).peak(ii).name = "CH4";
-GCset(numsetting).CH(CHid).peak(ii).start = 1.8;
+GCset(numsetting).CH(CHid).peak(ii).start = 1.77;
 GCset(numsetting).CH(CHid).peak(ii).end = 2.15;
 GCset(numsetting).CH(CHid).peak(ii).curvature = 0.001;
-GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;%-35.74447405;
-GCset(numsetting).CH(CHid).peak(ii).factor = [0.000251717, 5.88E-12];%0.000546589 * f_MSD;%0.000547219*f_MSD;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = [0.000541492, -4.12558E-12];
 GCset(numsetting).CH(CHid).peak(ii).n = 8;
 GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
 GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
@@ -173,6 +174,10 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     (BG_spacing*0.5));
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_gauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [1.84, 0.02]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 4;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
 
 ii = 3;
@@ -180,8 +185,8 @@ GCset(numsetting).CH(CHid).peak(ii).name = "C2H4";
 GCset(numsetting).CH(CHid).peak(ii).start = 3.1;
 GCset(numsetting).CH(CHid).peak(ii).end = 3.8;
 GCset(numsetting).CH(CHid).peak(ii).curvature = 0.000001;
-GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;%-55.14788481;
-GCset(numsetting).CH(CHid).peak(ii).factor = [1.94E-05, 6.61E-13];%0.000101239*f_MSD;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = [6.97588E-05, 2.05412E-13];
 GCset(numsetting).CH(CHid).peak(ii).n = 12;
 GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
 GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
@@ -189,6 +194,10 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     (BG_spacing*0.5));
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_gauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [3.38, 0.02]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 4;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
 
 ii = 4;
@@ -196,8 +205,8 @@ GCset(numsetting).CH(CHid).peak(ii).name = "C2H6";
 GCset(numsetting).CH(CHid).peak(ii).start = 3.9;
 GCset(numsetting).CH(CHid).peak(ii).end = 4.8;
 GCset(numsetting).CH(CHid).peak(ii).curvature = 0.000001;
-GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;%-55.29275737;
-GCset(numsetting).CH(CHid).peak(ii).factor = [6.00E-05, 1.86E-15];%7.86313E-05*f_MSD;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = [4.96805E-05, 1.7704E-13];
 GCset(numsetting).CH(CHid).peak(ii).n = 14;
 GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
 GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
@@ -205,6 +214,10 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     (BG_spacing*0.5));
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_gauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [4.25, 0.02]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 4;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
 
 % TCD #####################################################################
@@ -215,8 +228,8 @@ GCset(numsetting).CH(CHid).peak(ii).name = "H2";
 GCset(numsetting).CH(CHid).peak(ii).start = 0.9;
 GCset(numsetting).CH(CHid).peak(ii).end = 1.9;
 GCset(numsetting).CH(CHid).peak(ii).curvature = 0.005;
-GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;%-9.7426436;
-GCset(numsetting).CH(CHid).peak(ii).factor = [0.000729034, 3.36E-12];%0.000794411*f_TCD;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = [0.000738641, 2.71477E-12];
 GCset(numsetting).CH(CHid).peak(ii).n = 2;
 GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
 GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
@@ -224,6 +237,10 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     BG_spacing);
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_asymgauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [1.4, 0.02];
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 5;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 1;
 
 ii = 2;
@@ -240,20 +257,21 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     BG_spacing);
-GCset(numsetting).CH(CHid).peak(ii).fit_type = 'asymgauss2';
-%GCset(numsetting).CH(CHid).peak(ii).fit_param = [2.19,0.02,2.13,0.02]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_gauss2";
 % O2 is the first one, second is N2
-GCset(numsetting).CH(CHid).peak(ii).fit_param = [2.13,0.02,2.19,0.02]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [2.02,0.02,2.075,0.02]; % we only use the area of the first defined peak
 GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 1;
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = Inf;% always fit the data
 
 
 ii = 3;
 GCset(numsetting).CH(CHid).peak(ii).name = "CO";
 GCset(numsetting).CH(CHid).peak(ii).start = 2.15;
-GCset(numsetting).CH(CHid).peak(ii).end = 3.1;
+GCset(numsetting).CH(CHid).peak(ii).end = 3;
 GCset(numsetting).CH(CHid).peak(ii).curvature = 0.005; % curvature of BG
-GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;%-26.95020087;
-GCset(numsetting).CH(CHid).peak(ii).factor = [0.006125075,5.64E-10];%0.007279171*f_TCD;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = [0.006820484, 1.8027E-10];
 GCset(numsetting).CH(CHid).peak(ii).n = 2; % number of electrons
 GCset(numsetting).CH(CHid).peak(ii).subpeak = 0; % subtract area from that peak
 GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
@@ -261,6 +279,10 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     BG_spacing);
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_gauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [2.45, 0.03]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 4;%
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
 
 ii = 4;
@@ -269,7 +291,7 @@ GCset(numsetting).CH(CHid).peak(ii).start = 3.9;
 GCset(numsetting).CH(CHid).peak(ii).end = 5.5;
 GCset(numsetting).CH(CHid).peak(ii).curvature = 0.005;
 GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
-GCset(numsetting).CH(CHid).peak(ii).factor = [0.002224417, -4.43E-11];%0.00206126*f_TCD;
+GCset(numsetting).CH(CHid).peak(ii).factor = [0.002343073, -6.52891E-11];
 GCset(numsetting).CH(CHid).peak(ii).n = 8;
 GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
 GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
@@ -277,6 +299,10 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     (BG_spacing*0.5));
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_gauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [4.8, 0.05]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 6;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
 
 ii = 5;
@@ -284,8 +310,8 @@ GCset(numsetting).CH(CHid).peak(ii).name = "C2H4";
 GCset(numsetting).CH(CHid).peak(ii).start = 8.8;
 GCset(numsetting).CH(CHid).peak(ii).end = 10.2;
 GCset(numsetting).CH(CHid).peak(ii).curvature = 0.01;
-GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;%-5.405923214;
-GCset(numsetting).CH(CHid).peak(ii).factor = [0.002037336, 2.31E-11];%0.002214248*f_TCD;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = [0.00217538, -2.90736E-12];
 GCset(numsetting).CH(CHid).peak(ii).n = 12;
 GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
 GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
@@ -293,6 +319,10 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     (BG_spacing*0.5));
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_gauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [9.4, 0.05]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 6;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
 
 ii = 6;
@@ -300,8 +330,8 @@ GCset(numsetting).CH(CHid).peak(ii).name = "C2H6";
 GCset(numsetting).CH(CHid).peak(ii).start = 9.9;
 GCset(numsetting).CH(CHid).peak(ii).end = 11.4;
 GCset(numsetting).CH(CHid).peak(ii).curvature = 0.005;
-GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;%-9.134102754;
-GCset(numsetting).CH(CHid).peak(ii).factor = [0.001727624, 1.08E-11];%0.001795775*f_TCD;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = [0.001784983, 2.30396E-12];
 GCset(numsetting).CH(CHid).peak(ii).n = 14;
 GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
 GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
@@ -309,6 +339,10 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     (BG_spacing*0.5));
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_gauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [10.6, 0.1]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 6;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
 
 % MSD mz 26 ###############################################################
@@ -319,8 +353,8 @@ GCset(numsetting).CH(CHid).peak(ii).name = "C2H4(mz=26)";
 GCset(numsetting).CH(CHid).peak(ii).start = 3.1;
 GCset(numsetting).CH(CHid).peak(ii).end = 3.8;
 GCset(numsetting).CH(CHid).peak(ii).curvature = -0.01;
-GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;%-58.69115967;
-GCset(numsetting).CH(CHid).peak(ii).factor = [7.97E-05, 1.09E-11];%0.000420852*f_MSD;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = [0.000280113, 3.50587E-12];
 GCset(numsetting).CH(CHid).peak(ii).n = 12;
 GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
 GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
@@ -328,15 +362,19 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     BG_spacing);
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_gauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [3.38, 0.02]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 8;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 1;
 
 ii = 2;
 GCset(numsetting).CH(CHid).peak(ii).name = "C2H6(mz=26)";
 GCset(numsetting).CH(CHid).peak(ii).start = 3.9;
 GCset(numsetting).CH(CHid).peak(ii).end = 4.8;
-GCset(numsetting).CH(CHid).peak(ii).curvature = -0.01;%-0.002;
-GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;%-50.61196841;
-GCset(numsetting).CH(CHid).peak(ii).factor = [0.000600703, -7.86E-13];%0.000797562*f_MSD;
+GCset(numsetting).CH(CHid).peak(ii).curvature = -0.01;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = [0.00050202, 1.50964E-11];
 GCset(numsetting).CH(CHid).peak(ii).n = 14;
 GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
 GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
@@ -344,6 +382,10 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     BG_spacing);
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_gauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [4.25, 0.02]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 8;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 1;
 
 % MSD mz 32 ###############################################################
@@ -363,6 +405,7 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     BG_spacing);
+GCset(numsetting).CH(CHid).peak(ii).av_width = 1;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
 
 % MSD mz 14 ###############################################################
@@ -371,7 +414,7 @@ BG_spacing = 0.04;
 ii = 1;
 GCset(numsetting).CH(CHid).peak(ii).name = "N2(mz=14)";
 GCset(numsetting).CH(CHid).peak(ii).start = 1.5;
-GCset(numsetting).CH(CHid).peak(ii).end = 1.8;%2.15; CH4 also has 14 which comes above 1.8
+GCset(numsetting).CH(CHid).peak(ii).end = 1.8;%2.15; CH4 also has 14 which is above 1.8
 GCset(numsetting).CH(CHid).peak(ii).curvature = -0.01; % curvature of BG
 GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
 GCset(numsetting).CH(CHid).peak(ii).factor = 0;
@@ -382,6 +425,10 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     BG_spacing);
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_gauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [1.67, 0.1]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = Inf;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
 
 % MSD mz 28 ###############################################################
@@ -392,8 +439,8 @@ GCset(numsetting).CH(CHid).peak(ii).name = "CO(mz=28)";
 GCset(numsetting).CH(CHid).peak(ii).start = 1.5;
 GCset(numsetting).CH(CHid).peak(ii).end = 2.15;
 GCset(numsetting).CH(CHid).peak(ii).curvature = -0.01; % curvature of BG
-GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;%-145.204064;
-GCset(numsetting).CH(CHid).peak(ii).factor = [3.44E-05, 6.38E-12];%0.000288303*f_MSD;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = [-2.34308E-05, 1.06633E-11];
 GCset(numsetting).CH(CHid).peak(ii).n = 2; % number of electrons
 GCset(numsetting).CH(CHid).peak(ii).subpeak = 1; % subtract area from that peak
 GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 5;
@@ -401,6 +448,10 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 9999/1379; % ratio mz=28 to mz=14
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     BG_spacing);
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_asymgauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [1.65, 0.02]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 4;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 1;
 
 
@@ -409,8 +460,8 @@ GCset(numsetting).CH(CHid).peak(ii).name = "C2H4(mz=28)";
 GCset(numsetting).CH(CHid).peak(ii).start = 3.1;
 GCset(numsetting).CH(CHid).peak(ii).end = 3.8;
 GCset(numsetting).CH(CHid).peak(ii).curvature = 0.000001;
-GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;%-55.14788481;
-GCset(numsetting).CH(CHid).peak(ii).factor = [1.63E-05, 4.39E-12];%0.000101239*f_MSD;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = [0.000143623, 1.67872E-12];
 GCset(numsetting).CH(CHid).peak(ii).n = 12;
 GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
 GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
@@ -418,6 +469,10 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     BG_spacing);
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_gauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [3.38, 0.02]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 4;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
 
 ii = 3;
@@ -425,8 +480,8 @@ GCset(numsetting).CH(CHid).peak(ii).name = "C2H6(mz=28)";
 GCset(numsetting).CH(CHid).peak(ii).start = 3.9;
 GCset(numsetting).CH(CHid).peak(ii).end = 4.8;
 GCset(numsetting).CH(CHid).peak(ii).curvature = 0.000001;
-GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;%-55.29275737;
-GCset(numsetting).CH(CHid).peak(ii).factor = [5.19E-05, 2.10E-12];%7.86313E-05*f_MSD;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = [3.49823E-05, 2.69212E-12];
 GCset(numsetting).CH(CHid).peak(ii).n = 14;
 GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
 GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
@@ -434,6 +489,10 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     BG_spacing);
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_gauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [4.25, 0.02]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 4;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
 
 % MSD mz 15 ###############################################################
@@ -443,8 +502,8 @@ GCset(numsetting).CH(CHid).peak(ii).name = "CH4(mz=15)";
 GCset(numsetting).CH(CHid).peak(ii).start = 1.7;
 GCset(numsetting).CH(CHid).peak(ii).end = 2.15;
 GCset(numsetting).CH(CHid).peak(ii).curvature = 0.001;
-GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;%-35.74447405;
-GCset(numsetting).CH(CHid).peak(ii).factor = [0.000518613, 4.50E-11];%0.000546589 * f_MSD;%0.000547219*f_MSD;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = [0.001239275, -1.43968E-11];
 GCset(numsetting).CH(CHid).peak(ii).n = 8;
 GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
 GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
@@ -452,6 +511,10 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
     floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
     (BG_spacing*0.5));
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_asymgauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [1.84, 0.02]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 8;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
 GCset(numsetting).CH(CHid).peak(ii).XLS = 1;
 
 
@@ -566,10 +629,10 @@ GCset(numsetting).CH(CHid).peak(ii).XLS = 1;
 f_TCD = 1;
 f_FID = 1;
 numsetting = 2;
-GCset(numsetting).type = 'Agilent'; % to select the correct loader
-GCset(numsetting).name = 'GCTCDFID_201'; % for naming it in loader, different names for different calibration etc
-GCset(numsetting).CH(1).name = 'TCDA';
-GCset(numsetting).CH(2).name = 'FIDB';
+GCset(numsetting).type = "Agilent"; % to select the correct loader
+GCset(numsetting).name = "GCTCDFID_201"; % for naming it in loader, different names for different calibration etc
+GCset(numsetting).CH(1).name = "TCDA";
+GCset(numsetting).CH(2).name = "FIDB";
 
 GCset(numsetting).CH(1).RT_shift = 1;
 GCset(numsetting).CH(1).RT_offset = 0;
@@ -730,4 +793,235 @@ GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
 GCset(numsetting).CH(CHid).peak(ii).BGpoints = 60;
 GCset(numsetting).CH(CHid).peak(ii).filter = 4;
 
+%% Agilent GC TCD FID G116 2021/02
+f_TCD = 1;
+f_FID = 1;
+numsetting = 3;
+GCset(numsetting).type = "Agilent"; % to select the correct loader
+GCset(numsetting).name = "GC7890TCDFID_G116"; % for naming it in loader, different names for different calibration etc
+GCset(numsetting).CH(1).name = "FIDA";
+GCset(numsetting).CH(2).name = "TCDB";
 
+GCset(numsetting).CH(1).RT_shift = 1;
+GCset(numsetting).CH(1).RT_offset = 0;
+GCset(numsetting).CH(1).RT_edge_start = 2.6;
+GCset(numsetting).CH(1).RT_edge_center = 3.3;
+GCset(numsetting).CH(1).RT_cutoff = 1e12;
+
+GCset(numsetting).CH(2).RT_shift = 0;
+GCset(numsetting).CH(2).RT_offset = 0;
+GCset(numsetting).CH(2).RT_edge_start = 0;
+GCset(numsetting).CH(2).RT_edge_center = 0;
+GCset(numsetting).CH(2).RT_cutoff = 1e12;
+
+GCset(numsetting).idH2.peak = 1;
+GCset(numsetting).idH2.CH = 1;
+
+GCset(numsetting).idO2.peak = 2;
+GCset(numsetting).idO2.CH = 1;
+
+GCset(numsetting).idCO.peak = 3;
+GCset(numsetting).idCO.CH = 1;
+
+GCset(numsetting).idCH4.peak = 1;
+GCset(numsetting).idCH4.CH = 2;
+
+GCset(numsetting).idC2H4.peak = 2;
+GCset(numsetting).idC2H4.CH = 2;
+
+GCset(numsetting).idC2H6.peak = 3;
+GCset(numsetting).idC2H6.CH = 2;
+
+GCset(numsetting).idCO2nd.peak = 3;
+GCset(numsetting).idCO2nd.CH = 1;
+GCset(numsetting).idCH42nd.peak = 4;
+GCset(numsetting).idCH42nd.CH = 1;
+
+
+
+% FID #####################################################################
+CHid = 1;
+ii = 1;
+GCset(numsetting).CH(CHid).peak(ii).name = "CH4";
+GCset(numsetting).CH(CHid).peak(ii).start = 2.8;
+GCset(numsetting).CH(CHid).peak(ii).end = 3.7;
+GCset(numsetting).CH(CHid).peak(ii).curvature = 0.0002;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = 1.47053E-05*f_FID;
+GCset(numsetting).CH(CHid).peak(ii).n = 8;
+GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
+GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
+    floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
+    (BG_spacing*0.5));
+
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_asymgauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [3.06, 0.01]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 8;
+GCset(numsetting).CH(CHid).peak(ii).fit_drift = 0.1;
+
+
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
+GCset(numsetting).CH(CHid).peak(ii).XLS = 1;
+
+ii = 2;
+GCset(numsetting).CH(CHid).peak(ii).name = "C2H4";
+GCset(numsetting).CH(CHid).peak(ii).start = 3.5;
+GCset(numsetting).CH(CHid).peak(ii).end = 4.25;
+GCset(numsetting).CH(CHid).peak(ii).curvature = 0.001;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = 7.94748E-06*f_FID;
+GCset(numsetting).CH(CHid).peak(ii).n = 12;
+GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
+GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
+    floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
+    (BG_spacing*0.5));
+
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_asymgauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [3.92, 0.046]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 8;
+GCset(numsetting).CH(CHid).peak(ii).fit_drift = 0.1;
+
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
+GCset(numsetting).CH(CHid).peak(ii).XLS = 1;
+
+ii = 3;
+GCset(numsetting).CH(CHid).peak(ii).name = "C2H6";
+GCset(numsetting).CH(CHid).peak(ii).start = 4.15;
+GCset(numsetting).CH(CHid).peak(ii).end = 5.0;
+GCset(numsetting).CH(CHid).peak(ii).curvature = 0.0005;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = 8.3804E-06*f_FID;
+GCset(numsetting).CH(CHid).peak(ii).n = 14;
+GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
+GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
+    floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
+    (BG_spacing*0.5));
+
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_asymgauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [4.32, 0.04]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = 8;
+GCset(numsetting).CH(CHid).peak(ii).fit_drift = 0.1;
+
+
+
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
+GCset(numsetting).CH(CHid).peak(ii).XLS = 1;
+
+% TCD #####################################################################
+
+TCD_shift = 0.1;
+CHid = 2;
+ii = 1;
+GCset(numsetting).CH(CHid).peak(ii).name = "H2";
+GCset(numsetting).CH(CHid).peak(ii).start = 2.85+TCD_shift;
+GCset(numsetting).CH(CHid).peak(ii).end = 3.25+TCD_shift;
+GCset(numsetting).CH(CHid).peak(ii).curvature = 0.02;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = 0.000443424*f_TCD;
+GCset(numsetting).CH(CHid).peak(ii).n = 2;
+GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
+GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
+    floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
+    (BG_spacing*0.5));
+GCset(numsetting).CH(CHid).peak(ii).fit_type = ["linoffset_coupled_asymgauss2", "linoffset_coupled_gauss2"];
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = [Inf, 6];% always fit the data
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [3.05+TCD_shift, 0.037, 0.14, 0.02];  % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_drift = 0.2;
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
+GCset(numsetting).CH(CHid).peak(ii).XLS = 1;
+
+ii = 2;
+GCset(numsetting).CH(CHid).peak(ii).name = "O2";
+GCset(numsetting).CH(CHid).peak(ii).start = GCset(numsetting).CH(CHid).peak(ii-1).start;
+GCset(numsetting).CH(CHid).peak(ii).end = GCset(numsetting).CH(CHid).peak(ii-1).end;
+GCset(numsetting).CH(CHid).peak(ii).curvature = GCset(numsetting).CH(CHid).peak(ii-1).curvature;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = 0.0*f_TCD;
+GCset(numsetting).CH(CHid).peak(ii).n = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
+GCset(numsetting).CH(CHid).peak(ii).BGpoints = GCset(numsetting).CH(CHid).peak(ii-1).BGpoints;
+GCset(numsetting).CH(CHid).peak(ii).sel_peak = 2;
+set(numsetting).CH(CHid).peak(ii).fit_type = GCset(numsetting).CH(CHid).peak(ii-1).fit_type;
+GCset(numsetting).CH(CHid).peak(ii).fit_param = GCset(numsetting).CH(CHid).peak(ii-1).fit_param;
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = GCset(numsetting).CH(CHid).peak(ii-1).fit_low_criterion;% always fit the data
+GCset(numsetting).CH(CHid).peak(ii).fit_drift = GCset(numsetting).CH(CHid).peak(ii-1).fit_drift;
+GCset(numsetting).CH(CHid).peak(ii).av_width = GCset(numsetting).CH(CHid).peak(ii-1).av_width;
+GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
+
+ii = 3;
+GCset(numsetting).CH(CHid).peak(ii).name = "N2";
+GCset(numsetting).CH(CHid).peak(ii).start = 3.2+TCD_shift;
+GCset(numsetting).CH(CHid).peak(ii).end = 3.4+TCD_shift;
+GCset(numsetting).CH(CHid).peak(ii).curvature = 0.005; % curvature of BG
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = 0.004344561*f_TCD;
+GCset(numsetting).CH(CHid).peak(ii).n = 2; % number of electrons
+GCset(numsetting).CH(CHid).peak(ii).subpeak = 0; % subtract area from that peak
+GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
+GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
+    floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
+    (BG_spacing*0.5));
+
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_gauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [3.28+TCD_shift, 0.02]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = Inf;
+GCset(numsetting).CH(CHid).peak(ii).fit_drift = 0.1;
+
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
+GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
+
+ii = 4;
+GCset(numsetting).CH(CHid).peak(ii).name = "CH4";
+GCset(numsetting).CH(CHid).peak(ii).start = 3.3+TCD_shift;
+GCset(numsetting).CH(CHid).peak(ii).end = 3.70+TCD_shift; % second parameter defines end by substracting it from edge position of timing peak
+GCset(numsetting).CH(CHid).peak(ii).curvature = 0.005;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = 0.001242906*f_TCD;
+GCset(numsetting).CH(CHid).peak(ii).n = 8;
+GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
+GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
+    floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
+    (BG_spacing*0.5));
+GCset(numsetting).CH(CHid).peak(ii).fit_type = "linoffset_asymgauss1";
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [3.55+TCD_shift, 0.02]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = Inf;
+GCset(numsetting).CH(CHid).peak(ii).fit_drift = 0.15;
+Cset(numsetting).CH(CHid).peak(ii).av_width = 2;
+GCset(numsetting).CH(CHid).peak(ii).XLS = 0;
+
+
+ii = 5;
+GCset(numsetting).CH(CHid).peak(ii).name = "CO";
+GCset(numsetting).CH(CHid).peak(ii).start = 3.7+TCD_shift;
+GCset(numsetting).CH(CHid).peak(ii).end = 4.5+TCD_shift;
+GCset(numsetting).CH(CHid).peak(ii).curvature = 0.005;
+GCset(numsetting).CH(CHid).peak(ii).offset = 0.0;
+GCset(numsetting).CH(CHid).peak(ii).factor = 0.001411646*f_TCD;
+GCset(numsetting).CH(CHid).peak(ii).n = 2;
+GCset(numsetting).CH(CHid).peak(ii).subpeak = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeakCH = 0;
+GCset(numsetting).CH(CHid).peak(ii).subpeakf = 1;
+GCset(numsetting).CH(CHid).peak(ii).BGpoints = ...
+    floor((GCset(numsetting).CH(CHid).peak(ii).end-GCset(numsetting).CH(CHid).peak(ii).start)/...
+    (BG_spacing*0.5));
+
+GCset(numsetting).CH(CHid).peak(ii).fit_type = ["linoffset_asymgauss1", "linoffset_gauss1"];
+GCset(numsetting).CH(CHid).peak(ii).fit_param = [3.85+TCD_shift, 0.025]; % we only use the area of the first defined peak
+GCset(numsetting).CH(CHid).peak(ii).fit_low_criterion = [Inf, 6];% always fit the data 
+GCset(numsetting).CH(CHid).peak(ii).fit_drift = 0.1;
+
+GCset(numsetting).CH(CHid).peak(ii).av_width = 2;
+GCset(numsetting).CH(CHid).peak(ii).XLS = 1;

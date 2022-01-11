@@ -361,6 +361,11 @@ function timecode = to_timecode(date_str)
     if contains(date_str,'/')
         % M/DD/YY h:mm:ss PM"
         t = datetime(date_str,'InputFormat','M/dd/yy h:mm:ss a');
+    elseif contains(date_str,'-')
+        % M/DD/YY h:mm:ss PM"
+        % 29-Nov-21, 11:18:02
+        t = datetime(date_str,'InputFormat','dd-MMM-yy, HH:mm:ss');
+
     else
         % DD MMM YY HH:MM PM
         t = datetime(date_str,'InputFormat','dd MMM yy h:m a');

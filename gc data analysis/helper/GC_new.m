@@ -111,24 +111,28 @@ function data = GC_new(hfigure, expname)
             end
         end
         if(CH2i ~= CH1i)
-            disp('#CH1 != #CH2');
-            data = '';
-            figure(hfigure.figure);
-            UIprog.Value = 1;
-            close(UIprog);
-            return;
+            if ~((CH1i == 1 && CH2i > 1) || (CH1i == 1 && CH2i > 1))
+                disp('#CH1 != #CH2');
+                data = '';
+                figure(hfigure.figure);
+                UIprog.Value = 1;
+                close(UIprog);
+                return;
+            end
         else
-            % check if spectra numbers are correct 
-            % (each CH2 file should have a corresponding CH1 file)
-            for i=1:CH2i-1
-                if(find(CH2nums(i) == CH1nums))
-                else
-                    disp('CH1# != CH2#');
-                    data = '';
-                    figure(hfigure.figure);
-                    UIprog.Value = 1;
-                    close(UIprog);
-                    return;
+            if ~((CH1i == 1 && CH2i > 1) || (CH1i == 1 && CH2i > 1))
+                % check if spectra numbers are correct 
+                % (each CH2 file should have a corresponding CH1 file)
+                for i=1:CH2i-1
+                    if(find(CH2nums(i) == CH1nums))
+                    else
+                        disp('CH1# != CH2#');
+                        data = '';
+                        figure(hfigure.figure);
+                        UIprog.Value = 1;
+                        close(UIprog);
+                        return;
+                    end
                 end
             end
         end
