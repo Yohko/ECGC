@@ -3,25 +3,26 @@ function data = GC_AgilentloadTICASCII(fid)
     if(fid ~= -1)
         h = fgets(fid);
         timecodes = textscan(h,'%s');
-        if isfinite(str2double(timecodes{1}{6}))
+        toffset = length(timecodes{1})-6;
+        if isfinite(str2double(timecodes{1}{6+toffset}))
             % filename Wed Sep DD HH:MM:SS YYYY
-            day = str2double(timecodes{1}{4});
-            year = str2double(timecodes{1}{6});
-            tmpstr = timecodes{1}{5};
+            day = str2double(timecodes{1}{4+toffset});
+            year = str2double(timecodes{1}{6+toffset});
+            tmpstr = timecodes{1}{5+toffset};
             hr = str2double(tmpstr(1:2));
             minute = str2double(tmpstr(4:5));
             seconds = str2double(tmpstr(7:8));
             month = 0;
         else
             % filename DD Sep YY  HH:MM pm    
-            day = str2double(timecodes{1}{2});
-            year = 2000+str2double(timecodes{1}{4});
-            tmpstr = timecodes{1}{5};
+            day = str2double(timecodes{1}{2+toffset});
+            year = 2000+str2double(timecodes{1}{4+toffset});
+            tmpstr = timecodes{1}{5+toffset};
             hr = str2double(tmpstr(1:2));
             minute = str2double(tmpstr(4:5));
             seconds = 0;
             month = 0;
-            switch timecodes{1}{6}
+            switch timecodes{1}{6+toffset}
                 case 'pm'
                     if(hr == 12)
                         %nothing
@@ -35,7 +36,7 @@ function data = GC_AgilentloadTICASCII(fid)
             end
         end
 
-        switch timecodes{1}{3}
+        switch timecodes{1}{3+toffset}
             case 'Jan'
                 month = 1;
             case 'Feb'
@@ -62,7 +63,7 @@ function data = GC_AgilentloadTICASCII(fid)
                 month = 12;
             otherwise
                 disp('Unknown Month');
-                disp(timecodes{1}{3});
+                disp(timecodes{1}{3+toffset});
         end
         timecode = posixtime(datetime(year,month,day,hr,minute,seconds));
         fgets(fid); % 'Start of data points'
