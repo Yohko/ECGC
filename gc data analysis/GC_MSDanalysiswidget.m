@@ -57,6 +57,22 @@ uibutton(hfigure.figure,...
           'fontsize',12,...
           'ButtonPushedFcn',{@callback_export_EIC},...
           'Text','export EIC');
+offset = offset + 105;
+
+uilabel(hfigure.figure,...
+          'position',[offset 5 60 20],...
+          'fontsize',12,...
+          'Text','Disp. Int.:',...
+          'HorizontalAlignment', 'left');
+offset = offset+65;
+
+hfigure.dropdown_EIC = uidropdown(hfigure.figure,...
+          'position',[offset 5 100 20],...
+          'fontsize',12,...
+          'Items',{'normal','sqrt','log'},...
+          'Value','normal', ...
+          'ValueChangedFcn',{@callback_dropdown_EIC});
+
 
 offset = 1*hfigure.w_fig/3+5;
 uilabel(hfigure.figure,...
@@ -78,6 +94,23 @@ uibutton(hfigure.figure,...
           'fontsize',12,...
           'ButtonPushedFcn',{@callback_export_MZ},...
           'Text','export m/z');
+offset = offset + 105;
+
+uilabel(hfigure.figure,...
+          'position',[offset 5 60 20],...
+          'fontsize',12,...
+          'Text','Disp. Int.:',...
+          'HorizontalAlignment', 'left');
+offset = offset+65;
+
+hfigure.dropdown_MZ = uidropdown(hfigure.figure,...
+          'position',[offset 5 100 20],...
+          'fontsize',12,...
+          'Items',{'normal','sqrt','log'},...
+          'Value','normal', ...
+          'ValueChangedFcn',{@callback_dropdown_MZ});
+
+
 
 offset = 2*hfigure.w_fig/3+5;
 uibutton(hfigure.figure,...
@@ -85,6 +118,21 @@ uibutton(hfigure.figure,...
           'fontsize',12,...
           'ButtonPushedFcn',{@callback_load_data},...
           'Text','load MSD');
+offset = offset + 105;
+
+uilabel(hfigure.figure,...
+          'position',[offset 5 60 20],...
+          'fontsize',12,...
+          'Text','Disp. Int.:',...
+          'HorizontalAlignment', 'left');
+offset = offset+65;
+
+hfigure.dropdown_MSD = uidropdown(hfigure.figure,...
+          'position',[offset 5 100 20],...
+          'fontsize',12,...
+          'Items',{'normal','sqrt','log'},...
+          'Value','normal', ...
+          'ValueChangedFcn',{@callback_dropdown_MSD});
 
 % uibutton(hfigure.figure,...
 %           'position',[offset 5 100 20],...
@@ -99,36 +147,76 @@ hfigure.file_name = uilabel(hfigure.figure,...
           'Text','',...
           'HorizontalAlignment', 'center');
 
+
+% hfigure.checkbox_plotpeaks = uicheckbox(hfigure.figure,...
+%           'position',[xoffset+10 yoffset+10+tmpheight+70-15-ii*25 120 20],...
+%           'fontsize',12,...
+%           'Text','Plot peaks');
+
 guidata(hfigure.figure, hfigure);
 
 
 function callback_edit_mz(varargin)
 hfigure = guidata(varargin{1});
+plot_EIC(hfigure);
+
+
+function callback_edit_time(varargin)
+hfigure = guidata(varargin{1});
+plot_MZ(hfigure);
+
+
+function callback_dropdown_MSD(varargin)
+hfigure = guidata(varargin{1});
+plot_MSD(hfigure);
+
+
+function callback_dropdown_EIC(varargin)
+hfigure = guidata(varargin{1});
+plot_EIC(hfigure);
+
+
+function callback_dropdown_MZ(varargin)
+hfigure = guidata(varargin{1});
+plot_MZ(hfigure);
+
+
+function hfigure = plot_EIC(hfigure)
 mzedit = get(hfigure.edit_mz,'Value');
 try 
     idx = find(hfigure.yvec == mzedit);
 catch
-    uialert(hfigure.figure,'m/z not available','error');
+%    uialert(hfigure.figure,'m/z not available','error');
     idx = 1;
 end
 if(isempty(idx))
-    uialert(hfigure.figure,'m/z not available','error');
+%    uialert(hfigure.figure,'m/z not available','error');
     idx = 1;
 end
 set(hfigure.edit_mz, 'Value',hfigure.yvec(idx));
 mzedit = get(hfigure.edit_mz,'Value');
 hfigure.EICx = hfigure.xvec;
 hfigure.EICy = hfigure.MSDinterp(idx,:);
-format_ax1(hfigure,sprintf('m/z = %d',mzedit))
+switch hfigure.dropdown_EIC.Value
+    case "sqrt"
+        plot(hfigure.ax1,hfigure.EICx,sqrt(hfigure.EICy),'linewidth', hfigure.f_line);
+        ylabel(hfigure.ax1,'sqrt(counts)', 'fontsize',hfigure.f_caption);
+    case "log"
+        plot(hfigure.ax1,hfigure.EICx,log(hfigure.EICy),'linewidth', hfigure.f_line);
+        ylabel(hfigure.ax1,'log(counts)', 'fontsize',hfigure.f_caption);
+    otherwise
+        plot(hfigure.ax1,hfigure.EICx,hfigure.EICy,'linewidth', hfigure.f_line);
+        ylabel(hfigure.ax1,'counts', 'fontsize',hfigure.f_caption);
+end
+xlabel(hfigure.ax1,'retention time [min]', 'fontsize',hfigure.f_caption);
+set(hfigure.ax1, 'linewidth', hfigure.f_line);
+set(hfigure.ax1, 'fontsize', hfigure.f_caption);
+box(hfigure.ax1,'on');
+title(hfigure.ax1,sprintf('m/z = %d',mzedit), 'fontsize',hfigure.f_caption);
 guidata(hfigure.figure, hfigure);
 
 
-function callback_edit_time(varargin)
-hfigure = guidata(varargin{1});
-plot_mz_time(hfigure);
-
-
-function hfigure = plot_mz_time(hfigure)
+function hfigure = plot_MZ(hfigure)
 time = get(hfigure.edit_time,'Value');
 try 
     idx = find(hfigure.xvec >= time);
@@ -146,29 +234,44 @@ set(hfigure.edit_time, 'Value',hfigure.xvec(idx));
 time = get(hfigure.edit_time,'Value');
 hfigure.MZx = hfigure.yvec;
 hfigure.MZy = hfigure.MSDinterp(:,idx);
-format_ax2(hfigure, sprintf('time = %.3f',time))
-guidata(hfigure.figure, hfigure);
-
-
-function format_ax1(hfigure, strtitle)
-plot(hfigure.ax1,hfigure.EICx,hfigure.EICy,'linewidth', hfigure.f_line);
-ylabel(hfigure.ax1,'counts', 'fontsize',hfigure.f_caption);
-xlabel(hfigure.ax1,'retention time [min]', 'fontsize',hfigure.f_caption);
-set(hfigure.ax1, 'linewidth', hfigure.f_line);
-set(hfigure.ax1, 'fontsize', hfigure.f_caption);
-box(hfigure.ax1,'on');
-title(hfigure.ax1,strtitle, 'fontsize',hfigure.f_caption);
-
-
-function format_ax2(hfigure, strtitle)
-bar(hfigure.ax2,hfigure.MZx,sqrt(hfigure.MZy));
-ylabel(hfigure.ax2,'sqrt(counts)', 'fontsize',hfigure.f_caption);
+switch hfigure.dropdown_MZ.Value
+    case "sqrt"
+        bar(hfigure.ax2,hfigure.MZx,sqrt(hfigure.MZy));
+        ylabel(hfigure.ax2,'sqrt(counts)', 'fontsize',hfigure.f_caption);
+    case "log"
+        bar(hfigure.ax2,hfigure.MZx,log(hfigure.MZy));
+        ylabel(hfigure.ax2,'log(counts)', 'fontsize',hfigure.f_caption);
+    otherwise
+        bar(hfigure.ax2,hfigure.MZx,hfigure.MZy);
+        ylabel(hfigure.ax2,'counts', 'fontsize',hfigure.f_caption);
+end
 xlabel(hfigure.ax2,'mass-to-charge [m/z]', 'fontsize',hfigure.f_caption);
 set(hfigure.ax2, 'linewidth', hfigure.f_line);
 set(hfigure.ax2, 'fontsize', hfigure.f_caption);
 box(hfigure.ax2,'on');
 %xlim(hfigure.ax2,[10, 30]);
-title(hfigure.ax2,strtitle, 'fontsize',hfigure.f_caption);
+title(hfigure.ax2,sprintf('time = %.3f',time), 'fontsize',hfigure.f_caption);
+guidata(hfigure.figure, hfigure);
+
+
+function hfigure = plot_MSD(hfigure)
+switch hfigure.dropdown_MSD.Value
+    case "sqrt"
+        imagesc(hfigure.ax3,hfigure.xvec,hfigure.yvec,sqrt(hfigure.MSDinterp));
+    case "log"
+        imagesc(hfigure.ax3,hfigure.xvec,hfigure.yvec,log(hfigure.MSDinterp));
+    otherwise
+        imagesc(hfigure.ax3,hfigure.xvec,hfigure.yvec,hfigure.MSDinterp);
+end
+ylabel(hfigure.ax3,'mass-to-charge [m/z]', 'fontsize',hfigure.f_caption);
+xlabel(hfigure.ax3,'retention time [min]', 'fontsize',hfigure.f_caption);
+set(hfigure.ax3, 'linewidth', hfigure.f_line);
+set(hfigure.ax3, 'fontsize', hfigure.f_caption);
+title(hfigure.ax3,'MSD', 'fontsize',hfigure.f_caption);
+xlim(hfigure.ax3,[min(hfigure.dataMSD(:,1)) max(hfigure.dataMSD(:,1))]);
+ylim(hfigure.ax3,[min(hfigure.dataMSD(:,2)) max(hfigure.dataMSD(:,2))]);
+box(hfigure.ax3,'on');
+guidata(hfigure.figure, hfigure);
 
 
 function [file, path] = select_output_file(name)
@@ -212,10 +315,10 @@ function callback_load_data(varargin)
 hfigure = guidata(varargin{1});
 data = GC_dloadAgilent;
 if(~isempty(data))
-    hfigure.dataTIC = data(1).spectrum;
-    hfigure.dataTCD = data(2).spectrum;
-    hfigure.dataMSD = data(3).spectrum;
-    hfigure.dataMSDTIC = data(4).spectrum;
+    hfigure.dataTIC = data(get_spectrumidx(data, 'TIC1')).spectrum;
+    %hfigure.dataTCD = data(2).spectrum;
+    hfigure.dataMSD = data(get_spectrumidx(data, 'MSD1')).spectrum;
+    hfigure.dataMSDTIC = data(get_spectrumidx(data, 'MSDTIC1')).spectrum;
     % create matrix from 'point cloud'
     idx = find(~isnan(hfigure.dataMSD(:,3)) & ~isinf(hfigure.dataMSD(:,3)));
     hfigure.F = scatteredInterpolant(hfigure.dataMSD(idx,1), hfigure.dataMSD(idx,2),hfigure.dataMSD(idx,3));
@@ -232,26 +335,25 @@ if(~isempty(data))
     idx = find(hfigure.MSDinterp < 0);
     hfigure.MSDinterp(idx) = 0;
 
-
     % plot EIC
-    hfigure.EICx = hfigure.dataMSDTIC(:,1);
-    hfigure.EICy = hfigure.dataMSDTIC(:,2);
-    format_ax1(hfigure, 'TIC');
+    hfigure = plot_EIC(hfigure);
 
     % plot mz
-    hfigure = plot_mz_time(hfigure);
+    hfigure = plot_MZ(hfigure);
 
     % plot MSD
-    imagesc(hfigure.ax3,hfigure.xvec,hfigure.yvec,sqrt(hfigure.MSDinterp));
-    ylabel(hfigure.ax3,'mass-to-charge [m/z]', 'fontsize',hfigure.f_caption);
-    xlabel(hfigure.ax3,'retention time [min]', 'fontsize',hfigure.f_caption);
-    set(hfigure.ax3, 'linewidth', hfigure.f_line);
-    set(hfigure.ax3, 'fontsize', hfigure.f_caption);
-    title(hfigure.ax3,'MSD', 'fontsize',hfigure.f_caption);
-    xlim(hfigure.ax3,[min(hfigure.dataMSD(:,1)) max(hfigure.dataMSD(:,1))]);
-    ylim(hfigure.ax3,[min(hfigure.dataMSD(:,2)) max(hfigure.dataMSD(:,2))]);
-    box(hfigure.ax3,'on');
+    hfigure = plot_MSD(hfigure);
 
-    set(hfigure.file_name,'Text',sprintf('data name: %s',data(3).name));
+    set(hfigure.file_name,'Text',sprintf('data name: %s',data(get_spectrumidx(data, 'MSD1')).name));
 end
 guidata(hfigure.figure, hfigure);
+
+
+function idx = get_spectrumidx(data, str)
+idx = -1;
+for ii=1:length(data)
+    if contains(data(ii).name,str)
+        idx = ii;
+        return
+    end
+end
